@@ -1,0 +1,48 @@
+---
+- name: Set default value for update_needed
+  set_fact:
+    update_needed: false
+
+- name: Check if btrfs-progs is installed
+  ansible.builtin.command:
+    cmd: btrfs --version
+  register: installed_version
+  changed_when: false
+  ignore_errors: true
+
+- name: Set update_needed to true if btrfs is not installed
+  set_fact:
+    update_needed: true
+  when: installed_version.rc != 0
+
+- name: Get latest release information from GitHub for btrfs-progs
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/kdave/btrfs-progs/releases/latest"
+    return_content: yes
+  register: btrfs_github_release_page
+  check_mode: false
+
+- name: Set latest btrfs-progs version fact
+  ansible.builtin.set_fact:
+    btrfs_latest_version: "{{ btrfs_github_release_page.json.tag_name[1:] }}"
+
+- name: Extract version number from installed version
+  ansible.builtin.set_fact:
+    installed_version_number: "{{ installed_version.stdout.split()[-1][1:] }}"
+
+- name: Compare installed version with the latest version
+  ansible.builtin.set_fact:
+    update_needed: "{{ btrfs_latest_version != installed_version_number }}"
+
+- name: debug installed_version_number
+  debug:
+    var: installed_version_number
+
+- name: debug btrfs_latest_version
+  debug:
+    var: btrfs_latest_version
+
+- name: Include btrfs install
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when: update_needed

@@ -1,0 +1,5 @@
+inventories/inventory.yml
+maintain_aah-fs01.yml
+*.DS_Store*
+test.yml
+.vscode/*

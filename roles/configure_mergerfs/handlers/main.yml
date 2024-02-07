@@ -1,0 +1,23 @@
+---
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: Restart mergerfs media cache
+  service:
+    name: mergerfs-media-cache
+    state: restarted
+
+- name: Enable mergerfs media cache
+  service:
+    name: mergerfs-media-cache
+    enabled: yes
+
+- name: Restart mergerfs media cold
+  service:
+    name: mergerfs-media-cold
+    state: restarted
+
+- name: Enable mergerfs media cold
+  service:
+    name: mergerfs-media-cold
+    enabled: yes

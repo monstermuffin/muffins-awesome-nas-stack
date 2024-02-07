@@ -1,0 +1,64 @@
+---
+- name: Clone the btrfs-progs repository
+  ansible.builtin.git:
+    repo: 'git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git'
+    dest: /tmp/btrfs-progs
+    depth: 1
+  when: update_needed
+
+- name: Install required packages for building btrfs-progs
+  ansible.builtin.package:
+    name:
+      - git
+      - asciidoc
+      - xmlto
+      - uuid-dev
+      - libattr1-dev
+      - zlib1g-dev
+      - libacl1-dev
+      - e2fslibs-dev
+      - libblkid-dev
+      - liblzo2-dev
+      - autoconf
+      - automake
+      - pkg-config
+      - python3-sphinx
+      - libzstd-dev
+      - libudev-dev
+    state: present
+  when: update_needed
+
+- name: Remove older version of btrfs-tools
+  ansible.builtin.package:
+    name: btrfs-tools
+    state: absent
+  when: update_needed
+
+- name: Run autogen.sh for btrfs-progs
+  ansible.builtin.shell:
+    cmd: ./autogen.sh
+    chdir: /tmp/btrfs-progs
+  when: update_needed
+
+- name: Configure btrfs-progs for building
+  ansible.builtin.shell:
+    cmd: ./configure
+    chdir: /tmp/btrfs-progs
+  when: update_needed
+
+- name: Compile btrfs-progs
+  ansible.builtin.shell:
+    cmd: make
+    chdir: /tmp/btrfs-progs
+  when: update_needed
+
+- name: Install btrfs-progs
+  ansible.builtin.shell:
+    cmd: sudo make install
+    chdir: /tmp/btrfs-progs
+  when: update_needed
+
+- name: Cleanup cloned repository
+  ansible.builtin.file:
+    path: /tmp/btrfs-progs
+    state: absent

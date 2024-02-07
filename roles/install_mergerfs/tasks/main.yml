@@ -1,0 +1,58 @@
+---
+- name: Find latest release of mergerfs
+  community.general.github_release:
+    user: trapexit
+    repo: mergerfs
+    action: latest_release
+  register: mergerfs_latest_release
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: Set latest mergerfs version fact
+  ansible.builtin.set_fact:
+    mergerfs_version: "{{ mergerfs_latest_release.tag }}"
+
+- name: Check installed mergerfs version
+  ansible.builtin.command:
+    cmd: mergerfs --version
+  register: installed_mergerfs_version
+  ignore_errors: true
+  changed_when: false
+  check_mode: no
+
+- name: Extract installed mergerfs version number
+  ansible.builtin.set_fact:
+    installed_version: "{{ installed_mergerfs_version.stdout.split()[1] }}"
+  when: installed_mergerfs_version.rc == 0
+
+- name: Debug latest mergerfs version from GitHub
+  ansible.builtin.debug:
+    var: mergerfs_version
+
+- name: Debug installed mergerfs version
+  ansible.builtin.debug:
+    var: installed_version
+  when: installed_mergerfs_version.rc == 0
+
+- name: Determine package download url
+  ansible.builtin.set_fact:
+    mergerfs_package_url: "https://github.com/trapexit/mergerfs/releases/download/{{ mergerfs_version }}/\
+      {{ mergerfs_pkg_prefix }}{{ mergerfs_version }}{{ mergerfs_pkg_suffix }}"
+
+- name: Install/update mergerfs
+  become: true
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - (installed_version is not defined or 'v' + installed_version != mergerfs_version)
+  block:
+    - name: Install xz-utils package for .deb package installation
+      ansible.builtin.apt:
+        name: xz-utils
+        state: present
+        update_cache: true
+
+    - name: Install mergerfs package with apt
+      ansible.builtin.apt:
+        deb: "{{ mergerfs_package_url }}"
+        state: present

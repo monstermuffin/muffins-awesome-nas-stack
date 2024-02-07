@@ -1,0 +1,25 @@
+# snapraid-btrfs-runner configuration
+# Managed by Ansible
+
+[snapraid-btrfs]
+executable = {{ snapraid_btrfs_executable }}
+pool = {{ snapraid_btrfs_pool | lower }}
+cleanup = {{ snapraid_btrfs_cleanup | lower }}
+
+[snapper]
+executable = {{ snapper_executable }}
+
+[snapraid]
+executable = {{ snapraid_executable }}
+config = {{ snapraid_config }}
+deletethreshold = {{ snapraid_deletethreshold }}
+touch = {{ snapraid_touch | lower }}
+
+[logging]
+file = {{ logging_file }}
+maxsize = {{ logging_maxsize }}
+
+[scrub]
+enabled = {{ scrub_enabled | lower }}
+plan = {{ scrub_plan }}
+older-than = {{ scrub_older_than }}

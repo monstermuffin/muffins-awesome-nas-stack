@@ -1,0 +1,20 @@
+[Unit]
+Description=mergerfs cold media mount
+
+[Service]
+Type=simple
+KillMode=mixed
+ExecStart=/usr/bin/mergerfs \
+  -f \
+  -o cache.files=partial \
+  -o dropcacheonclose=true \
+  -o category.create=epmfs \
+  -o minfreespace=100G \
+  -o fsname=mergerfs_btrfs_cold \
+  {{ data_mounts|join(':') }} \
+  {{ media_cold }}
+ExecStop=/bin/fusermount -uz {{ media_cold }}
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

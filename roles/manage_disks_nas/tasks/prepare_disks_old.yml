@@ -1,0 +1,54 @@
+---
+- name: Wipe all partitions from disks
+  command: "parted {{ item }} --script mklabel gpt"
+  loop: "{{ data_disks + parity_disks + cache_disks }}"
+  when: wipe_and_setup
+
+- name: Create a new partition on disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    number: 1
+    state: present
+    label: gpt
+    part_start: 0%
+    part_end: 100%
+  loop: "{{ data_disks + parity_disks + cache_disks }}"
+
+- name: Format data drives with BTRFS
+  ansible.builtin.filesystem:
+    fstype: btrfs
+    dev: "{{ item }}{{ '-part1' if 'nvme' not in item else '-p1' }}"
+    force: "{{ force_formatting }}"
+  loop: "{{ data_disks }}"
+
+- name: Format parity drives with ext4
+  ansible.builtin.filesystem:
+    fstype: ext4
+    dev: "{{ item }}{{ '-part1' if 'nvme' not in item else '-p1' }}"
+    force: "{{ force_formatting }}"
+  loop: "{{ parity_disks }}"
+
+- name: Format cache drives with ext4
+  ansible.builtin.filesystem:
+    fstype: ext4
+    dev: "{{ item }}{{ '-part1' if 'nvme' in item else '1' }}"
+    force: "{{ force_formatting }}"
+  loop: "{{ cache_disks }}"
+
+- name: Check if data disks are correctly formatted with BTRFS
+  command: "blkid {{ item }}-part1" # TODO: should this use the same -part1 if else 1 logic from above?
+  register: blkid_output_data
+  loop: "{{ data_disks }}"
+  changed_when: false
+  failed_when: "'TYPE=\"btrfs\"' not in blkid_output_data.stdout"
+  loop_control:roles/manage_disks_nas/tasks/prepare_disks.yml
+    label: "{{ item }}"
+
+- name: Check if parity and cache disks are correctly formatted with ext4
+  command: "blkid {{ item }}-part1" # TODO: should this use the same -part1 if else 1 logic from above?
+  register: blkid_output_parity_cache
+  loop: "{{ parity_disks + cache_disks }}"
+  changed_when: false
+  failed_when: "'TYPE=\"ext4\"' not in blkid_output_parity_cache.stdout"
+  loop_control:
+    label: "{{ item }}"

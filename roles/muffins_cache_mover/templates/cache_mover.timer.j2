@@ -1,0 +1,9 @@
+[Unit]
+Description="Runs Muffin's Cache Mover Script"
+
+[Timer]
+OnCalendar={{ on_calendar_schedule }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

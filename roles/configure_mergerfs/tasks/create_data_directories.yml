@@ -1,0 +1,22 @@
+---
+- name: Count the number of data disks
+  set_fact:
+    data_disks_count: "{{ data_disks | length }}"
+
+- name: Create root directories on data disks
+  ansible.builtin.file:
+    path: "{{ data_mount_path }}/data{{ '%02d' % item.0 }}/{{ item.1 }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ range(1, data_disks_count|int + 1)|product(data_directories)|list }}"
+
+- name: Count the number of cache disks
+  set_fact:
+    cache_disks_count: "{{ cache_disks | length }}"
+
+- name: Create root directories on cache disks
+  ansible.builtin.file:
+    path: "{{ cache_mount_path }}/cache{{ '%02d' % item.0 }}/{{ item.1 }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ range(1, cache_disks_count|int + 1)|product(data_directories)|list }}"

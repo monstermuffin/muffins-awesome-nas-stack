@@ -1,0 +1,24 @@
+---
+- name: Apply Timezone
+  ansible.builtin.include_tasks:
+    file: timezone.yml
+
+- name: Passwordless-Sudo
+  ansible.builtin.include_tasks:
+    file: passwdless_sudo.yml
+
+- name: Create and append users/groups
+  ansible.builtin.include_tasks:
+    file: user_groups.yml
+
+- name: Install packages
+  ansible.builtin.include_tasks:
+    file: apps.yml
+
+- name: Apply Keys
+  ansible.builtin.include_tasks:
+    file: keys.yml
+
+- name: apt maintainance
+  ansible.builtin.include_tasks:
+    file: apt_maintain.yml

@@ -1,0 +1,32 @@
+---
+- name: apt | Install defaults
+  ansible.builtin.apt:
+    update_cache: false
+    name: "{{ default_apps + (extra_apps | default([])) }}"
+    state: present
+  register: apt_defaults
+  retries: 3
+  until: apt_defaults is success
+  vars:
+    default_apps:
+      - build-essential
+      - gcc
+      - ca-certificates
+      - curl
+      - dnsutils
+      - git
+      - htop
+      - iotop
+      - iftop
+      - mlocate
+      - ncdu
+      - net-tools
+      - python3-pip
+      - autofs
+      - rsync
+      - tmux
+      - software-properties-common
+      - tree
+      - zip
+      - vim
+      - neofetch

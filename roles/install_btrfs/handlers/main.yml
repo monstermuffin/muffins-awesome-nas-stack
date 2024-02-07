@@ -1,0 +1,6 @@
+---
+
+- name: Cleanup cloned repository
+  ansible.builtin.file:
+    path: /tmp/btrfs-progs
+    state: absent

@@ -1,0 +1,15 @@
+---
+- name: create groups
+  group:
+    name: "{{ item }}"
+    state: present
+  with_flattened:
+    - "{{ users | map(attribute='groups') | list }}"
+
+- name: create users and append to groups
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    create_home: "{{ item.create_home | default('no') }}"
+    shell: "{{ item.shell | default('/bin/bash') }}"
+  with_items: "{{ users }}"

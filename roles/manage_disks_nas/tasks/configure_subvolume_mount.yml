@@ -1,0 +1,39 @@
+---
+- name: Count the number of data disks
+  set_fact:
+    data_disks_count: "{{ data_disks | length }}"
+
+- name: Create Btrfs subvolume mount points
+  ansible.builtin.file:
+    path: "{{ data_mount_path }}/data{{ '%02d' % item }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ range(1, data_disks|length + 1) }}"
+
+- name: Print rendered template
+  debug:
+    msg: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
+
+# - name: Ensure old Btrfs subvolume mounts block is removed from fstab
+#   ansible.builtin.blockinfile:
+#     path: /etc/fstab
+#     marker: "########### {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL ###########"
+#     state: absent
+
+- name: Ensure Btrfs subvolume mounts are present in fstab
+  ansible.builtin.blockinfile:
+    path: /etc/fstab
+    block: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
+    marker: "########### {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL ###########"
+    create: yes
+
+- name: Mount Btrfs subvolumes
+  ansible.builtin.mount:
+    path: "{{ data_mount_path }}/data{{ '%02d' % (index + 1) }}"
+    src: "{{ item }}-part1"
+    fstype: btrfs
+    opts: subvol=data
+    state: mounted
+  loop: "{{ data_disks }}"
+  loop_control:
+    index_var: index

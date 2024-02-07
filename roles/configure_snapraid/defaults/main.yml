@@ -1,0 +1,27 @@
+---
+# snapraid-btrfs-runner default variables
+
+# Paths to executables
+snapraid_btrfs_executable: /usr/local/bin/snapraid-btrfs
+snapper_executable: /usr/bin/snapper
+snapraid_executable: /usr/local/bin/snapraid
+
+# SnapRAID configuration path
+snapraid_config: /etc/snapraid.conf
+
+# Logging
+logging_file: /var/log/snapraid-btrfs-runner.log
+logging_maxsize: 5000
+
+# SnapRAID settings
+snapraid_deletethreshold: 40
+snapraid_touch: false
+
+# snapraid-btrfs-runner settings
+snapraid_btrfs_pool: false
+snapraid_btrfs_cleanup: true
+
+# Scrub settings
+scrub_enabled: false
+scrub_plan: 12
+scrub_older_than: 10

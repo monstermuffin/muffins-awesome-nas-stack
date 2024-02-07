@@ -1,0 +1,31 @@
+---
+- name: Clone snapraid-btrfs repository
+  ansible.builtin.git:
+    repo: 'https://github.com/automorphism88/snapraid-btrfs.git'
+    dest: '/tmp/snapraid-btrfs'
+    clone: yes
+    update: yes
+
+- name: Copy snapraid-btrfs script to /usr/local/bin
+  ansible.builtin.copy:
+    src: '/tmp/snapraid-btrfs/snapraid-btrfs'
+    dest: '/usr/local/bin/snapraid-btrfs'
+    mode: '0755'
+    remote_src: yes
+
+- name: Ensure snapraid-btrfs is executable
+  ansible.builtin.file:
+    path: '/usr/local/bin/snapraid-btrfs'
+    mode: '0755'
+
+- name: Verify snapraid-btrfs can see Snapper configs
+  ansible.builtin.command:
+    cmd: "snapraid-btrfs list"
+  register: snapraid_btrfs_output
+  changed_when: false
+  ignore_errors: true
+  become: yes #must be run as root to list, so we're just going to ignore that warning...
+
+- name: Display snapraid-btrfs output
+  ansible.builtin.debug:
+    var: snapraid_btrfs_output.stdout_lines

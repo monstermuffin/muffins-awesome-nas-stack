@@ -1,0 +1,9 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart snapraid-btrfs-runner timer
+  ansible.builtin.systemd:
+    name: snapraid-btrfs-runner.timer
+    state: restarted

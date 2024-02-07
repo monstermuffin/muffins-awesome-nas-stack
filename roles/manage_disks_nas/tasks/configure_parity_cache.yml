@@ -1,0 +1,51 @@
+---
+- name: Ensure parity mount points exist
+  ansible.builtin.file:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
+    state: directory
+  loop: "{{ parity_disks }}"
+  loop_control:
+    index_var: index
+
+- name: Ensure parity mounts are present in fstab
+  ansible.builtin.blockinfile:
+    path: /etc/fstab
+    block: "{{ lookup('template', 'parity_mounts.j2') }}"
+    marker: "########### {mark} ANSIBLE MANAGED BLOCK - PARITY ###########"
+    create: yes
+
+- name: Mount parity disks
+  ansible.builtin.mount:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
+    src: "{{ item }}-part1"
+    fstype: ext4
+    state: mounted
+  loop: "{{ parity_disks }}"
+  loop_control:
+    index_var: index
+
+# Cache Disks
+- name: Ensure cache mount points exist
+  ansible.builtin.file:
+    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
+    state: directory
+  loop: "{{ cache_disks }}"
+  loop_control:
+    index_var: index
+
+- name: Ensure cache mounts are present in fstab
+  ansible.builtin.blockinfile:
+    path: /etc/fstab
+    block: "{{ lookup('template', 'cache_mounts.j2') }}"
+    marker: "########### {mark} ANSIBLE MANAGED BLOCK - CACHE ###########"
+    create: yes
+
+- name: Mount cache disks
+  ansible.builtin.mount:
+    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
+    src: "{{ item }}-part1"
+    fstype: ext4
+    state: mounted
+  loop: "{{ cache_disks }}"
+  loop_control:
+    index_var: index

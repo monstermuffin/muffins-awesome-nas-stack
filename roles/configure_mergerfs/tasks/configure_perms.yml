@@ -1,0 +1,16 @@
+---
+- name: Set group ownership and permissions for /mnt/media
+  file:
+    path: /mnt/media
+    owner: "{{ user }}"
+    group: media
+    mode: "0775"
+  when: ansible_os_family == "Debian"
+
+- name: Set group ownership and permissions for /mnt/media-cold
+  file:
+    path: /mnt/media-cold
+    owner: "{{ user }}"
+    group: media
+    mode: "0775"
+  when: ansible_os_family == "Debian"

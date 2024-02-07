@@ -1,0 +1,20 @@
+[Unit]
+Description=mergerfs cached media mount
+
+[Service]
+Type=simple
+KillMode=mixed
+ExecStart=/usr/bin/mergerfs \
+  -f \
+  -o cache.files=partial \
+  -o dropcacheonclose=true \
+  -o category.create=ff \
+  -o minfreespace=100G \
+  -o fsname=mergerfs_btrfs_cached \
+  {{ cache_mounts|join(':') }}:{{ data_mounts|join(':') }} \
+  {{ media_cached }}
+ExecStop=/bin/fusermount -uz {{ media_cached }}
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

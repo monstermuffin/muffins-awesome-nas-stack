@@ -1,0 +1,28 @@
+- name: Set permissions on mount root directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: '770'
+  loop:
+    - "{{ data_mount_path }}"
+    - "{{ cache_mount_path }}"
+    - "{{ parity_mount_path }}"
+
+- name: Check if .snapshots directories exist
+  ansible.builtin.stat:
+    path: "{{ data_mount_path }}/data{{ '%02d' | format(item) }}/.snapshots"
+  loop: "{{ range(1, data_disks_count | int + 1) | list }}"
+  loop_control:
+    loop_var: item
+  register: snapshot_directory_check
+
+- name: Set ownership on .snapshots directories that exist
+  ansible.builtin.file:
+    path: "{{ item.stat.path }}"
+    state: directory
+    owner: root
+    group: root
+  loop: "{{ snapshot_directory_check.results }}"
+  when: item.stat.exists

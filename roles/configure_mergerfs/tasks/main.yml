@@ -1,0 +1,20 @@
+---
+- name: Create datadisk directories
+  ansible.builtin.include_tasks:
+    file: create_data_directories.yml
+
+- name: media_cold
+  ansible.builtin.include_tasks:
+    file: media_cold.yml
+
+- name: Configure btrfs Subvolumes
+  ansible.builtin.include_tasks:
+    file: media_cached.yml
+
+- name: Configure fuse
+  ansible.builtin.include_tasks:
+    file: configure_fuse.yml
+
+- name: Configure mount perms
+  ansible.builtin.include_tasks:
+    file: configure_perms.yml

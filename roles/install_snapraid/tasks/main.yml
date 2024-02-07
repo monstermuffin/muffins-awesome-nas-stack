@@ -1,0 +1,55 @@
+---
+- name: Find latest release of mergerfs
+  community.general.github_release:
+    user: amadvance
+    repo: snapraid
+    action: latest_release
+  register: snapraid_latest_release
+  delegate_to: localhost
+  run_once: true
+  become: false
+  check_mode: no
+
+- name: Set latest SnapRAID version fact
+  ansible.builtin.set_fact:
+    snapraid_version: "{{ snapraid_latest_release.tag }}"
+    snapraid_version_num: "{{ snapraid_latest_release.tag.split('v')[1] }}"
+  check_mode: no
+
+- name: Check installed SnapRAID version
+  ansible.builtin.command:
+    cmd: snapraid --version
+  register: installed_snapraid_version
+  ignore_errors: true
+  changed_when: false
+  check_mode: no
+
+- name: Extract installed SnapRAID version number
+  ansible.builtin.set_fact:
+    installed_version: "{{ installed_snapraid_version.stdout.split()[1] }}"
+  when: installed_snapraid_version.rc == 0
+  check_mode: no
+
+- name: Debug latest SnapRAID version from GitHub
+  ansible.builtin.debug:
+    var: snapraid_version
+
+- name: Debug installed SnapRAID version
+  ansible.builtin.debug:
+    var: installed_version
+  when: installed_snapraid_version.rc == 0
+
+- name: Determine SnapRAID package download url
+  ansible.builtin.set_fact:
+    snapraid_package_url: "https://github.com/amadvance/snapraid/releases/download/{{ snapraid_version }}/snapraid-{{ snapraid_version_num }}.tar.gz"
+
+- name: Debug latest SnapRAID version from GitHub
+  ansible.builtin.debug:
+    var: snapraid_package_url
+
+- name: Install/update SnapRAID
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - (installed_version is not defined or installed_version != snapraid_version)

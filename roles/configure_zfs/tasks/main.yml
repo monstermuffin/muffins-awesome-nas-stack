@@ -1,0 +1,37 @@
+---
+- name: Get current ZFS pool configuration
+  ansible.builtin.command:
+    cmd: "zpool status -P {{ item.name }}"
+  register: zfs_pool_status
+  loop: "{{ zfs_pools }}"
+  changed_when: false
+  ignore_errors: true
+
+- name: Create ZFS pools if they don't exist
+  ansible.builtin.command:
+    cmd: "zpool create {{ item.name }} {{ item.vdevs | join(' ') }}"
+  loop: "{{ zfs_pools }}"
+  when:
+    - item.name not in (zfs_pool_status.results | map(attribute='stdout') | list)
+  ignore_errors: yes
+
+- name: Add vdevs to existing ZFS pools if they don't match
+  ansible.builtin.command:
+    cmd: "zpool add {{ item.name }} {{ item.vdevs | join(' ') }}"
+  loop: "{{ zfs_pools }}"
+  when:
+    - item.name in (zfs_pool_status.results | map(attribute='stdout') | list)
+    - item.vdevs is not subset (zfs_pool_status.results | selectattr('item.name', 'equalto', item.name) | map(attribute='stdout') | first)
+  ignore_errors: yes
+
+
+- name: Schedule ZFS scrub for pools
+  ansible.builtin.cron:
+    name: "ZFS scrub for {{ item.name }}"
+    weekday: "0"  # Every Sunday
+    minute: "0"
+    hour: "0"
+    user: root
+    job: "zpool scrub {{ item.name }}"
+  loop: "{{ zfs_pools }}"
+  when: item.scrub_schedule is defined

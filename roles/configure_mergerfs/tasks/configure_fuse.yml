@@ -1,0 +1,12 @@
+---
+- name: Uncomment user_allow_other in /etc/fuse.conf
+  lineinfile:
+    path: /etc/fuse.conf
+    regexp: '^#?(user_allow_other)'
+    line: 'user_allow_other'
+  notify:
+    - Reload systemd
+    - Restart mergerfs media cache
+    - Enable mergerfs media cache
+    - Restart mergerfs media cold
+    - Enable mergerfs media cold

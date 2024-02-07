@@ -1,0 +1,14 @@
+---
+- name: Debian
+  when: ansible_os_family == 'Debian'
+  block:
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        upgrade: dist
+
+    - name: Remove unused packages
+      ansible.builtin.apt:
+        autoremove: yes
+        autoclean: yes

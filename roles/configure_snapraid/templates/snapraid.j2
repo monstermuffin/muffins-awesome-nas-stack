@@ -1,0 +1,34 @@
+# SnapRAID Configuration
+# Managed by Ansible - DO NOT EDIT MANUALLY
+
+# Parity Disks
+parity {{ parity_mount_path }}/parity01/snapraid.parity
+
+{% for i in range(2, 7) %}
+{% if i <= parity_disks|length %}
+{{ i }}-parity {{ parity_mount_path }}/parity{{ '%02d' % i }}/snapraid.{{ i }}-parity
+{% endif %}
+{% endfor %}
+
+# Content Files
+{% for content_file in content_files %}
+content {{ content_file }}
+{% endfor %}
+
+# Data Disks (btrfs data subvol)
+{% for i in range(1, data_disks|length + 1) %}
+data d{{ i }} {{ data_mount_path }}/data{{ '%02d' % i }}/
+{% endfor %}
+
+# Excludes hidden files and directories
+nohidden
+
+# Defines files and directories to exclude
+exclude *.unrecoverable
+exclude /tmp/
+exclude /lost+found/
+exclude *.!sync
+exclude /.snapshots/
+
+# Automatically save the state when syncing after the specified amount of GB processed
+autosave 500

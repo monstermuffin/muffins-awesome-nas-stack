@@ -1,0 +1,71 @@
+---
+# roles/snapper_config/tasks/main.yml
+- name: Ensure the base config is named 'default'
+  ansible.builtin.copy:
+    src: /usr/share/snapper/config-templates/default
+    dest: /etc/snapper/configs/default
+    mode: '0644'
+    remote_src: yes
+
+- name: Ensure 'TIMELINE_CREATE="no"' in the 'default' Snapper configuration
+  ansible.builtin.lineinfile:
+    path: /etc/snapper/configs/default
+    regexp: '^TIMELINE_CREATE='
+    line: 'TIMELINE_CREATE="no"'
+
+- name: Verify existing snapper configs
+  ansible.builtin.command:
+    cmd: "snapper list-configs"
+  register: snapper_configs
+  changed_when: false
+  ignore_errors: true
+
+- name: Display snapper_configs
+  ansible.builtin.debug:
+    var: snapper_configs
+
+- name: Check if snapper config for each data disk is valid
+  ansible.builtin.set_fact:
+    config_valid: "{{ 'data%02d' % item in snapper_configs.stdout }}"
+  loop: "{{ range(1, data_disks|length + 1) }}"
+  register: config_validity
+
+- name: Destroy invalid snapper configurations
+  ansible.builtin.command:
+    cmd: "snapper -c data{{ '%02d' % item }} delete-config"
+    warn: false
+  loop: "{{ range(1, data_disks|length + 1) }}"
+  when:
+    - data_disks is defined
+    - data_disks|length > 0
+    - not config_validity.results[item-1].ansible_facts.config_valid
+    - snapper_configs.stdout_lines|length > 2
+  ignore_errors: true
+
+- name: Create Snapper configurations for missing data disks using 'default' as a template
+  ansible.builtin.command:
+    cmd: "snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
+    warn: false
+  loop: "{{ range(1, data_disks|length + 1) }}"
+  when:
+    - data_disks is defined
+    - data_disks|length > 0
+    - not config_validity.results[item-1].ansible_facts.config_valid
+
+- name: Ensure 'TIMELINE_CREATE="no"' in each data disk's Snapper configuration
+  ansible.builtin.lineinfile:
+    path: "/etc/snapper/configs/data{{ '%02d' % item }}"
+    regexp: '^TIMELINE_CREATE='
+    line: 'TIMELINE_CREATE="no"'
+  loop: "{{ range(1, data_disks|length + 1) }}"
+  when: data_disks is defined and data_disks|length > 0
+
+- name: Verify snapper configs
+  ansible.builtin.command:
+    cmd: "snapper list-configs"
+  register: snapper_configs_new
+  changed_when: false
+
+- name: Display snapper_configs
+  ansible.builtin.debug:
+    var: snapper_configs_new

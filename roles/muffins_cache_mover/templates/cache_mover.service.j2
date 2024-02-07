@@ -1,0 +1,6 @@
+[Unit]
+Description="Muffin's Cache Mover Script."
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 "{{ cache_mover_dir }}/cache-mover.py"

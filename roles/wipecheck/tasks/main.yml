@@ -1,0 +1,22 @@
+---
+- name: Set default confirmation
+  set_fact:
+    user_confirmation: 'no'
+
+- name: Pause for verification
+  pause:
+    prompt: "You have set wipe_and_setup to true. This will wipe all data/parity/cache disk vars. Are you sure you want to continue? (yes/no)"
+  register: user_input
+  when: wipe_and_setup
+
+- name: Set user confirmation from input
+  set_fact:
+    user_confirmation: "{{ user_input.user_input }}"
+  when: wipe_and_setup
+
+- name: Fail if no
+  fail:
+    msg: "Playbook execution stopped."
+  when:
+    - wipe_and_setup
+    - user_confirmation == 'no'

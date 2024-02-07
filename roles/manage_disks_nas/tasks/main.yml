@@ -1,0 +1,20 @@
+---
+- name: Prepare Disks
+  ansible.builtin.include_tasks:
+    file: prepare_disks.yml
+
+- name: Configure btrfs Subvolumes
+  ansible.builtin.include_tasks:
+    file: configure_subvolumes.yml
+
+- name: Configure btrfs Subvolume Mount
+  ansible.builtin.include_tasks:
+    file: configure_subvolume_mount.yml
+
+- name: Configure/mount parity & cache disks
+  ansible.builtin.include_tasks:
+    file: configure_parity_cache.yml
+
+- name: Set perms on mounts
+  ansible.builtin.include_tasks:
+    file: configure_mount_perms.yml

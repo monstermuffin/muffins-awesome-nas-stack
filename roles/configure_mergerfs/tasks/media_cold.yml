@@ -1,0 +1,26 @@
+---
+- name: Ensure mountpoint for media_cold exists
+  file:
+    path: "{{ media_cold }}"
+    state: directory
+    mode: '0755'
+
+- name: Count items in data_disks
+  set_fact:
+    data_disks_count: "{{ data_disks|length }}"
+
+- name: Generate data_mounts list
+  set_fact:
+    data_mounts: "{{ data_mounts|default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
+  loop: "{{ data_disks }}"
+  loop_control:
+    index_var: index
+
+- name: Deploy mergerfs media_cold systemd service
+  template:
+    src: mergerfs.cold_mount.j2
+    dest: /etc/systemd/system/mergerfs-media-cold.service
+  notify:
+    - Reload systemd
+    - Restart mergerfs media cold
+    - Enable mergerfs media cold

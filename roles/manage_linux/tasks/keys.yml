@@ -1,0 +1,15 @@
+---
+
+- name: Get user list
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Replace All Keys
+  ansible.posix.authorized_key:
+    user: "{{ user }}"
+    state: present
+    exclusive: true
+    key: "{{ github_ssh_keys }}"
+  register: user_exists
+  changed_when: false
+  when: github_ssh_keys is defined and github_ssh_keys != ''

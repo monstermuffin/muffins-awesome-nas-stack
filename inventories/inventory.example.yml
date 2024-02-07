@@ -1,0 +1,6 @@
+---
+
+mans-host:
+  hosts:
+    <nas hostname>:
+      ansible_host: <some ip>

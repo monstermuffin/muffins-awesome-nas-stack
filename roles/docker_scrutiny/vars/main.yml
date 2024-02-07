@@ -1,0 +1,13 @@
+#scrutiny vars
+scrutiny_image: ghcr.io/analogj/scrutiny:master-omnibus
+scrutiny_ports:
+  - "8080:8080"
+  - "8086:8086"
+scrutiny_volumes:
+  - "{{ scrutiny_config_path }}:/opt/scrutiny/config"
+  - "{{ scrutiny_influxdb_path }}:/opt/scrutiny/influxdb"
+  - "{{ scrutiny_config_file }}:/opt/scrutiny/config/scrutiny.yaml"
+  - "/run/udev:/run/udev:ro"
+scrutiny_config_path: "/opt/docker/scrutiny/data"
+scrutiny_config_file: "/opt/docker/scrutiny/data/scrutiny.yaml"
+scrutiny_influxdb_path: "/opt/docker/scrutiny/influxdb2"
