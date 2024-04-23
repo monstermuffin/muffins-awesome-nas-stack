@@ -1,8 +1,27 @@
 ---
+- name: Initialize cache_disks_only and cache_paths_only variables
+  ansible.builtin.set_fact:
+    cache_disks_only: []
+    cache_paths_only: []
+
+- name: Initialize non_btrfs_disks and non_ext4_disks variables
+  ansible.builtin.set_fact:
+    non_btrfs_disks: []
+    non_ext4_disks: []
+
+- name: Identify cache disks and paths
+  ansible.builtin.set_fact:
+    cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+    cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
+
 - name: Check filesystem type for data disks
   ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
   with_items: "{{ data_disks }}"
   register: data_disks_fs_check_results
+
+- name: Debug data_disks_fs_check_results
+  ansible.builtin.debug:
+    var: data_disks_fs_check_results.results
 
 - name: Identify non-BTRFS data disks
   ansible.builtin.set_fact:
@@ -13,8 +32,12 @@
 
 - name: Check filesystem type for cache and parity disks
   ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
-  with_items: "{{ cache_disks + parity_disks }}"
+  with_items: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
+
+- name: Debug cache_parity_disks_fs_check_results
+  ansible.builtin.debug:
+    var: cache_parity_disks_fs_check_results.results
 
 - name: Identify non-EXT4 cache and parity disks
   ansible.builtin.set_fact:
@@ -27,17 +50,17 @@
   ansible.builtin.set_fact:
     disks_to_wipe: "{{ (non_btrfs_disks | default([])) + (non_ext4_disks | default([])) }}"
 
-- name: Notify about disks to be formatted
+- name: Debug non_btrfs_disks
   ansible.builtin.debug:
-    msg: |
-      The following disks need to be wiped and formatted:
-      Data disks (BTRFS): {{ non_btrfs_disks | default([]) | join(', ') }}
-      Cache/Parity disks (EXT4): {{ non_ext4_disks | default([]) | join(', ') }}
+    var: non_btrfs_disks
 
-      However, wipe_and_setup is set to false. Please set wipe_and_setup to true to proceed with wiping and formatting the disks.
-  when:
-    - disks_to_wipe | length > 0
-    - not wipe_and_setup
+- name: Debug non_ext4_disks
+  ansible.builtin.debug:
+    var: non_ext4_disks
+
+- name: Debug disks_to_wipe
+  ansible.builtin.debug:
+    var: disks_to_wipe
 
 - name: Fail if disks need to be wiped but wipe_and_setup is false
   ansible.builtin.fail:
@@ -54,19 +77,21 @@
       - Create BTRFS filesystem on: {{ non_btrfs_disks | default([]) | join(', ') }}
       - Create EXT4 filesystem on: {{ non_ext4_disks | default([]) | join(', ') }}
 
+      Existing cache paths: {{ cache_paths_only | join(', ') }}
+
       WARNING: This will result in data loss on the affected disks.
 
       Do you want to proceed? [y/N]:
   register: user_confirmation
   when:
-    - disks_to_wipe | length > 0
+    - (disks_to_wipe | length > 0) or (non_btrfs_disks | length > 0) or (non_ext4_disks | length > 0)
     - wipe_and_setup
 
 - name: Fail if user does not confirm disk wiping
   ansible.builtin.fail:
     msg: "User did not confirm disk wiping. Playbook execution stopped."
   when:
-    - disks_to_wipe | length > 0
+    - (disks_to_wipe | length > 0) or (non_ext4_disks | length > 0) or (non_btrfs_disks | length > 0)
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower != 'y'
 
@@ -84,7 +109,7 @@
     dev: "{{ item }}"
   with_items: "{{ non_btrfs_disks | default([]) }}"
   when:
-    - disks_to_wipe | length > 0
+    - non_btrfs_disks | length > 0
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower == 'y'
 
@@ -94,13 +119,13 @@
     dev: "{{ item }}"
   with_items: "{{ non_ext4_disks | default([]) }}"
   when:
-    - disks_to_wipe | length > 0
+    - non_ext4_disks | length > 0
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower == 'y'
 
 - name: Get filesystem type for all disks
   ansible.builtin.shell: "lsblk -f {{ item }}"
-  loop: "{{ data_disks + cache_disks + parity_disks }}"
+  loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
   changed_when: false
 

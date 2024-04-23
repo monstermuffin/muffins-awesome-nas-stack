@@ -67,9 +67,11 @@ samba_shares:
 #mounts
 media_cached: /mnt/media
 media_cold: /mnt/media-cold
+cache_pool: /mnt/cache-pool
 data_mount_path: /mnt/data-disks
 parity_mount_path: /mnt/parity-disks
 cache_mount_path: /mnt/cache-disks
+
 #content files
 content_files:
   - /var/snapraid/snapraid.content

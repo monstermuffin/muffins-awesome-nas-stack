@@ -1,44 +1,74 @@
----
 - name: Ensure mountpoint for media exists
   ansible.builtin.file:
     path: /mnt/media
     state: directory
     mode: '0775'
 
+- name: Ensure cache mount path exists
+  ansible.builtin.file:
+    path: "{{ cache_mount_path }}"
+    state: directory
+    mode: '0775'
+  when: cache_disks_only | int > 0
+
 - name: Count items in cache_disks
   ansible.builtin.set_fact:
+    cache_disks_count: "{{ cache_disks | length }}"
 
-    cache_disks_count: "{{ cache_disks|length }}"
+# - name: Identify cache disks and paths
+#   ansible.builtin.set_fact:
+#     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+#     cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
 
-- name: Generate cache_mounts list
+- name: Ensure cache pool path exists
+  ansible.builtin.file:
+    path: "{{ cache_pool }}"
+    state: directory
+    mode: '0775'
+  when: cache_disks_count | int > 1
+
+- name: Ensure cache paths exist
+  ansible.builtin.file:
+    path: "{{ item | realpath }}"
+    state: directory
+    mode: '0775'
+  with_items: "{{ cache_paths_only }}"
+
+- name: Generate cache_mounts list for cache disks
   ansible.builtin.set_fact:
-
-    cache_mounts: "{{ cache_mounts|default([]) + ['/mnt/cache-disks/cache%02d' % (index + 1)] }}"
-  loop: "{{ cache_disks }}"
+    cache_mounts: "{{ cache_mounts|default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"
+  loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
+  when: cache_disks_only | int > 0
 
-- name: Deploy mergerfs media_cached systemd service
+- name: Add cache paths to cache_mounts list
+  ansible.builtin.set_fact:
+    cache_mounts: "{{ cache_mounts|default([]) + cache_paths_only }}"
+
+- name: Deploy mergerfs media_cached systemd service (single cache disk/path)
   ansible.builtin.template:
-    src: mergerfs.cache_mount.j2
+    src: mergerfs.cache_mount_single.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
   notify:
     - Reload systemd daemon
+    - Restart mergerfs_media_cache
+  when: cache_disks_count == 1
 
-- name: Ensure mergerfs-media-cache service is enabled
-  ansible.builtin.systemd:
-    name: mergerfs-media-cache.service
-    enabled: true
-  notify: Restart mergerfs_media_cache
+- name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
+  ansible.builtin.template:
+    src: mergerfs.cache_disks_mount.j2
+    dest: /etc/systemd/system/mergerfs-cache-disks.service
+  notify:
+    - Reload systemd daemon
+    - Restart mergerfs_cache_disks
+  when: cache_disks_count | int > 1
 
-- name: Check if mergerfs-media-cache service is running
-  ansible.builtin.shell: systemctl is-active mergerfs-media-cache.service
-  register: cache_service_status
-  ignore_errors: true
-  changed_when: false
-
-- name: Start mergerfs-media-cache service if not running
-  ansible.builtin.systemd:
-    name: mergerfs-media-cache.service
-    state: started
-  when: cache_service_status.rc != 0
+- name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
+  ansible.builtin.template:
+    src: mergerfs.cache_mount_multiple.j2
+    dest: /etc/systemd/system/mergerfs-media-cache.service
+  notify:
+    - Reload systemd daemon
+    - Restart mergerfs_media_cache
+  when: cache_disks_count | int > 1

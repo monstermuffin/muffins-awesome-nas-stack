@@ -1,0 +1,22 @@
+[Unit]
+Description=MergerFS mount for /mnt/media (multiple cache disks/paths)
+After=mergerfs-cache-pool.service mergerfs-media-cold.service
+Requires=mergerfs-cache-pool.service mergerfs-media-cold.service
+
+[Service]
+Type=simple
+KillMode=mixed
+ExecStart=/usr/bin/mergerfs \
+  -f \
+  -o cache.files=off \
+  -o dropcacheonclose=true \
+  -o category.create=ff \
+  -o minfreespace=100G \
+  -o fsname=mergerfs-cache \
+  {{ cache_pool }}:{{ media_cold }} \
+  {{ media_cached }}
+ExecStop=/bin/fusermount -uz {{ media_cached }}
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,27 +1,62 @@
-- name: Set permission /mnt/media
+---
+- name: Set permission {{ media_cached }}
   ansible.builtin.file:
-    path: /mnt/media
+    path: "{{ media_cached }}"
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
   become: yes
+  when: cache_disks_exist
 
-- name: Set permissions on data directories
+- name: Set permission {{ media_noncached }}
   ansible.builtin.file:
-    path: "/mnt/media/{{ item }}"
+    path: "{{ media_noncached }}"
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
+  become: yes
+  when: not cache_disks_exist
+
+- name: Set permissions on data/cache directories (with cache disks)
+  ansible.builtin.file:
+    path: "{{ item | realpath }}"
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
+    recurse: yes
+  loop: "{{ data_directories + cache_paths_only }}"
+  become: yes
+  when: cache_disks_exist
+
+- name: Set permissions on data directories (no cache disks)
+  ansible.builtin.file:
+    path: "{{ item | realpath }}"
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
     recurse: yes
   loop: "{{ data_directories }}"
   become: yes
+  when: not cache_disks_exist
 
 - name: Set permissions on .snapshots directory
   ansible.builtin.file:
-    path: /mnt/media/.snapshots
+    path: "{{ media_cached }}/.snapshots"
     owner: root
     group: root
     mode: "0770"
     recurse: yes
   become: yes
   ignore_errors: yes
+  when: cache_disks_exist
+
+- name: Set permissions on .snapshots directory
+  ansible.builtin.file:
+    path: "{{ media_noncached }}/.snapshots"
+    owner: root
+    group: root
+    mode: "0770"
+    recurse: yes
+  become: yes
+  ignore_errors: yes
+  when: not cache_disks_exist

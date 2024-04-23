@@ -1,15 +1,37 @@
 ---
-- name: Create datadisk directories
+- name: Set cache disk facts
+  ansible.builtin.set_fact:
+    cache_disks: "{{ cache_disks | default([]) }}"
+    cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+    cache_paths_only: "{{ cache_disks | select('match', '^/') | list }}"
+
+- name: Set cache_disks_exist fact
+  ansible.builtin.set_fact:
+    cache_disks_exist: "{{ (cache_disks_only + cache_paths_only) | length > 0 }}"
+
+- name: Count the number of cache disks
+  ansible.builtin.set_fact:
+    cache_disks_count: "{{ (cache_disks_only + cache_paths_only) | length }}"
+  when: cache_disks_exist
+
+- name: media_cached
   ansible.builtin.include_tasks:
-    file: create_data_directories.yml
+    file: media_cached.yml
+  when: cache_disks_exist
 
 - name: media_cold
   ansible.builtin.include_tasks:
     file: media_cold.yml
+  when: cache_disks_exist
 
-- name: Configure btrfs Subvolumes
+- name: media_noncached
   ansible.builtin.include_tasks:
-    file: media_cached.yml
+    file: media_noncached.yml
+  when: not cache_disks_exist
+
+- name: Create directories
+  ansible.builtin.include_tasks:
+    file: create_data_directories.yml
 
 - name: Configure fuse
   ansible.builtin.include_tasks:
@@ -18,3 +40,7 @@
 - name: Configure mount perms
   ansible.builtin.include_tasks:
     file: configure_perms.yml
+
+- name: Cleanup
+  ansible.builtin.include_tasks:
+    file: mergerfs_cleanup.yml

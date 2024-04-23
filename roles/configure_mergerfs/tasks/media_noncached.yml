@@ -1,0 +1,42 @@
+---
+- name: Ensure mountpoint for media_noncached exists
+  ansible.builtin.file:
+    path: "{{ media_noncached }}"
+    state: directory
+    mode: '0770'
+
+- name: Count items in data_disks
+  ansible.builtin.set_fact:
+    data_disks_count: "{{ data_disks | length }}"
+
+- name: Generate data_mounts list
+  ansible.builtin.set_fact:
+    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
+  loop: "{{ data_disks }}"
+  loop_control:
+    index_var: index
+
+- name: Deploy mergerfs media_noncached systemd service
+  ansible.builtin.template:
+    src: mergerfs.media_noncached_mount.j2
+    dest: /etc/systemd/system/mergerfs-media-noncached.service
+  notify:
+    - Reload systemd daemon
+    - Restart mergerfs_media_noncached
+
+- name: Ensure mergerfs-media-noncached service is enabled
+  ansible.builtin.systemd:
+    name: mergerfs-media-noncached.service
+    enabled: true
+
+- name: Check if mergerfs-media-noncached service is running
+  ansible.builtin.shell: systemctl is-active mergerfs-media-noncached.service
+  register: noncached_service_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Start mergerfs-media-noncached service if not running
+  ansible.builtin.systemd:
+    name: mergerfs-media-noncached.service
+    state: started
+  when: noncached_service_status.rc != 0

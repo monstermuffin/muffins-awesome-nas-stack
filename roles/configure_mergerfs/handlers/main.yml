@@ -12,3 +12,13 @@
   ansible.builtin.systemd:
     name: mergerfsmedia-cold.service
     state: restarted
+
+- name: Restart mergerfs_cache_disks
+  ansible.builtin.systemd:
+    name: mergerfs-cache-disks.service
+    state: restarted
+
+- name: Restart mergerfs_media_noncached
+  ansible.builtin.systemd:
+    name: mergerfs-media-noncached.service
+    state: restarted

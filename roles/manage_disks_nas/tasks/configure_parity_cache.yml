@@ -11,7 +11,7 @@
   ansible.builtin.blockinfile:
     path: /etc/fstab
     block: "{{ lookup('template', 'parity_mounts.j2') }}"
-    marker: "########### {mark} ANSIBLE MANAGED BLOCK - PARITY ###########"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
     create: yes
 
 - name: Mount parity disks
@@ -25,20 +25,24 @@
     index_var: index
 
 # Cache Disks
-- name: Ensure cache mount points exist
+- name: Ensure cache disk mount points exist
   ansible.builtin.file:
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
     state: directory
-  loop: "{{ cache_disks }}"
+  loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
+  when: cache_disks_only | int > 0
 
-- name: Ensure cache mounts are present in fstab
+- name: Ensure cache disk mounts are present in fstab
   ansible.builtin.blockinfile:
     path: /etc/fstab
-    block: "{{ lookup('template', 'cache_mounts.j2') }}"
-    marker: "########### {mark} ANSIBLE MANAGED BLOCK - CACHE ###########"
-    create: yes
+    block: |
+      {% for disk in cache_disks_only %}
+      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  defaults  0  0
+      {% endfor %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
+  when: cache_disks_only | int > 0
 
 - name: Mount cache disks
   ansible.builtin.mount:
@@ -46,6 +50,7 @@
     src: "{{ item }}"
     fstype: ext4
     state: mounted
-  loop: "{{ cache_disks }}"
+  loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
+  when: cache_disks_only | int > 0

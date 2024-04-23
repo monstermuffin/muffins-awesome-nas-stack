@@ -1,0 +1,15 @@
+[Unit]
+Description=mergerfs non-cached media mount
+
+[Service]
+Type=simple
+KillMode=mixed
+ExecStart=/usr/bin/mergerfs \
+  -f \
+  {{ data_mounts | join(':') }} \
+  {{ media_noncached }}
+ExecStop=/bin/fusermount -uz {{ media_noncached }}
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
