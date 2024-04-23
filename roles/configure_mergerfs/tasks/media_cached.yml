@@ -1,23 +1,25 @@
 ---
 - name: Ensure mountpoint for media exists
-  file:
+  ansible.builtin.file:
     path: /mnt/media
     state: directory
     mode: '0775'
 
 - name: Count items in cache_disks
-  set_fact:
+  ansible.builtin.set_fact:
+
     cache_disks_count: "{{ cache_disks|length }}"
 
 - name: Generate cache_mounts list
-  set_fact:
+  ansible.builtin.set_fact:
+
     cache_mounts: "{{ cache_mounts|default([]) + ['/mnt/cache-disks/cache%02d' % (index + 1)] }}"
   loop: "{{ cache_disks }}"
   loop_control:
     index_var: index
 
 - name: Deploy mergerfs media_cached systemd service
-  template:
+  ansible.builtin.template:
     src: mergerfs.cache_mount.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
   notify:

@@ -1,6 +1,5 @@
 - name: Confirm disk wiping
   block:
-
     - ansible.builtin.pause:
         prompt: |
           You have set wipe_and_setup to true. This will wipe all non-compliant data/parity/cache disk vars.
@@ -21,5 +20,4 @@
       ansible.builtin.fail:
         msg: "Disk wiping not confirmed. Aborting playbook execution."
       when: wipe_confirmation.user_input != 'yes'
-
   when: wipe_and_setup

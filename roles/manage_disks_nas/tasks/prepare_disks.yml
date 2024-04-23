@@ -5,7 +5,7 @@
   register: data_disks_fs_check_results
 
 - name: Identify non-BTRFS data disks
-  set_fact:
+  ansible.builtin.set_fact:
     non_btrfs_disks: "{{ non_btrfs_disks | default([]) + [item.item] }}"
   with_items: "{{ data_disks_fs_check_results.results }}"
   when:
@@ -17,18 +17,18 @@
   register: cache_parity_disks_fs_check_results
 
 - name: Identify non-EXT4 cache and parity disks
-  set_fact:
+  ansible.builtin.set_fact:
     non_ext4_disks: "{{ non_ext4_disks | default([]) + [item.item] }}"
   with_items: "{{ cache_parity_disks_fs_check_results.results }}"
   when:
     - "'ext4' not in item.stdout"
 
 - name: Set disks_to_wipe
-  set_fact:
+  ansible.builtin.set_fact:
     disks_to_wipe: "{{ (non_btrfs_disks | default([])) + (non_ext4_disks | default([])) }}"
 
 - name: Notify about disks to be formatted
-  debug:
+  ansible.builtin.debug:
     msg: |
       The following disks need to be wiped and formatted:
       Data disks (BTRFS): {{ non_btrfs_disks | default([]) | join(', ') }}
@@ -40,14 +40,14 @@
     - not wipe_and_setup
 
 - name: Fail if disks need to be wiped but wipe_and_setup is false
-  fail:
+  ansible.builtin.fail:
     msg: "Disks need to be wiped and formatted, but wipe_and_setup is set to false. Please set wipe_and_setup to true to proceed."
   when:
     - disks_to_wipe | length > 0
     - not wipe_and_setup
 
 - name: Prompt user for confirmation to wipe and reformat disks
-  pause:
+  ansible.builtin.pause:
     prompt: |
       The following actions will be performed:
       - Wipe disk labels for: {{ disks_to_wipe | join(', ') }}
@@ -63,7 +63,7 @@
     - wipe_and_setup
 
 - name: Fail if user does not confirm disk wiping
-  fail:
+  ansible.builtin.fail:
     msg: "User did not confirm disk wiping. Playbook execution stopped."
   when:
     - disks_to_wipe | length > 0
@@ -71,7 +71,7 @@
     - user_confirmation.user_input | default('n') | lower != 'y'
 
 - name: Wipe disk labels
-  command: sudo wipefs -a {{ item }}
+  ansible.builtin.command: sudo wipefs -a {{ item }}
   with_items: "{{ disks_to_wipe }}"
   when:
     - disks_to_wipe | length > 0
@@ -105,5 +105,5 @@
   changed_when: false
 
 - name: Print filesystem types
-  debug:
+  ansible.builtin.debug:
     var: filesystem_types.results

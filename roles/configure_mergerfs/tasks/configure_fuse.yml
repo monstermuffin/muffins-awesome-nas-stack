@@ -1,6 +1,6 @@
 ---
 - name: Uncomment user_allow_other in /etc/fuse.conf
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/fuse.conf
     regexp: '^#?(user_allow_other)'
     line: 'user_allow_other'

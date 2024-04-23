@@ -1,5 +1,4 @@
 ---
-
 - name: Add the GPG key for the repository
   apt_key:
     url: https://packagecloud.io/ookla/speedtest-cli/gpgkey

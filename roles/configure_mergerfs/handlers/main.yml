@@ -1,14 +1,14 @@
 ---
 - name: Reload systemd daemon
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
 
 - name: Restart mergerfs_media_cache
-  systemd:
+  ansible.builtin.systemd:
     name: mergerfs-media-cache.service
     state: restarted
 
 - name: Restart mergerfs_media_cold
-  systemd:
+  ansible.builtin.systemd:
     name: mergerfsmedia-cold.service
     state: restarted

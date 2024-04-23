@@ -1,6 +1,6 @@
 ---
 - name: Count the number of data disks
-  set_fact:
+  ansible.builtin.set_fact:
     data_disks_count: "{{ data_disks | length }}"
 
 - name: Create Btrfs subvolume mount points
@@ -11,7 +11,7 @@
   loop: "{{ range(1, data_disks|length + 1) }}"
 
 - name: Print rendered template
-  debug:
+  ansible.builtin.debug:
     msg: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
 
 - name: Ensure Btrfs subvolume mounts are present in fstab

@@ -8,13 +8,13 @@
     remote_src: yes
 
 - name: List subvolumes
-  shell: "btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
+  ansible.builtin.shell: "btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
   loop: "{{ range(0, data_disks|length)|list }}"
   register: subvolume_snapshot_check
   ignore_errors: true
 
 - name: Create Btrfs .snapshots subvolume
-  command: "sudo btrfs subvolume create {{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}/.snapshots"
+  ansible.builtin.command: "sudo btrfs subvolume create {{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}/.snapshots"
   loop: "{{ subvolume_snapshot_check.results }}"
   when: "'.snapshots' not in item.stdout"
   loop_control:

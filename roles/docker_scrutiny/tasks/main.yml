@@ -1,6 +1,6 @@
 ---
 - name: Ensure Scrutiny directories exist.
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
   loop:
@@ -8,13 +8,13 @@
     - "{{ scrutiny_influxdb_path }}"
 
 - name: Download the Scrutiny configuration file
-  get_url:
+  ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml"
     dest: "{{ scrutiny_config_file }}"
     mode: '0644'
 
 - name: Update Scrutiny configuration file with Discord webhook details
-  replace:
+  ansible.builtin.replace:
     path: "{{ scrutiny_config_file }}"
     regexp: '#notify:\n#  urls:\n#    - "discord://token@channel"'
     replace: 'notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"'
@@ -24,7 +24,7 @@
 
 
 - name: Deploy Scrutiny container.
-  docker_container:
+  community.docker.docker_container:
     name: scrutiny
     image: "{{ scrutiny_image }}"
     state: started

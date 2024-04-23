@@ -30,13 +30,13 @@
   when: mount_check.results | selectattr('rc', 'equalto', 1) | list | length > 0
 
 - name: List subvolumes
-  shell: "btrfs subvolume list /mnt/btrfs-root/{{ item | basename }} | grep data"
+  ansible.builtin.shell: "btrfs subvolume list /mnt/btrfs-root/{{ item | basename }} | grep data"
   loop: "{{ data_disks }}"
   register: subvolume_check
   ignore_errors: true
 
 - name: Create Btrfs data subvolume
-  command: "btrfs subvolume create /mnt/btrfs-root/{{ item.item | basename }}/data"
+  ansible.builtin.command: "btrfs subvolume create /mnt/btrfs-root/{{ item.item | basename }}/data"
   loop: "{{ subvolume_check.results }}"
   when: "'data' not in item.stdout"
   loop_control:
@@ -44,7 +44,7 @@
   ignore_errors: yes
 
 - name: Unmount the fs
-  command: "umount /mnt/btrfs-root/{{ item | basename }}"
+  ansible.builtin.command: "umount /mnt/btrfs-root/{{ item | basename }}"
   loop: "{{ data_disks }}"
   loop_control:
     label: "{{ item }}"

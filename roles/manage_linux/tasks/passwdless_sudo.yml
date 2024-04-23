@@ -1,6 +1,6 @@
 ---
 - name: Enable password-less sudo
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers
     state: present
     regexp: '^%sudo'

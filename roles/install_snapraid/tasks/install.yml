@@ -1,5 +1,4 @@
 ---
-
 - name: Install required packages for SnapRAID installation
   ansible.builtin.apt:
     name:

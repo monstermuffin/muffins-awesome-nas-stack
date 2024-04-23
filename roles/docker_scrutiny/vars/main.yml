@@ -1,3 +1,4 @@
+---
 #scrutiny vars
 scrutiny_image: ghcr.io/analogj/scrutiny:master-omnibus
 scrutiny_ports:
