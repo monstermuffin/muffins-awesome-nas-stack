@@ -1,16 +1,27 @@
----
-- name: Set group ownership and permissions for /mnt/media
-  file:
+- name: Set permission /mnt/media
+  ansible.builtin.file:
     path: /mnt/media
     owner: "{{ user }}"
-    group: media
-    mode: "0775"
-  when: ansible_os_family == "Debian"
+    group: "{{ media_group }}"
+    mode: "0770"
+  become: yes
 
-- name: Set group ownership and permissions for /mnt/media-cold
-  file:
-    path: /mnt/media-cold
+- name: Set permissions on data directories
+  ansible.builtin.file:
+    path: "/mnt/media/{{ item }}"
     owner: "{{ user }}"
-    group: media
-    mode: "0775"
-  when: ansible_os_family == "Debian"
+    group: "{{ media_group }}"
+    mode: "0770"
+    recurse: yes
+  loop: "{{ data_directories }}"
+  become: yes
+
+- name: Set permissions on .snapshots directory
+  ansible.builtin.file:
+    path: /mnt/media/.snapshots
+    owner: root
+    group: root
+    mode: "0770"
+    recurse: yes
+  become: yes
+  ignore_errors: yes

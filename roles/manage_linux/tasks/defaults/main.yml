@@ -1,6 +1,5 @@
 ---
-timezone: Europe/London
-github_ssh_keys: https://github.com/monstermuffin.keys
+timezone: []
 
 users: []
 groups: []

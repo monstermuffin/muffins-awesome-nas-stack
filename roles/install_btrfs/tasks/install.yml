@@ -4,7 +4,6 @@
     repo: 'git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git'
     dest: /tmp/btrfs-progs
     depth: 1
-  when: update_needed
 
 - name: Install required packages for building btrfs-progs
   ansible.builtin.package:
@@ -26,37 +25,39 @@
       - libzstd-dev
       - libudev-dev
     state: present
-  when: update_needed
+
+- name: Install sphinx_rtd_theme using pip (risky)
+  ansible.builtin.shell: "pip install sphinx-rtd-theme --break-system-packages"
 
 - name: Remove older version of btrfs-tools
   ansible.builtin.package:
     name: btrfs-tools
     state: absent
-  when: update_needed
 
 - name: Run autogen.sh for btrfs-progs
   ansible.builtin.shell:
     cmd: ./autogen.sh
     chdir: /tmp/btrfs-progs
-  when: update_needed
 
 - name: Configure btrfs-progs for building
   ansible.builtin.shell:
     cmd: ./configure
     chdir: /tmp/btrfs-progs
-  when: update_needed
 
 - name: Compile btrfs-progs
   ansible.builtin.shell:
     cmd: make
     chdir: /tmp/btrfs-progs
-  when: update_needed
 
 - name: Install btrfs-progs
   ansible.builtin.shell:
     cmd: sudo make install
     chdir: /tmp/btrfs-progs
-  when: update_needed
+
+- name: Cleanup cloned repository
+  ansible.builtin.file:
+    path: /tmp/btrfs-progs
+    state: absent
 
 - name: Cleanup cloned repository
   ansible.builtin.file:

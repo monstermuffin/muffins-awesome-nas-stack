@@ -14,12 +14,6 @@
   debug:
     msg: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
 
-# - name: Ensure old Btrfs subvolume mounts block is removed from fstab
-#   ansible.builtin.blockinfile:
-#     path: /etc/fstab
-#     marker: "########### {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL ###########"
-#     state: absent
-
 - name: Ensure Btrfs subvolume mounts are present in fstab
   ansible.builtin.blockinfile:
     path: /etc/fstab
@@ -30,7 +24,7 @@
 - name: Mount Btrfs subvolumes
   ansible.builtin.mount:
     path: "{{ data_mount_path }}/data{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}-part1"
+    src: "{{ item }}"
     fstype: btrfs
     opts: subvol=data
     state: mounted

@@ -7,6 +7,20 @@
     mode: '0644'
     remote_src: yes
 
+- name: List subvolumes
+  shell: "btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
+  loop: "{{ range(0, data_disks|length)|list }}"
+  register: subvolume_snapshot_check
+  ignore_errors: true
+
+- name: Create Btrfs .snapshots subvolume
+  command: "sudo btrfs subvolume create {{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}/.snapshots"
+  loop: "{{ subvolume_snapshot_check.results }}"
+  when: "'.snapshots' not in item.stdout"
+  loop_control:
+    label: "{{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}"
+  ignore_errors: yes
+
 - name: Ensure 'TIMELINE_CREATE="no"' in the 'default' Snapper configuration
   ansible.builtin.lineinfile:
     path: /etc/snapper/configs/default
@@ -33,7 +47,6 @@
 - name: Destroy invalid snapper configurations
   ansible.builtin.command:
     cmd: "snapper -c data{{ '%02d' % item }} delete-config"
-    warn: false
   loop: "{{ range(1, data_disks|length + 1) }}"
   when:
     - data_disks is defined
@@ -45,7 +58,6 @@
 - name: Create Snapper configurations for missing data disks using 'default' as a template
   ansible.builtin.command:
     cmd: "snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
-    warn: false
   loop: "{{ range(1, data_disks|length + 1) }}"
   when:
     - data_disks is defined

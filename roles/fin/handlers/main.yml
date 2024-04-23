@@ -3,12 +3,12 @@
   systemd:
     daemon_reload: true
 
-- name: Restart mergerfs_media_cache
+- name: Restart mergerfs-media-cache
   systemd:
     name: mergerfs-media-cache.service
     state: restarted
 
-- name: Restart mergerfs_media_cold
+- name: Restart mergerfs-media-cold
   systemd:
-    name: mergerfsmedia-cold.service
+    name: mergerfs-media-cold.service
     state: restarted

@@ -1,8 +1,18 @@
----
+------ # playbookexample.yml
 - name: Maintain MANS
   hosts: mans-host
   become: true
   gather_facts: yes
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Check if operating system is Debian
+      fail:
+        msg: "This playbook is only supported on Debian. Disable this check at your own risk by setting 'skip_os_check: true' in vars.yml."
+      when:
+        - ansible_distribution != "Debian"
+        - not skip_os_check|default(false)|bool
 
   tasks:
     - name: Run wipecheck role
@@ -16,6 +26,12 @@
     - name: Run manage_zsh role
       include_role:
         name: manage_zsh
+      when: install_zsh
+
+    - name: Run stefangweichinger.ansible_rclone role
+      include_role:
+        name: stefangweichinger.ansible_rclone
+      when: install_rclone
 
     - name: Run geerlingguy.docker role
       include_role:
@@ -33,16 +49,6 @@
       include_role:
         name: install_btrfs
 
-    # - name: Run install_openzfs role
-    #   include_role:
-    #     name: install_zfs
-    #   when: install_zfs
-
-    - name: Run stefangweichinger.ansible_rclone role
-      include_role:
-        name: stefangweichinger.ansible_rclone
-      when: install_rclone
-
     - name: Run manage_disks_nas role
       include_role:
         name: manage_disks_nas
@@ -58,167 +64,4 @@
     - name: Run docker_scrutiny role
       include_role:
         name: docker_scrutiny
-
-  vars:
-  #options:
-    install_rclone: true
-    # install_zfs: false
-    wipe_and_setup: false  # Set this to true to wipe and setup the disks
-    cache: true #set to false if not using a cache disk ##DOES NOTHING CURRENTLY##
-    #extra_apps
-    extra_apps:
-      - fuse
-      - cifs-utils
-      - nfs-kernel-server
-      - nfs-common
-      - samba
-      - hdparm
-      - fdisk
-      - parted
-      - gdisk
-      - apparmor
-      - apparmor-utils
-      - snapraid
-      - snapper
-
-    #generic:
-    timezone: Europe/London
-    timezone: Europe/London
-    github_ssh_keys: https://github.com/<YOUR_GITHUB_KEYS>.keys # Remove this URL if you do not use this.
-    server_name: <some server name>
-    smb_media_share_name: media-share
-
-    #users/groups
-    user: monstermuffin
-    media_group: media
-    docker_users:
-      - "{{ user }}"
-      - muffin
-    users:
-      - name: media
-        groups:
-          - media
-        create_home: no
-        shell: /sbin/nologin
-
-    #samba config
-    samba_users:
-    - name: media
-      password: <SOME PASS - USE VAULT, OR DON'T IDC>
-    - name: muffin
-      password: <SOME PASS - USE VAULT, OR DON'T IDC>
-    samba_shares:
-      - name: "{{ smb_media_share_name }}"
-        path: "{{ media_cached }}"
-        guest_ok: no
-        writable: yes
-        force_group: media
-        create_mode: "0770"
-        directory_mode: "0770"
-        force_create_mode: "0770"
-        force_directory_mode: "0770"
-        write_list: media,monstermuffin
-        owner: media
-        group: media
-
-
-    #mounts
-    media_cached: /mnt/media
-    media_cold: /mnt/media-cold
-    data_mount_path: /mnt/data-disks
-    parity_mount_path: /mnt/parity-disks
-    cache_mount_path: /mnt/cache-disks
-    #content files
-    content_files:
-      - /var/snapraid/snapraid.content
-      - /mnt/cache-disks/cache01/snapraid/snapraid.content
-    #dirs:
-    dir_snapraid_btfs_runner: /var/snapraid-btrfs-runner
-
-    #data_directories
-    data_directories:
-      - movies
-      - tv
-      - music
-      - youtube
-
-    data_disks:
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-      - /dev/disk/by-id/ata-xxxx
-    parity_disks:
-      - /dev/disk/by-id/ata-xxxx
-    cache_disks:
-      - /dev/disk/by-id/nvme-xxxx
-
-    #scrutiny vars
-    #https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
-    scrutiny_discord_token: ["TOKEN"]
-    scrutiny_discord_webhookid: ["WEBHOOKID"]
-    #mapping for scrutiny
-    disk_mapping:
-      - /dev/disk/by-id/ata-xxxx:/dev/sda
-      - /dev/disk/by-id/ata-xxxx:/dev/sdb
-      - /dev/disk/by-id/ata-xxxx:/dev/sdc
-      - /dev/disk/by-id/aata-xxxx:/dev/sdd
-      - /dev/disk/by-id/ata-xxxx:/dev/sde
-      - /dev/disk/by-id/ata-xxxx:/dev/sdf
-      - /dev/disk/by-id/ata-xxxx:/dev/sdg
-      - /dev/disk/by-id/ata-xxxx:/dev/sdh
-      - /dev/disk/by-idata-xxxx:/dev/sdi
-      - /dev/disk/by-id/ata-xxxx:/dev/sdj
-      - /dev/disk/by-id/ata-xxxx:/dev/sdk
-      - /dev/disk/by-id/ata-xxxx:/dev/sdl
-      - /dev/disk/by-id/ata-xxxx:/dev/sdm
-      - /dev/disk/by-id/ata-xxxx:/dev/sdn
-      - /dev/disk/by-id/ata-xxxx:/dev/sdo
-      - /dev/disk/by-id/nvme-xxxx:/dev/nvme0
-
-    # ##### zfs
-    # array01_mountpoint: /mnt/array01
-    # #zfs vars - find more: https://github.com/mrlesmithjr/ansible-zfs
-    # zfs_enable_nfs: true
-    # zfs_enable_samba: true
-    # zfs_create_filesystems: true
-    # zfs_create_pools: true
-    # zfs_create_volumes: true
-    # zfs_enable_monitoring: true
-
-    # zfs_pools:
-    #   - name: 'ARRAY01'
-    #     action: 'create'
-    #     compression: 'lz4'
-    #     devices:
-    #       - /dev/disk/by-id/ata-xxxx
-    #       - /dev/disk/by-id/ata-xxxx
-    #       - /dev/disk/by-id/ata-xxxx
-    #       - /dev/disk/by-id/ata-xxxx
-    #       - /dev/disk/by-id/ata-xxxx
-    #       - /dev/disk/by-id/ata-xxxx
-    #     type: 'raidz1'
-    #     mountpoint: "{{ array01_mountpoint }}"
-    #     state: 'present'
-
-    # zfs_filesystems:
-    #   - name: array01
-    #     compression: lz4
-    #     group: "{{ user }}"
-    #     mountpoint: "{{ array01_mountpoint }}"
-    #     owner: "{{ user }}"
-    #     pool: ARRAY01
-    #     quota: none
-    #     # encryption: on
-    #     # keylocation: "file:///use/local/etc/zfs/keys/tank/encyrpted-fs"
-    #     # keyformat: "hex"
-    #     state: present
-
-    # zfs_pools_scrub_cron:
-    #   minute: 0
-    #   hour: 0
-    #   day: "*"
-    #   month: "*"
-    #   weekday: sun
+      when: configure_scrutiny

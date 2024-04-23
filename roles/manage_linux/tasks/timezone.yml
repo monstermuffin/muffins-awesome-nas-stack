@@ -1,4 +1,4 @@
 ---
-- name: Set timezone to Europe/London
+- name: Set timezone to $timezone
   timezone:
     name: "{{ timezone }}"

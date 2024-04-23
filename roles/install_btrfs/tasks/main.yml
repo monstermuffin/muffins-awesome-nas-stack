@@ -4,8 +4,7 @@
     update_needed: false
 
 - name: Check if btrfs-progs is installed
-  ansible.builtin.command:
-    cmd: btrfs --version
+  ansible.builtin.command: btrfs --version
   register: installed_version
   changed_when: false
   ignore_errors: true
@@ -29,10 +28,11 @@
 - name: Extract version number from installed version
   ansible.builtin.set_fact:
     installed_version_number: "{{ installed_version.stdout.split()[-1][1:] }}"
+  when: installed_version.rc == 0
 
 - name: Compare installed version with the latest version
   ansible.builtin.set_fact:
-    update_needed: "{{ btrfs_latest_version != installed_version_number }}"
+    update_needed: "{{ btrfs_latest_version != (installed_version_number | default('0')) }}"
 
 - name: debug installed_version_number
   debug:

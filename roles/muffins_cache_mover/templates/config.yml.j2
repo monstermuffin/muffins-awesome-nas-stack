@@ -12,4 +12,5 @@ Settings:
   BACKUP_COUNT: "{{ cache_mover_log_backup_count }}" # The number of backup log files to maintain.
   USER: "{{ cache_mover_user }}" # The username that should have ownership of the files.
   GROUP: "{{ cache_mover_group }}" # The group that should have ownership of the files.
-  CHMOD: "{{ cache_mover_chmod }}" # The permissions to set for the files moved.
+  FILE_CHMOD: '{{ cache_file_chmod }}'  # The permissions to set for the above user/group on all files moved.
+  DIR_CHMOD: '{{ cache_folder_chmod }}' # The permissions to set for the above user/group on all directories created.

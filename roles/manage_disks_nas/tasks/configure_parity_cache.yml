@@ -17,7 +17,7 @@
 - name: Mount parity disks
   ansible.builtin.mount:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}-part1"
+    src: "{{ item }}"
     fstype: ext4
     state: mounted
   loop: "{{ parity_disks }}"
@@ -43,7 +43,7 @@
 - name: Mount cache disks
   ansible.builtin.mount:
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}-part1"
+    src: "{{ item }}"
     fstype: ext4
     state: mounted
   loop: "{{ cache_disks }}"

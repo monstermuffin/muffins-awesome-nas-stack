@@ -1,4 +1,10 @@
 ---
+- name: Ensure mountpoint for media exists
+  file:
+    path: /mnt/media
+    state: directory
+    mode: '0775'
+
 - name: Count items in cache_disks
   set_fact:
     cache_disks_count: "{{ cache_disks|length }}"
@@ -15,6 +21,22 @@
     src: mergerfs.cache_mount.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
   notify:
-    - Reload systemd
-    - Restart mergerfs media cache
-    - Enable mergerfs media cache
+    - Reload systemd daemon
+
+- name: Ensure mergerfs-media-cache service is enabled
+  ansible.builtin.systemd:
+    name: mergerfs-media-cache.service
+    enabled: true
+  notify: Restart mergerfs_media_cache
+
+- name: Check if mergerfs-media-cache service is running
+  ansible.builtin.shell: systemctl is-active mergerfs-media-cache.service
+  register: cache_service_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Start mergerfs-media-cache service if not running
+  ansible.builtin.systemd:
+    name: mergerfs-media-cache.service
+    state: started
+  when: cache_service_status.rc != 0

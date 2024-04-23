@@ -18,6 +18,7 @@
 - name: Apply Keys
   ansible.builtin.include_tasks:
     file: keys.yml
+  when: ssh_key_option != 'none'
 
 - name: apt maintainance
   ansible.builtin.include_tasks:

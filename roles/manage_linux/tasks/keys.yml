@@ -1,15 +1,21 @@
 ---
-
-- name: Get user list
-  ansible.builtin.getent:
-    database: passwd
-
-- name: Replace All Keys
+- name: Add SSH keys from GitHub
   ansible.posix.authorized_key:
     user: "{{ user }}"
     state: present
-    exclusive: true
-    key: "{{ github_ssh_keys }}"
-  register: user_exists
-  changed_when: false
-  when: github_ssh_keys is defined and github_ssh_keys != ''
+    key: "https://github.com/{{ github_username }}.keys"
+  when: ssh_key_option == 'github'
+
+- name: Add SSH keys from URL
+  ansible.posix.authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ ssh_key_url }}"
+  when: ssh_key_option == 'url'
+
+- name: Add SSH keys from local file
+  ansible.posix.authorized_key:
+    user: "{{ user }}"
+    state: present
+    key: "{{ lookup('file', ssh_key_file) }}"
+  when: ssh_key_option == 'file'

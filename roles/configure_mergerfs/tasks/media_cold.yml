@@ -21,6 +21,22 @@
     src: mergerfs.cold_mount.j2
     dest: /etc/systemd/system/mergerfs-media-cold.service
   notify:
-    - Reload systemd
-    - Restart mergerfs media cold
-    - Enable mergerfs media cold
+    - Reload systemd daemon
+
+- name: Ensure mergerfs-media-cold service is enabled
+  ansible.builtin.systemd:
+    name: mergerfs-media-cold.service
+    enabled: true
+  notify: Restart mergerfs_media_cold
+
+- name: Check if mergerfs-media-cold service is running
+  ansible.builtin.shell: systemctl is-active mergerfs-media-cold.service
+  register: cache_service_status
+  ignore_errors: true
+  changed_when: false
+
+- name: Start mergerfs-media-cold service if not running
+  ansible.builtin.systemd:
+    name: mergerfs-media-cold.service
+    state: started
+  when: cache_service_status.rc != 0

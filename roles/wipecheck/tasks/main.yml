@@ -1,22 +1,25 @@
----
-- name: Set default confirmation
-  set_fact:
-    user_confirmation: 'no'
+- name: Confirm disk wiping
+  block:
 
-- name: Pause for verification
-  pause:
-    prompt: "You have set wipe_and_setup to true. This will wipe all data/parity/cache disk vars. Are you sure you want to continue? (yes/no)"
-  register: user_input
+    - ansible.builtin.pause:
+        prompt: |
+          You have set wipe_and_setup to true. This will wipe all non-compliant data/parity/cache disk vars.
+          Are you sure you want to continue? (yes/no)
+      register: wipe_confirmation
+
+    - name: Validate user input
+      ansible.builtin.fail:
+        msg: "Invalid input. Please enter 'yes' or 'no'."
+      when: wipe_confirmation.user_input not in ['yes', 'no']
+
+    - name: Recap disk wiping confirmation
+      debug:
+        msg: "You have confirmed to proceed with disk wiping. All data on the non-compliant disks will be permanently erased."
+      when: wipe_confirmation.user_input == 'yes'
+
+    - name: Abort playbook if user does not confirm
+      ansible.builtin.fail:
+        msg: "Disk wiping not confirmed. Aborting playbook execution."
+      when: wipe_confirmation.user_input != 'yes'
+
   when: wipe_and_setup
-
-- name: Set user confirmation from input
-  set_fact:
-    user_confirmation: "{{ user_input.user_input }}"
-  when: wipe_and_setup
-
-- name: Fail if no
-  fail:
-    msg: "Playbook execution stopped."
-  when:
-    - wipe_and_setup
-    - user_confirmation == 'no'

@@ -1,0 +1,165 @@
+---
+- name: Get disk status for all disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    state: info
+  register: disk_status
+  loop: "{{ data_disks + cache_disks + parity_disks }}"
+  ignore_errors: true
+
+- name: Initialize disk lists
+  set_fact:
+    non_btrfs_disks: []
+    non_ext4_disks: []
+
+- name: Check filesystem type for data disks
+  ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
+  with_items: "{{ data_disks }}"
+  register: data_disks_fs_check_results
+
+- name: Identify non-BTRFS data disks
+  set_fact:
+    non_btrfs_disks: "{{ non_btrfs_data_disks | default([]) + [item.item] }}"
+  with_items: "{{ data_disks_fs_check_results.results }}"
+  when:
+    - "'btrfs' not in item.stdout"
+    - item.stdout == ""
+
+- name: Combine cache and parity disks
+  set_fact:
+    combined_disks: "{{ cache_disks + parity_disks }}"
+
+- name: Check filesystem type for combined cache and parity disks
+  ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
+  with_items: "{{ combined_disks }}"
+  register: combined_disks_fs_check_results
+
+- name: Identify non-EXT4 combined disks
+  set_fact:
+    non_ext4_disks: "{{ non_ext4_disks | default([]) + [item.item] }}"
+  with_items: "{{ combined_disks_fs_check_results.results }}"
+  when:
+    - "'ext4' not in item.stdout"
+    - item.stdout == ""
+
+- name: Notify about non-BTRFS data disks
+  debug:
+    msg: |
+      The following data disks will be formatted as BTRFS if they DO NOT have BTRFS:
+      {% for disk in non_btrfs_disks %}
+      - {{ disk }}
+      {% endfor %}
+  when: non_btrfs_disks is defined and non_btrfs_disks | length > 0
+
+- name: Notify about non-ext4 cache/parity disks
+  debug:
+    msg: |
+      The following cache/parity disks will be formatted as ext4 if they DO NOT have ext4:
+      {% for disk in non_ext4_disks %}
+      - {{ disk }}
+      {% endfor %}
+  when: non_ext4_disks is defined and non_ext4_disks | length > 0
+
+- name: Check if any disks need to be wiped or formatted
+  fail:
+    msg: "At least one disk needs destorying. Please set wipe_and_setup to true to proceed."
+  when:
+    - (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)
+    - not wipe_and_setup
+
+# Wipe disks
+- name: Wipe Disk Labels
+  command: sudo wipefs -a {{ item }}
+  with_items: "{{non_btrfs_disks + non_ext4_disks }}"
+  when:
+    - (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+#Wipe and format flagged BTRFS disks
+- name: Create btrfs partition on data disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    number: 1
+    label: gpt
+    part_start: 0%
+    part_end: 100%
+    part_type: primary
+    fs_type: btrfs
+    state: present
+  with_items: "{{ non_btrfs_disks }}"
+  when:
+    - (non_btrfs_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+- name: Get partition info for data disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    state: info
+  with_items: "{{ non_btrfs_disks }}"
+  register: data_disk_partitions
+  when:
+    - (non_btrfs_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+- debug:
+    var: data_disk_partitions
+
+- name: Create BTRFS filesystem on data disk partitions
+  ansible.builtin.filesystem:
+    fstype: btrfs
+    dev: "{{ item.item }}-part1"
+  with_items: "{{ data_disk_partitions.results }}"
+  when:
+    - (non_btrfs_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+#Wipe and format flagged ext4 disks
+- name: Create ext4 partition on cache and parity disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    number: 1
+    label: gpt
+    part_start: 0%
+    part_end: 100%
+    part_type: primary
+    fs_type: ext4
+    state: present
+  with_items: "{{ non_ext4_disks }}"
+  when:
+    - (non_ext4_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+- name: Get partition info for cache and parity disks
+  ansible.builtin.parted:
+    device: "{{ item }}"
+    state: info
+  with_items: "{{ non_ext4_disks }}"
+  register: cache_parity_disk_partitions
+  when:
+    - (non_ext4_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+- debug:
+    var: cache_parity_disk_partitions
+
+- name: Create ext4 filesystem on cache and parity disk partitions
+  ansible.builtin.filesystem:
+    fstype: ext4
+    dev: "{{ item.item }}-part1"
+  with_items: "{{ cache_parity_disk_partitions.results }}"
+  when:
+    - (non_ext4_disks | default([]) | length > 0)
+    - wipe_and_setup
+
+- name: Inform kernel about new partition table
+  ansible.builtin.command: partprobe
+
+- name: Get filesystem type for all disks
+  ansible.builtin.shell: "lsblk -f {{ item }}"
+  loop: "{{ data_disks + cache_disks + parity_disks }}"
+  register: filesystem_types
+  changed_when: false
+
+- name: Print filesystem types
+  debug:
+    var: filesystem_types.results

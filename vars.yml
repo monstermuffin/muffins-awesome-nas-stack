@@ -1,0 +1,134 @@
+---
+#optional:
+install_zsh: true
+install_rclone: true
+configure_scrutiny: true
+skip_os_check: false
+
+wipe_and_setup: false  # Set this to true to wipe and setup the disks
+
+#extra_apps
+extra_apps:
+  - fuse
+  - cifs-utils
+  - nfs-kernel-server
+  - nfs-common
+  - samba
+  - hdparm
+  - fdisk
+  - parted
+  - gdisk
+  - apparmor
+  - apparmor-utils
+  - snapraid
+  - snapper
+
+#generic:
+timezone: Europe/London
+smb_media_share_name: media-share
+
+#sshkeys
+ssh_key_option: none  # Options: github, url, file, none
+github_username: <YOUR_GITHUB_USERNAME>
+ssh_key_url: https://example.com/ssh_keys.txt
+ssh_key_file: /path/to/local/ssh_keys.txt
+
+#users/groups
+user: <YOUR_USERNAME>
+media_group: media # Group for share perms.
+docker_users:
+  - "{{ user }}"
+users:
+  - name: media
+    groups:
+      - media
+    create_home: no
+    shell: /sbin/nologin
+
+#samba config
+samba_users:
+- name: media
+  password: <SOME PASS - USE VAULT, OR DON'T IDC>
+samba_shares:
+  - name: "{{ smb_media_share_name }}"
+    path: "{{ media_cached }}"
+    guest_ok: no
+    writable: yes
+    force_group: media
+    create_mode: "0770"
+    directory_mode: "0770"
+    force_create_mode: "0770"
+    force_directory_mode: "0770"
+    write_list: media,"{{ user }}"
+    owner: media
+    group: media
+
+
+#mounts
+media_cached: /mnt/media
+media_cold: /mnt/media-cold
+data_mount_path: /mnt/data-disks
+parity_mount_path: /mnt/parity-disks
+cache_mount_path: /mnt/cache-disks
+#content files
+content_files:
+  - /var/snapraid/snapraid.content
+  - /mnt/cache-disks/cache01/snapraid/snapraid.content
+#dirs:
+dir_snapraid_btfs_runner: /var/snapraid-btrfs-runner
+
+#data_directories
+data_directories:
+  - movies
+  - tv
+  - music
+  - youtube
+
+data_disks:
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+  - /dev/disk/by-id/ata-xxxx
+parity_disks:
+  - /dev/disk/by-id/ata-xxxx
+cache_disks:
+  - /dev/disk/by-id/nvme-xxxx
+
+#cache mover vars
+cache_mover_log_path: /var/log/cache-mover.log
+cache_mover_threshold_percentage: 70
+cache_mover_target_percentage: 30
+cache_mover_max_workers: 8
+cache_mover_max_log_size_mb: 100
+cache_mover_log_backup_count: 5
+cache_mover_user: media
+cache_mover_group: media
+cache_file_chmod: '770'
+cache_folder_chmod: '770'
+on_calendar_schedule: "*-*-* 03:00:00" #3AM daily
+
+#scrutiny vars
+#https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
+scrutiny_discord_token: ["TOKEN"]
+scrutiny_discord_webhookid: ["WEBHOOKID"]
+#mapping for scrutiny
+disk_mapping:
+  - /dev/disk/by-id/ata-xxxx:/dev/sda
+  - /dev/disk/by-id/ata-xxxx:/dev/sdb
+  - /dev/disk/by-id/ata-xxxx:/dev/sdc
+  - /dev/disk/by-id/aata-xxxx:/dev/sdd
+  - /dev/disk/by-id/ata-xxxx:/dev/sde
+  - /dev/disk/by-id/ata-xxxx:/dev/sdf
+  - /dev/disk/by-id/ata-xxxx:/dev/sdg
+  - /dev/disk/by-id/ata-xxxx:/dev/sdh
+  - /dev/disk/by-idata-xxxx:/dev/sdi
+  - /dev/disk/by-id/ata-xxxx:/dev/sdj
+  - /dev/disk/by-id/ata-xxxx:/dev/sdk
+  - /dev/disk/by-id/ata-xxxx:/dev/sdl
+  - /dev/disk/by-id/ata-xxxx:/dev/sdm
+  - /dev/disk/by-id/ata-xxxx:/dev/sdn
+  - /dev/disk/by-id/ata-xxxx:/dev/sdo
+  - /dev/disk/by-id/nvme-xxxx:/dev/nvme0

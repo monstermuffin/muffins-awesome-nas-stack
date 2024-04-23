@@ -1,0 +1,40 @@
+# ---
+# - name: Reload ansible.builtin.systemd daemon
+#   ansible.builtin.systemd:
+#     daemon_reload: true
+
+# - name: Ensure mergerfs-media-cache service is enabled
+#   ansible.builtin.systemd:
+#     name: mergerfs-media-cache.service
+#     enabled: true
+#   notify: Restart mergerfs-media-cache
+
+# - name: Ensure mergerfs-media-cold service is enabled
+#   ansible.builtin.systemd:
+#     name: mergerfs-media-cold.service
+#     enabled: true
+#   notify: Restart mergerfs-media-cold
+
+# - name: Check if mergerfs-media-cache service is running
+#   ansible.builtin.shell: systemctl is-active mergerfs-media-cache.service
+#   register: cache_service_status
+#   ignore_errors: true
+#   changed_when: false
+
+# - name: Check if mergerfs-media-cold service is running
+#   ansible.builtin.shell: systemctl is-active mergerfs-media-cold.service
+#   register: cold_service_status
+#   ignore_errors: true
+#   changed_when: false
+
+# - name: Start mergerfs-media-cache service if not running
+#   ansible.builtin.systemd:
+#     name: mergerfs-media-cache.service
+#     state: started
+#   when: cache_service_status.rc != 0
+
+# - name: Start mergerfs-media-cold service if not running
+#   ansible.builtin.systemd:
+#     name: mergerfs-media-cold.service
+#     state: started
+#   when: cold_service_status.rc != 0

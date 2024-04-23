@@ -10,7 +10,7 @@
 
 - name: Set ZSH as default shell
   ansible.builtin.user:
-    name: "{{ zsh_user }}"
+    name: "{{ user }}"
     shell: /bin/zsh
 
 - name: Download Oh My ZSH installer
@@ -22,53 +22,42 @@
 
 - name: Check if Oh My ZSH is installed
   ansible.builtin.stat:
-    path: /home/{{ zsh_user }}/.oh-my-zsh
+    path: /home/{{ user }}/.oh-my-zsh
   register: zsh_ohmyzsh_installed
 
 - name: Install Oh My ZSH
-  become_user: "{{ zsh_user }}"
+  become_user: "{{ user }}"
   ansible.builtin.command: /tmp/install-ohmyzsh.sh --unattended
   when: not zsh_ohmyzsh_installed.stat.exists
 
 - name: Install Oh My ZSH plugins and themes
-  become_user: "{{ zsh_user }}"
+  become_user: "{{ user }}"
   block:
     - name: Clone zsh-autosuggestions
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-autosuggestions
-        dest: "/home/{{ zsh_user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        dest: "/home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
         version: master
         force: true
 
     - name: Clone zsh-syntax-highlighting
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-syntax-highlighting
-        dest: "/home/{{ zsh_user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        dest: "/home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
         version: master
         force: true
 
     - name: Clone Powerlevel10k
       ansible.builtin.git:
         repo: https://github.com/romkatv/powerlevel10k
-        dest: "/home/{{ zsh_user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        dest: "/home/{{ user }}/.oh-my-zsh/custom/themes/powerlevel10k"
         version: master
         force: true
 
     - name: Set Powerlevel10k as the default theme
-      become_user: "{{ zsh_user }}"
+      become_user: "{{ user }}"
       ansible.builtin.lineinfile:
-        path: "/home/{{ zsh_user }}/.zshrc"
+        path: "/home/{{ user }}/.zshrc"
         regexp: '^ZSH_THEME=".*"'
         line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
         state: present
-
-# - name: Add zsh history settings to ~/.zshrc
-#   become_user: "{{ zsh_user }}"
-#   ansible.builtin.blockinfile:
-#     path: "/home/{{ zsh_user }}/.zshrc"
-#     marker: "# ANSIBLE: Disable zsh history sharing"
-#     insertafter: "# ANSIBLE: Disable zsh history sharing (end)"
-#     block: |
-#       # Disable sharing history between zsh sessions
-#       setopt noincappendhistory
-#       setopt nosharehistory
