@@ -26,7 +26,7 @@
     path: "{{ data_mount_path }}/data{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: btrfs
-    opts: subvol=data
+    opts: "{{ manage_disks_nas_btrfs_mount_opts }}"
     state: mounted
   loop: "{{ data_disks }}"
   loop_control:

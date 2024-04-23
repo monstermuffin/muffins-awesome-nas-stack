@@ -19,6 +19,7 @@
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: ext4
+    opts: "{{ manage_disks_nas_ext4_mount_opts }}"
     state: mounted
   loop: "{{ parity_disks }}"
   loop_control:
@@ -45,6 +46,7 @@
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: ext4
+    opts: "{{ manage_disks_nas_ext4_mount_opts }}"
     state: mounted
   loop: "{{ cache_disks }}"
   loop_control:
