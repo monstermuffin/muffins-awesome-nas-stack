@@ -1,5 +1,11 @@
 inventories/inventory.yml
+inventories/test.yml
 maintain_aah-fs01.yml
 *.DS_Store*
 test.yml
 .vscode/*
+concatenated_files.yml
+export.sh
+output.yml
+output1.yml
+test_vars.yml
