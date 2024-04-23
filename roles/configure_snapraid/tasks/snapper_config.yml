@@ -53,7 +53,6 @@
     - data_disks|length > 0
     - not config_validity.results[item-1].ansible_facts.config_valid
     - snapper_configs.stdout_lines|length > 2
-  ignore_errors: true
 
 - name: Create Snapper configurations for missing data disks using 'default' as a template
   ansible.builtin.command:
@@ -63,6 +62,7 @@
     - data_disks is defined
     - data_disks|length > 0
     - not config_validity.results[item-1].ansible_facts.config_valid
+  ignore_errors: true
 
 - name: Ensure 'TIMELINE_CREATE="no"' in each data disk's Snapper configuration
   ansible.builtin.lineinfile:
@@ -71,6 +71,7 @@
     line: 'TIMELINE_CREATE="no"'
   loop: "{{ range(1, data_disks|length + 1) }}"
   when: data_disks is defined and data_disks|length > 0
+  ignore_errors: yes
 
 - name: Verify snapper configs
   ansible.builtin.command:
