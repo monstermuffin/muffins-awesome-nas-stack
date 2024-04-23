@@ -9,3 +9,4 @@ export.sh
 output.yml
 output1.yml
 test_vars.yml
+*_old*
