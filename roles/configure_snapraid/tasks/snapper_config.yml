@@ -1,4 +1,17 @@
 ---
+- name: Delete all existing Snapper configs
+  ansible.builtin.command:
+    cmd: "sudo snapper delete-config {{ item }}"
+  loop: "{{ snapper_configs.stdout_lines | default([]) }}"
+  when: snapper_configs.stdout_lines | default([]) | length > 0
+  ignore_errors: true
+
+- name: Remove all .snapshots subvolumes
+  ansible.builtin.command:
+    cmd: "btrfs subvolume delete {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots"
+  loop: "{{ range(1, data_disks | length + 1) | list }}"
+  ignore_errors: true
+
 - name: Ensure the base config is named 'default'
   ansible.builtin.copy:
     src: /usr/share/snapper/config-templates/default
@@ -6,79 +19,37 @@
     mode: '0644'
     remote_src: true
 
-- name: List subvolumes
-  ansible.builtin.shell: "set -o pipefail; btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
-  loop: "{{ range(0, data_disks | length) | list }}"
-  register: subvolume_snapshot_check
-  failed_when: false
-
-- name: Create Btrfs .snapshots subvolume
-  ansible.builtin.command: "sudo btrfs subvolume create {{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}/.snapshots"
-  loop: "{{ subvolume_snapshot_check.results }}"
-  when: "'.snapshots' not in item.stdout"
-  loop_control:
-    label: "{{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}"
-  failed_when: false
-  changed_when: "'Created subvolume' in item.stdout"
-
 - name: Ensure 'TIMELINE_CREATE="no"' in the 'default' Snapper configuration
   ansible.builtin.lineinfile:
     path: /etc/snapper/configs/default
     regexp: '^TIMELINE_CREATE='
     line: 'TIMELINE_CREATE="no"'
 
-- name: Verify existing snapper configs
+- name: Create Snapper configurations for data disks using 'default' as a template
   ansible.builtin.command:
-    cmd: "snapper list-configs"
-  register: snapper_configs
-  changed_when: false
-  ignore_errors: true
-
-- name: Display snapper_configs
-  ansible.builtin.debug:
-    var: snapper_configs
-
-- name: Check if snapper config for each data disk is valid
-  ansible.builtin.set_fact:
-    config_valid: "{{ 'data%02d' % item in snapper_configs.stdout }}"
-  loop: "{{ range(1, data_disks | length + 1) }}"
-  register: config_validity
-
-- name: Destroy invalid snapper configurations
-  ansible.builtin.command:
-    cmd: "snapper -c data{{ '%02d' % item }} delete-config"
-  loop: "{{ range(1, data_disks | length + 1) }}"
+    cmd: "sudo snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
+  loop: "{{ range(1, data_disks | length + 1) | list }}"
   when:
     - data_disks is defined
     - data_disks | length > 0
-    - not config_validity.results[item-1].ansible_facts.config_valid
-    - snapper_configs.stdout_lines | length > 2
-
-- name: Create Snapper configurations for missing data disks using 'default' as a template
-  ansible.builtin.command:
-    cmd: "snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
-  loop: "{{ range(1, data_disks | length + 1) }}"
-  when:
-    - data_disks is defined
-    - data_disks | length > 0
-    - not config_validity.results[item-1].ansible_facts.config_valid
-  failed_when: false
 
 - name: Ensure 'TIMELINE_CREATE="no"' in each data disk's Snapper configuration
   ansible.builtin.lineinfile:
     path: "/etc/snapper/configs/data{{ '%02d' % item }}"
     regexp: '^TIMELINE_CREATE='
     line: 'TIMELINE_CREATE="no"'
-  loop: "{{ range(1, data_disks | length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) | list }}"
   when: data_disks is defined and data_disks | length > 0
-  failed_when: false
+
+# - name: Update SNAPPER_CONFIGS with generated configurations
+#   ansible.builtin.lineinfile:
+#     path: /etc/default/snapper
+#     regexp: '^SNAPPER_CONFIGS='
+#     line: 'SNAPPER_CONFIGS="{{ range(1, data_disks | length + 1) | map("format", "data%02d") | join(" ") }}"'
+#   when: data_disks is defined and data_disks | length > 0
 
 - name: Verify snapper configs
   ansible.builtin.command:
     cmd: "snapper list-configs"
   register: snapper_configs_new
   changed_when: false
-
-- name: Display snapper_configs
-  ansible.builtin.debug:
-    var: snapper_configs_new
