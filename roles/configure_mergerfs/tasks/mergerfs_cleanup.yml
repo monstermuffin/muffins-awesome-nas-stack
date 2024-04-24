@@ -1,5 +1,5 @@
 ---
-- name: Remove unnecessary mergerfs systemd services
+- name: Remove unnecessary mergerfs systemd services (no cache)
   ansible.builtin.file:
     path: "/etc/systemd/system/{{ item }}"
     state: absent
@@ -12,7 +12,7 @@
     - Reload systemd daemon
   when: cache_disks_count == 0
 
-- name: Ensure mergerfs systemd services are enabled and started
+- name: Ensure mergerfs systemd services are enabled and started (multiple)
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: true
@@ -20,7 +20,14 @@
   loop:
     - mergerfs-media-cache.service
     - mergerfs-cache-disks.service
-  when: cache_disks_count | int > 0
+  when: (cache_disks_only + cache_paths_only) | length > 1
+
+- name: Ensure mergerfs-media-cache systemd service is enabled and started (single)
+  ansible.builtin.systemd:
+    name: mergerfs-media-cache.service
+    enabled: true
+    state: started
+  when: (cache_disks_only + cache_paths_only) | length == 1
 
 - name: Ensure mergerfs-media-cold systemd service is enabled and started
   ansible.builtin.systemd:

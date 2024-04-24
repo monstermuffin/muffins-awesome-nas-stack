@@ -1,4 +1,10 @@
 ---
+- name: Ensure mountpoint for media-cold exists
+  ansible.builtin.file:
+    path: "{{ media_cold }}"
+    state: directory
+    mode: '0775'
+
 - name: Count items in data_disks
   ansible.builtin.set_fact:
     data_disks_count: "{{ data_disks|length }}"

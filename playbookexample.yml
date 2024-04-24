@@ -1,4 +1,4 @@
------- # playbookexample.yml
+---
 - name: Maintain MANS
   hosts: mans-host
   become: true
@@ -61,7 +61,15 @@
       include_role:
         name: configure_snapraid
 
+    # - name: Run muffins_cache_mover role
+    #   include_role:
+    #     name: muffins_cache_mover
+
     - name: Run docker_scrutiny role
       include_role:
         name: docker_scrutiny
       when: configure_scrutiny
+
+    - name: Run fin
+      include_role:
+        name: fin

@@ -15,11 +15,6 @@
   ansible.builtin.set_fact:
     cache_disks_count: "{{ cache_disks | length }}"
 
-# - name: Identify cache disks and paths
-#   ansible.builtin.set_fact:
-#     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
-#     cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
-
 - name: Ensure cache pool path exists
   ansible.builtin.file:
     path: "{{ cache_pool }}"
@@ -53,7 +48,7 @@
   notify:
     - Reload systemd daemon
     - Restart mergerfs_media_cache
-  when: cache_disks_count == 1
+  when: (cache_disks_only + cache_paths_only) | length == 1
 
 - name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
   ansible.builtin.template:
