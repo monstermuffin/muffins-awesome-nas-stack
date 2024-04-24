@@ -1,5 +1,5 @@
 ---
-- name: apt | Install defaults
+- name: Apt | Install defaults
   ansible.builtin.apt:
     update_cache: false
     name: "{{ default_apps + (extra_apps | default([])) }}"

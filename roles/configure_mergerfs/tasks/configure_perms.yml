@@ -5,7 +5,7 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-  become: yes
+  become: true
   when: cache_disks_exist
 
 - name: Set permission {{ media_noncached }}
@@ -14,7 +14,7 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-  become: yes
+  become: true
   when: not cache_disks_exist
 
 - name: Set permissions on data/cache directories (with cache disks)
@@ -23,9 +23,9 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-    recurse: yes
+    recurse: true
   loop: "{{ data_directories + cache_paths_only }}"
-  become: yes
+  become: true
   when: cache_disks_exist
 
 - name: Set permissions on data directories (no cache disks)
@@ -34,9 +34,9 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-    recurse: yes
+    recurse: true
   loop: "{{ data_directories }}"
-  become: yes
+  become: true
   when: not cache_disks_exist
 
 - name: Set permissions on .snapshots directory
@@ -45,9 +45,9 @@
     owner: root
     group: root
     mode: "0770"
-    recurse: yes
-  become: yes
-  ignore_errors: yes
+    recurse: true
+  become: true
+  failed_when: false
   when: cache_disks_exist
 
 - name: Set permissions on .snapshots directory
@@ -56,7 +56,7 @@
     owner: root
     group: root
     mode: "0770"
-    recurse: yes
-  become: yes
-  ignore_errors: yes
+    recurse: true
+  become: true
+  failed_when: false
   when: not cache_disks_exist

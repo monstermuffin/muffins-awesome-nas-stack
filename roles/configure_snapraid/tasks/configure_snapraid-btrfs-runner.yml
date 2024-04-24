@@ -3,8 +3,7 @@
   ansible.builtin.git:
     repo: 'https://github.com/fmoledina/snapraid-btrfs-runner.git'
     dest: "{{ dir_snapraid_btfs_runner }}"
-    clone: yes
-    update: yes
+    update: true
 
 - name: Copy and configure snapraid-btrfs-runner.conf
   ansible.builtin.template:
@@ -51,6 +50,6 @@
 - name: Enable and start snapraid-btrfs-runner timer
   ansible.builtin.systemd:
     name: snapraid-btrfs-runner.timer
-    enabled: yes
+    enabled: true
     state: started
-  become: yes
+  become: true

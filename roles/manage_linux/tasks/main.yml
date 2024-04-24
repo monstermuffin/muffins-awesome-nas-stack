@@ -20,6 +20,6 @@
     file: keys.yml
   when: ssh_key_option != 'none'
 
-- name: apt maintainance
+- name: Apt maintainance
   ansible.builtin.include_tasks:
     file: apt_maintain.yml

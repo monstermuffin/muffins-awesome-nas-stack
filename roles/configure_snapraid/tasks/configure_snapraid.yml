@@ -7,12 +7,12 @@
     group: root
     mode: '0755'
   loop: "{{ content_files }}"
-  become: yes
+  become: true
 
 - name: Generate SnapRAID configuration
   ansible.builtin.template:
     src: snapraid.j2
-    dest: /etc/snapraid.conf
+    dest: "{{ configure_snapraid_snapraid_config }}"
     owner: "{{ user }}"
     group: root
     mode: '0644'

@@ -1,13 +1,12 @@
 ---
-- name: create groups
-  group:
+- name: Create groups
+  ansible.builtin.group:
     name: "{{ item }}"
     state: present
-  with_flattened:
-    - "{{ users | map(attribute='groups') | list }}"
+  loop: "{{ users | map(attribute='groups') | flatten | unique }}"
 
-- name: create users and append to groups
-  user:
+- name: Create users and append to groups
+  ansible.builtin.user:
     name: "{{ item.name }}"
     groups: "{{ item.groups }}"
     create_home: "{{ item.create_home | default('no') }}"

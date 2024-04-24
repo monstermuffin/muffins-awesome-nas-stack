@@ -2,13 +2,13 @@
   ansible.builtin.file:
     path: /mnt/media
     state: directory
-    mode: '0775'
+    mode: '0770'
 
 - name: Ensure cache mount path exists
   ansible.builtin.file:
     path: "{{ cache_mount_path }}"
     state: directory
-    mode: '0775'
+    mode: '0770'
   when: cache_disks_only | int > 0
 
 - name: Count items in cache_disks
@@ -19,19 +19,19 @@
   ansible.builtin.file:
     path: "{{ cache_pool }}"
     state: directory
-    mode: '0775'
+    mode: '0770'
   when: cache_disks_count | int > 1
 
 - name: Ensure cache paths exist
   ansible.builtin.file:
     path: "{{ item | realpath }}"
     state: directory
-    mode: '0775'
+    mode: '0770'
   with_items: "{{ cache_paths_only }}"
 
 - name: Generate cache_mounts list for cache disks
   ansible.builtin.set_fact:
-    cache_mounts: "{{ cache_mounts|default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"
+    cache_mounts: "{{ cache_mounts | default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"
   loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
@@ -39,12 +39,13 @@
 
 - name: Add cache paths to cache_mounts list
   ansible.builtin.set_fact:
-    cache_mounts: "{{ cache_mounts|default([]) + cache_paths_only }}"
+    cache_mounts: "{{ cache_mounts | default([]) + cache_paths_only }}"
 
 - name: Deploy mergerfs media_cached systemd service (single cache disk/path)
   ansible.builtin.template:
     src: mergerfs.cache_mount_single.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
+    mode: '0644'
   notify:
     - Reload systemd daemon
     - Restart mergerfs_media_cache
@@ -54,6 +55,7 @@
   ansible.builtin.template:
     src: mergerfs.cache_disks_mount.j2
     dest: /etc/systemd/system/mergerfs-cache-disks.service
+    mode: '0644'
   notify:
     - Reload systemd daemon
     - Restart mergerfs_cache_disks
@@ -63,6 +65,7 @@
   ansible.builtin.template:
     src: mergerfs.cache_mount_multiple.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
+    mode: '0644'
   notify:
     - Reload systemd daemon
     - Restart mergerfs_media_cache

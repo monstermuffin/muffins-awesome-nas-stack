@@ -18,7 +18,7 @@
     url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: /tmp/install-ohmyzsh.sh
     mode: '0755'
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Check if Oh My ZSH is installed
   ansible.builtin.stat:

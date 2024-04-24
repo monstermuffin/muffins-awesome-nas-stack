@@ -14,17 +14,17 @@
     cache_disks_count: "{{ (cache_disks_only + cache_paths_only) | length }}"
   when: cache_disks_exist
 
-- name: media_cached
+- name: Media_cached
   ansible.builtin.include_tasks:
     file: media_cached.yml
   when: cache_disks_exist
 
-- name: media_cold
+- name: Media_cold
   ansible.builtin.include_tasks:
     file: media_cold.yml
   when: cache_disks_exist
 
-- name: media_noncached
+- name: Media_noncached
   ansible.builtin.include_tasks:
     file: media_noncached.yml
   when: not cache_disks_exist

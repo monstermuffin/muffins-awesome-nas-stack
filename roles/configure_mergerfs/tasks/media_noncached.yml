@@ -20,23 +20,13 @@
   ansible.builtin.template:
     src: mergerfs.media_noncached_mount.j2
     dest: /etc/systemd/system/mergerfs-media-noncached.service
+    mode: '0644'
   notify:
     - Reload systemd daemon
     - Restart mergerfs_media_noncached
 
-- name: Ensure mergerfs-media-noncached service is enabled
+- name: Start mergerfs-media-noncached service and enable
   ansible.builtin.systemd:
     name: mergerfs-media-noncached.service
     enabled: true
-
-- name: Check if mergerfs-media-noncached service is running
-  ansible.builtin.shell: systemctl is-active mergerfs-media-noncached.service
-  register: noncached_service_status
-  ignore_errors: true
-  changed_when: false
-
-- name: Start mergerfs-media-noncached service if not running
-  ansible.builtin.systemd:
-    name: mergerfs-media-noncached.service
     state: started
-  when: noncached_service_status.rc != 0

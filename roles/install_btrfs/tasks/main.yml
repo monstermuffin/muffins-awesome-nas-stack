@@ -17,7 +17,7 @@
 - name: Get latest release information from GitHub for btrfs-progs
   ansible.builtin.uri:
     url: "https://api.github.com/repos/kdave/btrfs-progs/releases/latest"
-    return_content: yes
+    return_content: true
   register: btrfs_github_release_page
   check_mode: false
 
@@ -34,11 +34,11 @@
   ansible.builtin.set_fact:
     update_needed: "{{ btrfs_latest_version != (installed_version_number | default('0')) }}"
 
-- name: debug installed_version_number
+- name: Debug installed_version_number
   ansible.builtin.debug:
     var: installed_version_number
 
-- name: debug btrfs_latest_version
+- name: Debug btrfs_latest_version
   ansible.builtin.debug:
     var: btrfs_latest_version
 

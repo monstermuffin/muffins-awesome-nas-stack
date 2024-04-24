@@ -1,17 +1,16 @@
 ---
-# roles/snapper_config/tasks/main.yml
 - name: Ensure the base config is named 'default'
   ansible.builtin.copy:
     src: /usr/share/snapper/config-templates/default
     dest: /etc/snapper/configs/default
     mode: '0644'
-    remote_src: yes
+    remote_src: true
 
 - name: List subvolumes
-  ansible.builtin.shell: "btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
-  loop: "{{ range(0, data_disks|length)|list }}"
+  ansible.builtin.shell: "set -o pipefail; btrfs subvolume list {{ data_mount_path }}/data{{ '%02d' % (item + 1) }} | grep .snapshots"
+  loop: "{{ range(0, data_disks | length) | list }}"
   register: subvolume_snapshot_check
-  ignore_errors: true
+  failed_when: false
 
 - name: Create Btrfs .snapshots subvolume
   ansible.builtin.command: "sudo btrfs subvolume create {{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}/.snapshots"
@@ -19,7 +18,8 @@
   when: "'.snapshots' not in item.stdout"
   loop_control:
     label: "{{ data_mount_path }}/data{{ '%02d' % (item.item + 1) }}"
-  ignore_errors: yes
+  failed_when: false
+  changed_when: "'Created subvolume' in item.stdout"
 
 - name: Ensure 'TIMELINE_CREATE="no"' in the 'default' Snapper configuration
   ansible.builtin.lineinfile:
@@ -41,37 +41,37 @@
 - name: Check if snapper config for each data disk is valid
   ansible.builtin.set_fact:
     config_valid: "{{ 'data%02d' % item in snapper_configs.stdout }}"
-  loop: "{{ range(1, data_disks|length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) }}"
   register: config_validity
 
 - name: Destroy invalid snapper configurations
   ansible.builtin.command:
     cmd: "snapper -c data{{ '%02d' % item }} delete-config"
-  loop: "{{ range(1, data_disks|length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) }}"
   when:
     - data_disks is defined
-    - data_disks|length > 0
+    - data_disks | length > 0
     - not config_validity.results[item-1].ansible_facts.config_valid
-    - snapper_configs.stdout_lines|length > 2
+    - snapper_configs.stdout_lines | length > 2
 
 - name: Create Snapper configurations for missing data disks using 'default' as a template
   ansible.builtin.command:
     cmd: "snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
-  loop: "{{ range(1, data_disks|length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) }}"
   when:
     - data_disks is defined
-    - data_disks|length > 0
+    - data_disks | length > 0
     - not config_validity.results[item-1].ansible_facts.config_valid
-  ignore_errors: true
+  failed_when: false
 
 - name: Ensure 'TIMELINE_CREATE="no"' in each data disk's Snapper configuration
   ansible.builtin.lineinfile:
     path: "/etc/snapper/configs/data{{ '%02d' % item }}"
     regexp: '^TIMELINE_CREATE='
     line: 'TIMELINE_CREATE="no"'
-  loop: "{{ range(1, data_disks|length + 1) }}"
-  when: data_disks is defined and data_disks|length > 0
-  ignore_errors: yes
+  loop: "{{ range(1, data_disks | length + 1) }}"
+  when: data_disks is defined and data_disks | length > 0
+  failed_when: false
 
 - name: Verify snapper configs
   ansible.builtin.command:

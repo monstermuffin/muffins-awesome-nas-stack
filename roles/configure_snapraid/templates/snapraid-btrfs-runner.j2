@@ -2,24 +2,24 @@
 # Managed by Ansible
 
 [snapraid-btrfs]
-executable = {{ snapraid_btrfs_executable }}
-pool = {{ snapraid_btrfs_pool | lower }}
-cleanup = {{ snapraid_btrfs_cleanup | lower }}
+executable = {{ configure_snapraid_snapraid_btrfs_executable }}
+pool = {{ configure_snapraid_snapraid_btrfs_pool | lower }}
+cleanup = {{ configure_snapraid_snapraid_btrfs_cleanup | lower }}
 
 [snapper]
-executable = {{ snapper_executable }}
+executable = {{ configure_snapraid_snapper_executable }}
 
 [snapraid]
-executable = {{ snapraid_executable }}
-config = {{ snapraid_config }}
-deletethreshold = {{ snapraid_deletethreshold }}
-touch = {{ snapraid_touch | lower }}
+executable = {{ configure_snapraid_snapraid_executable }}
+config = {{ configure_snapraid_snapraid_config }}
+deletethreshold = {{ configure_snapraid_snapraid_deletethreshold }}
+touch = {{ configure_snapraid_snapraid_touch | lower }}
 
 [logging]
-file = {{ logging_file }}
-maxsize = {{ logging_maxsize }}
+file = {{ configure_snapraid_logging_file }}
+maxsize = {{ configure_snapraid_logging_maxsize }}
 
 [scrub]
-enabled = {{ scrub_enabled | lower }}
-plan = {{ scrub_plan }}
-older-than = {{ scrub_older_than }}
+enabled = {{ configure_snapraid_scrub_enabled | lower }}
+plan = {{ configure_snapraid_scrub_plan }}
+older-than = {{ configure_snapraid_scrub_older_than }}

@@ -19,7 +19,7 @@
   register: installed_mergerfs_version
   ignore_errors: true
   changed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Extract installed mergerfs version number
   ansible.builtin.set_fact:

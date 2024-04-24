@@ -8,13 +8,13 @@
   delegate_to: localhost
   run_once: true
   become: false
-  check_mode: no
+  check_mode: false
 
 - name: Set latest SnapRAID version fact
   ansible.builtin.set_fact:
     snapraid_version: "{{ snapraid_latest_release.tag }}"
     snapraid_version_num: "{{ snapraid_latest_release.tag.split('v')[1] }}"
-  check_mode: no
+  check_mode: false
 
 - name: Check installed SnapRAID version
   ansible.builtin.command:
@@ -22,13 +22,13 @@
   register: installed_snapraid_version
   ignore_errors: true
   changed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Extract installed SnapRAID version number
   ansible.builtin.set_fact:
     installed_version: "{{ installed_snapraid_version.stdout.split()[1] }}"
   when: installed_snapraid_version.rc == 0
-  check_mode: no
+  check_mode: false
 
 - name: Debug latest SnapRAID version from GitHub
   ansible.builtin.debug:
