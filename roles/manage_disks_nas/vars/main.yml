@@ -5,3 +5,6 @@ partition_path: >-
   else device + partition if device.startswith('/dev/sd')
   else null | mandatory('Only /dev/nvme* and /dev/sd* device paths are supported')
   }}
+
+manage_disks_nas_btrfs_mount_opts: subvol=data,nofail
+manage_disks_nas_ext4_mount_opts: defaults,nofail
