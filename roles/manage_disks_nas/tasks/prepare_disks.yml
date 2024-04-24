@@ -14,6 +14,14 @@
     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
     cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
 
+- name: Debug cache_disks_only
+  ansible.builtin.debug:
+    var: cache_disks_only
+
+- name: Debug cache_paths_only
+  ansible.builtin.debug:
+    var: cache_paths_only
+
 - name: Check filesystem type for data disks
   ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
   with_items: "{{ data_disks }}"

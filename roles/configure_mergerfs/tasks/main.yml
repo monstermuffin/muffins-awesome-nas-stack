@@ -2,8 +2,13 @@
 - name: Set cache disk facts
   ansible.builtin.set_fact:
     cache_disks: "{{ cache_disks | default([]) }}"
-    cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
-    cache_paths_only: "{{ cache_disks | select('match', '^/') | list }}"
+#     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+#     cache_paths_only: "{{ cache_disks | select('match', '^/') | list }}"
+
+# - name: Identify cache disks and paths
+#   ansible.builtin.set_fact:
+#     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+#     cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
 
 - name: Set cache_disks_exist fact
   ansible.builtin.set_fact:

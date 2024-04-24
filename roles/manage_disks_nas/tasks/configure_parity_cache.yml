@@ -33,7 +33,7 @@
   loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
-  when: cache_disks_only | int > 0
+  when: cache_disks_only | length > 0
 
 - name: Ensure cache disk mounts are present in fstab
   ansible.builtin.blockinfile:
@@ -43,7 +43,7 @@
       {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  defaults  0  0
       {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
-  when: cache_disks_only | int > 0
+  when: cache_disks_only | length > 0
 
 - name: Mount cache disks
   ansible.builtin.mount:
@@ -55,4 +55,4 @@
   loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
-  when: cache_disks_only | int > 0
+  when: cache_disks_only | length > 0
