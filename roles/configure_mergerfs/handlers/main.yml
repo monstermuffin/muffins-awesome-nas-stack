@@ -10,7 +10,7 @@
 
 - name: Restart mergerfs_media_cold
   ansible.builtin.systemd:
-    name: mergerfsmedia-cold.service
+    name: mergerfs-media-cold.service
     state: restarted
 
 - name: Restart mergerfs_cache_disks

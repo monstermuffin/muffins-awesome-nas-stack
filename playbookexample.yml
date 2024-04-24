@@ -23,11 +23,6 @@
       include_role:
         name: manage_linux
 
-    - name: Run manage_zsh role
-      include_role:
-        name: manage_zsh
-      when: install_zsh
-
     - name: Run stefangweichinger.ansible_rclone role
       include_role:
         name: stefangweichinger.ansible_rclone
@@ -61,6 +56,10 @@
       include_role:
         name: configure_snapraid
 
+    - name: Deploy & Configure Samba
+      include_role:
+        name: vladgh.samba.server
+
     # - name: Run muffins_cache_mover role
     #   include_role:
     #     name: muffins_cache_mover
@@ -70,6 +69,3 @@
         name: docker_scrutiny
       when: configure_scrutiny
 
-    - name: Run fin
-      include_role:
-        name: fin

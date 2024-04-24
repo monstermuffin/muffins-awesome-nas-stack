@@ -9,7 +9,8 @@ ExecStart=/usr/bin/mergerfs \
   -o cache.files=off \
   -o dropcacheonclose=true \
   -o category.create=epmfs \
-  -o minfreespace=100G \
+  -o allow_other \
+  -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs-cache \
   {{ cache_disks[0] }}:{{ media_cold }} \
   {{ media_cached }}

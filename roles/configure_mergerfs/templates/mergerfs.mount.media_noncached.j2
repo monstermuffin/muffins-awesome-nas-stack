@@ -6,6 +6,12 @@ Type=simple
 KillMode=mixed
 ExecStart=/usr/bin/mergerfs \
   -f \
+  -o cache.files=partial \
+  -o dropcacheonclose=true \
+  -o category.create=epmfs \
+  -o allow_other \
+  -o minfreespace={{ configure_mergerfs_minfreespace }} \
+  -o fsname=mergerfs_btrfs \
   {{ data_mounts | join(':') }} \
   {{ media_noncached }}
 ExecStop=/bin/fusermount -uz {{ media_noncached }}

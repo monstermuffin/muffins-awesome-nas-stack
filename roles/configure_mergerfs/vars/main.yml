@@ -1,0 +1,2 @@
+---
+configure_mergerfs_minfreespace: "1G"

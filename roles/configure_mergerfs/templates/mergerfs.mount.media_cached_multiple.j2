@@ -1,7 +1,7 @@
 [Unit]
 Description=MergerFS mount for /mnt/media (multiple cache disks/paths)
-After=mergerfs-cache-pool.service mergerfs-media-cold.service
-Requires=mergerfs-cache-pool.service mergerfs-media-cold.service
+After=mergerfs-cache-disks.service mergerfs-media-cold.service
+Requires=mergerfs-cache-disks.service mergerfs-media-cold.service
 
 [Service]
 Type=simple
@@ -11,7 +11,8 @@ ExecStart=/usr/bin/mergerfs \
   -o cache.files=off \
   -o dropcacheonclose=true \
   -o category.create=ff \
-  -o minfreespace=100G \
+  -o allow_other \
+  -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs-cache \
   {{ cache_pool }}:{{ media_cold }} \
   {{ media_cached }}

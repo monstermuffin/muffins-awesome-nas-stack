@@ -9,7 +9,8 @@ ExecStart=/usr/bin/mergerfs \
   -o cache.files=partial \
   -o dropcacheonclose=true \
   -o category.create=epmfs \
-  -o minfreespace=100G \
+  -o allow_other \
+  -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_btrfs_cold \
   {{ data_mounts|join(':') }} \
   {{ media_cold }}

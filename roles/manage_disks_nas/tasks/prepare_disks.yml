@@ -103,6 +103,14 @@
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower != 'y'
 
+- name: Unmount disks_to_wipe
+  ansible.builtin.command: sudo umount {{ item }}
+  with_items: "{{ disks_to_wipe }}"
+  when:
+    - disks_to_wipe | length > 0
+    - wipe_and_setup
+    - user_confirmation.user_input | default('n') | lower == 'y'
+
 - name: Wipe disk labels
   ansible.builtin.command: sudo wipefs -a {{ item }}
   with_items: "{{ disks_to_wipe }}"

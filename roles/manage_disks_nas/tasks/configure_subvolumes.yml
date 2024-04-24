@@ -18,7 +18,7 @@
   loop: "{{ data_disks }}"
   loop_control:
     label: "{{ item }}"
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: Mount the main Btrfs filesystem partition

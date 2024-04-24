@@ -1,3 +1,4 @@
+---
 - name: Set permissions on mount root directories
   ansible.builtin.file:
     path: "{{ item }}"
@@ -18,11 +19,12 @@
     loop_var: item
   register: snapshot_directory_check
 
-- name: Set ownership on .snapshots directories that exist
+- name: Set ownership and permissions on .snapshots directories that exist
   ansible.builtin.file:
     path: "{{ item.stat.path }}"
     state: directory
     owner: root
     group: root
+    mode: 0770
   loop: "{{ snapshot_directory_check.results }}"
   when: item.stat.exists

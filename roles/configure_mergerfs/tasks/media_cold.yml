@@ -3,7 +3,9 @@
   ansible.builtin.file:
     path: "{{ media_cold }}"
     state: directory
-    mode: '0775'
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
 
 - name: Count items in data_disks
   ansible.builtin.set_fact:
@@ -18,11 +20,12 @@
 
 - name: Deploy mergerfs media_cold systemd service
   ansible.builtin.template:
-    src: mergerfs.cold_mount.j2
+    src: mergerfs.mount.media_cold.j2
     dest: /etc/systemd/system/mergerfs-media-cold.service
     mode: '0644'
   notify:
     - Reload systemd daemon
+    - Restart mergerfs_media_cold
 
 - name: Ensure mergerfs-media-cold service is enabled and running
   ansible.builtin.systemd:

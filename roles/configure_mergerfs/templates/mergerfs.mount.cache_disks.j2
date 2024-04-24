@@ -1,0 +1,21 @@
+[Unit]
+Description=MergerFS mount for cache disks/paths (multiple cache disks/paths)
+
+[Service]
+Type=simple
+KillMode=mixed
+ExecStart=/usr/bin/mergerfs \
+  -f \
+  -o cache.files=off \
+  -o dropcacheonclose=true \
+  -o category.create=epmfs \
+  -o allow_other \
+  -o minfreespace={{ configure_mergerfs_minfreespace }} \
+  -o fsname=mergerfs-cache-pool \
+  {% for index in range(1, cache_disks_only | length + 1) %}{{ cache_mount_path }}/cache{{ '%02d' % index }}:{% endfor %}{% for path in cache_paths_only %}{{ path }}:{% endfor %} \
+  {{ cache_pool }}
+ExecStop=/bin/fusermount -uz {{ cache_pool }}
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

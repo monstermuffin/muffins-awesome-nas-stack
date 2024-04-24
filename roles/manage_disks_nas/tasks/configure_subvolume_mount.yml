@@ -8,7 +8,7 @@
     path: "{{ data_mount_path }}/data{{ '%02d' % item }}"
     state: directory
     mode: '0755'
-  loop: "{{ range(1, data_disks|length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) }}"
 
 - name: Print rendered template
   ansible.builtin.debug:
@@ -19,7 +19,7 @@
     path: /etc/fstab
     block: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
     marker: "########### {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL ###########"
-    create: yes
+    create: true
 
 - name: Mount Btrfs subvolumes
   ansible.builtin.mount:

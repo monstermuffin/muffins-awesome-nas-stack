@@ -12,7 +12,7 @@
     path: /etc/fstab
     block: "{{ lookup('template', 'parity_mounts.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
-    create: yes
+    create: true
 
 - name: Mount parity disks
   ansible.builtin.mount:
@@ -30,6 +30,9 @@
   ansible.builtin.file:
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
     state: directory
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
   loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index
@@ -40,7 +43,7 @@
     path: /etc/fstab
     block: |
       {% for disk in cache_disks_only %}
-      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  defaults  0  0
+      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
       {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
   when: cache_disks_only | length > 0
@@ -56,3 +59,14 @@
   loop_control:
     index_var: index
   when: cache_disks_only | length > 0
+
+# Cache Paths
+- name: Ensure cache paths exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
+  loop: "{{ cache_paths_only }}"
+  when: cache_paths_only | length > 0
