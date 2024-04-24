@@ -41,13 +41,6 @@
   loop: "{{ range(1, data_disks | length + 1) | list }}"
   when: data_disks is defined and data_disks | length > 0
 
-# - name: Update SNAPPER_CONFIGS with generated configurations
-#   ansible.builtin.lineinfile:
-#     path: /etc/default/snapper
-#     regexp: '^SNAPPER_CONFIGS='
-#     line: 'SNAPPER_CONFIGS="{{ range(1, data_disks | length + 1) | map("format", "data%02d") | join(" ") }}"'
-#   when: data_disks is defined and data_disks | length > 0
-
 - name: Verify snapper configs
   ansible.builtin.command:
     cmd: "snapper list-configs"
