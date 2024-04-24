@@ -1,4 +1,5 @@
 ---
+#I don't remember why this is here but it looks important.
 partition_path: >-
   {{
   device + 'p' + partition if device.startswith('/dev/nvme')
