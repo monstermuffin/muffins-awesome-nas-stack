@@ -1,0 +1,7 @@
+---
+skip_list:
+  - no-changed-when
+  - 'var-naming[no-role-prefix]'
+  - 'risky-file-permissions'
+  - command-instead-of-module
+  - 'latest[git]'
