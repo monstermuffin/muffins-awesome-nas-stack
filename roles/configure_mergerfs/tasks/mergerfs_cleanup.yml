@@ -37,7 +37,7 @@
   ansible.builtin.systemd:
     name: "{{ item }}"
     enabled: true
-    state: started
+    state: restarted
   loop:
     - mergerfs-cache-disks.service
     - mergerfs-media-cache.service
@@ -47,19 +47,19 @@
   ansible.builtin.systemd:
     name: mergerfs-media-cache.service
     enabled: true
-    state: started
+    state: restarted
   when: (cache_disks_only + cache_paths_only) | length == 1
 
 - name: Ensure mergerfs-media-cold systemd service is enabled and started (cache disks or paths exist)
   ansible.builtin.systemd:
     name: mergerfs-media-cold.service
     enabled: true
-    state: started
+    state: restarted
   when: cache_disks_exist is defined and cache_disks_exist
 
 - name: Ensure mergerfs-media-noncached systemd service is enabled and started (no cache disks or paths)
   ansible.builtin.systemd:
     name: mergerfs-media-noncached.service
     enabled: true
-    state: started
+    state: restarted
   when: cache_disks_exist is defined and not cache_disks_exist
