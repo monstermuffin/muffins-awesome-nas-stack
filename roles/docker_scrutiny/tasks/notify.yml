@@ -6,7 +6,7 @@
 #     replace: notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"
 #   when: scrutiny_discord_enabled
 
-- name: Update Scrutiny configuration file with notification details
+- name: Update Scrutiny configuration file with notification config
   ansible.builtin.blockinfile:
     path: "{{ scrutiny_config_file }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK - SCRUTINY NOTIFICATIONS"
@@ -17,20 +17,34 @@
           - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"
           {% endif %}
           {% if scrutiny_telegram_enabled %}
-          - "telegram://{{ scrutiny_telegram_token }}@telegram?channels={{ scrutiny_telegram_channels }}"
+          - >-
+            telegram://{{ scrutiny_telegram_token }}@telegram
+            ?channels={{ scrutiny_telegram_channels }}
           {% endif %}
           {% if scrutiny_pushover_enabled %}
-          - "pushover://{{ scrutiny_pushover_token }}@{{ scrutiny_pushover_userkey }}/?priority={{ scrutiny_pushover_priority }}&devices={{ scrutiny_pushover_devices }}"
+          - >-
+            pushover://{{ scrutiny_pushover_token }}@{{ scrutiny_pushover_userkey }}
+            /?priority={{ scrutiny_pushover_priority }}
+            &devices={{ scrutiny_pushover_devices }}
           {% endif %}
           {% if scrutiny_slack_enabled %}
-          - "slack://{{ scrutiny_slack_botname }}@{{ scrutiny_slack_token_a }}/{{ scrutiny_slack_token_b }}/{{ scrutiny_slack_token_c }}"
+          - >-
+            slack://{{ scrutiny_slack_botname }}@{{ scrutiny_slack_token_a }}
+            /{{ scrutiny_slack_token_b }}/{{ scrutiny_slack_token_c }}
           {% endif %}
           {% if scrutiny_gotify_enabled %}
           - "gotify://{{ scrutiny_gotify_host }}/{{ scrutiny_gotify_token }}"
           {% endif %}
           {% if scrutiny_ntfy_enabled %}
-          - "ntfy://{{ scrutiny_ntfy_username }}:{{ scrutiny_ntfy_password }}@{{ scrutiny_ntfy_host }}:{{ scrutiny_ntfy_port }}/{{ scrutiny_ntfy_topic }}"
+          - >-
+            ntfy://{{ scrutiny_ntfy_username }}:{{ scrutiny_ntfy_password }}
+            @{{ scrutiny_ntfy_host }}:{{ scrutiny_ntfy_port }}
+            /{{ scrutiny_ntfy_topic }}
           {% endif %}
           {% if scrutiny_pushbullet_enabled %}
-          - "pushbullet://{{ scrutiny_pushbullet_token }}{{ scrutiny_pushbullet_device | default('') }}{{ scrutiny_pushbullet_channel | default('') }}{{ scrutiny_pushbullet_email | default('') }}"
+          - >-
+            pushbullet://{{ scrutiny_pushbullet_token }}
+            {{ scrutiny_pushbullet_device | default('') }}
+            {{ scrutiny_pushbullet_channel | default('') }}
+            {{ scrutiny_pushbullet_email | default('') }}
           {% endif %}
