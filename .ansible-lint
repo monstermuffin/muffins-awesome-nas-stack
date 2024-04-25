@@ -12,7 +12,6 @@ skip_list:
   - risky-file-permissions
   - command-instead-of-module
   - role-name
-  - yaml[line-length]
 
 use_default_rules: true
 
