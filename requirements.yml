@@ -3,11 +3,6 @@ roles:
   - name: stefangweichinger.ansible_rclone
   - name: geerlingguy.docker
     version: 7.0.1
-    dependencies:
-      - python3
-      - pip:
-          name:
-            - github3.py>=1.0.0a3
 
 collections:
   - name: community.general

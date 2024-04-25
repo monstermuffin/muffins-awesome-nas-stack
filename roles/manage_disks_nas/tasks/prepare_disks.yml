@@ -72,7 +72,9 @@
 
 - name: Fail if disks need to be wiped but wipe_and_setup is false
   ansible.builtin.fail:
-    msg: Disks need to be wiped and formatted, but wipe_and_setup is set to false. Please set wipe_and_setup to true to proceed.
+    msg: >
+      Disks need to be wiped and formatted, but wipe_and_setup is set to false.
+      Please set wipe_and_setup to true to proceed.
   when:
     - disks_to_wipe | length > 0
     - not wipe_and_setup
@@ -97,7 +99,10 @@
 
 - name: Fail if user does not confirm disk wiping
   ansible.builtin.fail:
-    msg: User did not confirm disk wiping. Playbook execution stopped.
+    msg: >
+      User did not confirm disk wiping.
+      Playbook execution stopped.
+  # noqa yaml
   when:
     - (disks_to_wipe | length > 0) or (non_ext4_disks | length > 0) or (non_btrfs_disks | length > 0)
     - wipe_and_setup
