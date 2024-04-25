@@ -102,13 +102,12 @@
     msg: >
       User did not confirm disk wiping.
       Playbook execution stopped.
-  # noqa yaml
   when:
     - (disks_to_wipe | length > 0) or (non_ext4_disks | length > 0) or (non_btrfs_disks | length > 0)
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower != 'y'
 
-- name: Unmount disks_to_wipe # noqa ignore-errors
+- name: Unmount disks_to_wipe  # noqa ignore-errors
   ansible.builtin.command: sudo umount {{ item }}
   with_items: "{{ disks_to_wipe }}"
   when:
@@ -145,7 +144,7 @@
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower == 'y'
 
-- name: Get filesystem type for all disks # noqa command-instead-of-shell
+- name: Get filesystem type for all disks  # noqa command-instead-of-shell
   ansible.builtin.shell: lsblk -f {{ item }}
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
