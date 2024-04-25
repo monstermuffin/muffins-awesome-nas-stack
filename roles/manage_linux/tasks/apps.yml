@@ -30,3 +30,16 @@
       - zip
       - vim
       - neofetch
+      - fuse
+      - cifs-utils
+      - nfs-kernel-server
+      - nfs-common
+      - samba
+      - hdparm
+      - fdisk
+      - parted
+      - gdisk
+      - apparmor
+      - apparmor-utils
+      - snapraid
+      - snapper
