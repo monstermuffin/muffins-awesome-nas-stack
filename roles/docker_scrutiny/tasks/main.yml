@@ -9,19 +9,18 @@
 
 - name: Download the Scrutiny configuration file
   ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml"
+    url: https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml
     dest: "{{ scrutiny_config_file }}"
-    mode: '0644'
+    mode: "0644"
 
 - name: Update Scrutiny configuration file with Discord webhook details
   ansible.builtin.replace:
     path: "{{ scrutiny_config_file }}"
     regexp: '#notify:\n#  urls:\n#    - "discord://token@channel"'
-    replace: 'notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"'
+    replace: notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"
   when:
     - scrutiny_discord_token is defined and scrutiny_discord_token != ''
     - scrutiny_discord_webhookid is defined and scrutiny_discord_webhookid != ''
-
 
 - name: Deploy Scrutiny container.
   community.docker.docker_container:
@@ -34,5 +33,5 @@
     devices: "{{ disk_mapping }}"
     capabilities:
       - SYS_RAWIO
-      - SYS_ADMIN #Required for NVME https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130
+      - SYS_ADMIN # Required for NVME https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130
     restart_policy: unless-stopped

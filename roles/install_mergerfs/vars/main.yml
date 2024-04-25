@@ -6,5 +6,5 @@ mergerfs_arch_map:
   aarch64: arm64
   armv7l: armhf
 mergerfs_arch: "{{ mergerfs_arch_map[ansible_userspace_architecture | default(ansible_architecture)] }}"
-mergerfs_pkg_prefix: "mergerfs_"
-mergerfs_pkg_suffix: ".{{ mergerfs_dist }}_{{ mergerfs_arch }}.deb"
+mergerfs_pkg_prefix: mergerfs_
+mergerfs_pkg_suffix: .{{ mergerfs_dist }}_{{ mergerfs_arch }}.deb

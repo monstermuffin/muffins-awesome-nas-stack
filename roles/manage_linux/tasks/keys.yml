@@ -3,7 +3,7 @@
   ansible.posix.authorized_key:
     user: "{{ user }}"
     state: present
-    key: "https://github.com/{{ github_username }}.keys"
+    key: https://github.com/{{ github_username }}.keys
   when: ssh_key_option == 'github'
 
 - name: Add SSH keys from URL

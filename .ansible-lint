@@ -3,13 +3,13 @@
 
 # This makes linter to fully ignore rules/tags listed below
 skip_list:
-  - '701' # Galaxy info
+  - "701" # Galaxy info
   - name[casing]
   - name[template]
   - var-naming[no-role-prefix]
   - partial-become[task]
   - no-changed-when
-  - 'risky-file-permissions'
+  - risky-file-permissions
   - command-instead-of-module
 
 use_default_rules: true

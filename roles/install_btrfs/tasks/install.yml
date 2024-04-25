@@ -1,7 +1,7 @@
 ---
-- name: Clone the btrfs-progs repository
+- name: Clone the btrfs-progs repository # noqa latest
   ansible.builtin.git:
-    repo: 'git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git'
+    repo: git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
     dest: /tmp/btrfs-progs
     depth: 1
 
@@ -26,30 +26,30 @@
       - libudev-dev
     state: present
 
-- name: Install sphinx_rtd_theme using pip (risky)
-  ansible.builtin.shell: "pip install sphinx-rtd-theme --break-system-packages"
+- name: Install sphinx_rtd_theme using pip (risky) # noqa command-instead-of-shell
+  ansible.builtin.shell: pip install sphinx-rtd-theme --break-system-packages
 
 - name: Remove older version of btrfs-tools
   ansible.builtin.package:
     name: btrfs-tools
     state: absent
 
-- name: Run autogen.sh for btrfs-progs
+- name: Run autogen.sh for btrfs-progs # noqa command-instead-of-shell
   ansible.builtin.shell:
     cmd: ./autogen.sh
     chdir: /tmp/btrfs-progs
 
-- name: Configure btrfs-progs for building
+- name: Configure btrfs-progs for building # noqa command-instead-of-shell
   ansible.builtin.shell:
     cmd: ./configure
     chdir: /tmp/btrfs-progs
 
-- name: Compile btrfs-progs
+- name: Compile btrfs-progs # noqa command-instead-of-shell
   ansible.builtin.shell:
     cmd: make
     chdir: /tmp/btrfs-progs
 
-- name: Install btrfs-progs
+- name: Install btrfs-progs # noqa command-instead-of-shell
   ansible.builtin.shell:
     cmd: sudo make install
     chdir: /tmp/btrfs-progs

@@ -1,7 +1,7 @@
 ---
 - name: Remove mergerfs-media-cold and mergerfs-media-cache services (no cache disks or paths)
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ item }}"
+    path: /etc/systemd/system/{{ item }}
     state: absent
   loop:
     - mergerfs-media-cold.service
@@ -12,7 +12,7 @@
 
 - name: Remove mergerfs-cache-disks and mergerfs-cache-pool services (single cache disk or path)
   ansible.builtin.file:
-    path: "/etc/systemd/system/{{ item }}"
+    path: /etc/systemd/system/{{ item }}
     state: absent
   loop:
     - mergerfs-cache-disks.service
@@ -23,7 +23,7 @@
 
 - name: Remove mergerfs-media-noncached service (cache disks or paths exist)
   ansible.builtin.file:
-    path: "/etc/systemd/system/mergerfs-media-noncached.service"
+    path: /etc/systemd/system/mergerfs-media-noncached.service
     state: absent
   notify:
     - Reload systemd daemon

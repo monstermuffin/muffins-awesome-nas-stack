@@ -23,7 +23,7 @@
     var: cache_paths_only
 
 - name: Check filesystem type for data disks
-  ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
+  ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   with_items: "{{ data_disks }}"
   register: data_disks_fs_check_results
 
@@ -39,7 +39,7 @@
     - "'btrfs' not in item.stdout"
 
 - name: Check filesystem type for cache and parity disks
-  ansible.builtin.command: "lsblk -f {{ item }} -n -o FSTYPE"
+  ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   with_items: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
 
@@ -72,7 +72,7 @@
 
 - name: Fail if disks need to be wiped but wipe_and_setup is false
   ansible.builtin.fail:
-    msg: "Disks need to be wiped and formatted, but wipe_and_setup is set to false. Please set wipe_and_setup to true to proceed."
+    msg: Disks need to be wiped and formatted, but wipe_and_setup is set to false. Please set wipe_and_setup to true to proceed.
   when:
     - disks_to_wipe | length > 0
     - not wipe_and_setup
@@ -97,13 +97,13 @@
 
 - name: Fail if user does not confirm disk wiping
   ansible.builtin.fail:
-    msg: "User did not confirm disk wiping. Playbook execution stopped."
+    msg: User did not confirm disk wiping. Playbook execution stopped.
   when:
     - (disks_to_wipe | length > 0) or (non_ext4_disks | length > 0) or (non_btrfs_disks | length > 0)
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower != 'y'
 
-- name: Unmount disks_to_wipe
+- name: Unmount disks_to_wipe # noqa ignore-errors
   ansible.builtin.command: sudo umount {{ item }}
   with_items: "{{ disks_to_wipe }}"
   when:
@@ -121,7 +121,7 @@
     - user_confirmation.user_input | default('n') | lower == 'y'
 
 - name: Create BTRFS filesystem on data disks
-  ansible.builtin.filesystem:
+  community.general.filesystem:
     fstype: btrfs
     dev: "{{ item }}"
   with_items: "{{ non_btrfs_disks | default([]) }}"
@@ -131,7 +131,7 @@
     - user_confirmation.user_input | default('n') | lower == 'y'
 
 - name: Create EXT4 filesystem on cache and parity disks
-  ansible.builtin.filesystem:
+  community.general.filesystem:
     fstype: ext4
     dev: "{{ item }}"
   with_items: "{{ non_ext4_disks | default([]) }}"
@@ -140,8 +140,8 @@
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower == 'y'
 
-- name: Get filesystem type for all disks
-  ansible.builtin.shell: "lsblk -f {{ item }}"
+- name: Get filesystem type for all disks # noqa command-instead-of-shell
+  ansible.builtin.shell: lsblk -f {{ item }}
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
   changed_when: false

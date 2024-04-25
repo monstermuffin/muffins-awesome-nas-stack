@@ -1,6 +1,7 @@
-- name: Confirm disk wiping
+---
+- name: Confirm disk wiping # noqa key-order
   block:
-    - ansible.builtin.pause:
+    - ansible.builtin.pause: # noqa name
         prompt: |
           You have set wipe_and_setup to true. This will wipe all non-compliant data/parity/cache disk vars.
           Are you sure you want to continue? (yes/no)
@@ -8,16 +9,16 @@
 
     - name: Validate user input
       ansible.builtin.fail:
-        msg: "Invalid input. Please enter 'yes' or 'no'."
+        msg: Invalid input. Please enter 'yes' or 'no'.
       when: wipe_confirmation.user_input not in ['yes', 'no']
 
     - name: Recap disk wiping confirmation
-      debug:
-        msg: "You have confirmed to proceed with disk wiping. All data on the non-compliant disks will be permanently erased."
+      ansible.builtin.debug:
+        msg: You have confirmed to proceed with disk wiping. All data on the non-compliant disks will be permanently erased.
       when: wipe_confirmation.user_input == 'yes'
 
     - name: Abort playbook if user does not confirm
       ansible.builtin.fail:
-        msg: "Disk wiping not confirmed. Aborting playbook execution."
+        msg: Disk wiping not confirmed. Aborting playbook execution.
       when: wipe_confirmation.user_input != 'yes'
   when: wipe_and_setup

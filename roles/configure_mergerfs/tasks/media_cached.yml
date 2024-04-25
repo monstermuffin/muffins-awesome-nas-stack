@@ -1,3 +1,4 @@
+---
 - name: Ensure mountpoint for media exists
   ansible.builtin.file:
     path: "{{ media_cached }}"
@@ -40,7 +41,7 @@
   ansible.builtin.template:
     src: mergerfs.mount.media_cached_single.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
-    mode: '0644'
+    mode: "0644"
     force: true
   notify:
     - Reload systemd daemon
@@ -51,7 +52,7 @@
   ansible.builtin.template:
     src: mergerfs.mount.cache_disks.j2
     dest: /etc/systemd/system/mergerfs-cache-disks.service
-    mode: '0644'
+    mode: "0644"
     force: true
   when: cache_disks_count | int > 1
 
@@ -59,7 +60,7 @@
   ansible.builtin.template:
     src: mergerfs.mount.media_cached_multiple.j2
     dest: /etc/systemd/system/mergerfs-media-cache.service
-    mode: '0644'
+    mode: "0644"
     force: true
   notify:
     - Reload systemd daemon

@@ -5,7 +5,7 @@
     state: directory
     owner: "{{ user }}"
     group: "{{ media_group }}"
-    mode: '770'
+    mode: "770"
   loop:
     - "{{ data_mount_path }}"
     - "{{ cache_mount_path }}"
@@ -25,6 +25,6 @@
     state: directory
     owner: root
     group: root
-    mode: 0770
+    mode: "0770"
   loop: "{{ snapshot_directory_check.results }}"
   when: item.stat.exists

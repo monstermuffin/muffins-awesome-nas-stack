@@ -1,7 +1,7 @@
 ---
-- name: Clone snapraid-btrfs-runner repository
+- name: Clone snapraid-btrfs-runner repository # noqa latest
   ansible.builtin.git:
-    repo: 'https://github.com/fmoledina/snapraid-btrfs-runner.git'
+    repo: https://github.com/fmoledina/snapraid-btrfs-runner.git
     dest: "{{ dir_snapraid_btfs_runner }}"
     update: true
 
@@ -11,7 +11,7 @@
     dest: "{{ dir_snapraid_btfs_runner }}/snapraid-btrfs-runner.conf"
     owner: "{{ user }}"
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Create snapraid-btrfs-runner service
   ansible.builtin.copy:
@@ -25,7 +25,7 @@
       ExecStart=/usr/bin/python3 {{ dir_snapraid_btfs_runner }}/snapraid-btrfs-runner.py -c {{ dir_snapraid_btfs_runner }}/snapraid-btrfs-runner.conf
     owner: "{{ user }}"
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Create snapraid-btrfs-runner timer
   ansible.builtin.copy:
@@ -42,7 +42,7 @@
       WantedBy=timers.target
     owner: "{{ user }}"
     group: root
-    mode: '0644'
+    mode: "0644"
   notify:
     - Reload systemd
     - Restart snapraid-btrfs-runner timer

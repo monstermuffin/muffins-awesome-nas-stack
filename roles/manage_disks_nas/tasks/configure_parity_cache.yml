@@ -14,8 +14,8 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
     create: true
 
-- name: Mount parity disks
-  ansible.builtin.mount:
+- name: Mount parity disks # noqa fqcn
+  ansible.posix.mount:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: ext4
@@ -49,7 +49,7 @@
   when: cache_disks_only | length > 0
 
 - name: Mount cache disks
-  ansible.builtin.mount:
+  ansible.posix.mount:
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: ext4
@@ -67,7 +67,7 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-    recurse: yes
+    recurse: true
   loop: "{{ cache_disks_only }}"
   loop_control:
     index_var: index

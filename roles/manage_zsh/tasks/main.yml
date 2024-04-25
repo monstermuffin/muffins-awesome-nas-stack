@@ -13,11 +13,11 @@
     name: "{{ user }}"
     shell: /bin/zsh
 
-- name: Download Oh My ZSH installer
+- name: Download Oh My ZSH installer # noqa ignore-errors
   ansible.builtin.get_url:
     url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: /tmp/install-ohmyzsh.sh
-    mode: '0755'
+    mode: "0755"
   ignore_errors: true
 
 - name: Check if Oh My ZSH is installed
@@ -36,28 +36,28 @@
     - name: Clone zsh-autosuggestions
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-autosuggestions
-        dest: "/home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+        dest: /home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
         version: master
         force: true
 
     - name: Clone zsh-syntax-highlighting
       ansible.builtin.git:
         repo: https://github.com/zsh-users/zsh-syntax-highlighting
-        dest: "/home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+        dest: /home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
         version: master
         force: true
 
     - name: Clone Powerlevel10k
       ansible.builtin.git:
         repo: https://github.com/romkatv/powerlevel10k
-        dest: "/home/{{ user }}/.oh-my-zsh/custom/themes/powerlevel10k"
+        dest: /home/{{ user }}/.oh-my-zsh/custom/themes/powerlevel10k
         version: master
         force: true
 
     - name: Set Powerlevel10k as the default theme
       become_user: "{{ user }}"
       ansible.builtin.lineinfile:
-        path: "/home/{{ user }}/.zshrc"
-        regexp: '^ZSH_THEME=".*"'
-        line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+        path: /home/{{ user }}/.zshrc
+        regexp: ^ZSH_THEME=".*"
+        line: ZSH_THEME="powerlevel10k/powerlevel10k"
         state: present

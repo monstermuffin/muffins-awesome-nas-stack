@@ -1,5 +1,4 @@
 ---
 timezone: []
-
 users: []
-groups: []
+groups: [] # noqa var-naming

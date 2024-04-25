@@ -11,29 +11,29 @@
 - name: Download SnapRAID tarball
   ansible.builtin.get_url:
     url: "{{ snapraid_package_url }}"
-    dest: "/tmp/snapraid.tar.gz"
-    mode: '0755'
+    dest: /tmp/snapraid.tar.gz
+    mode: "0755"
   notify: Cleanup SnapRAID download
 
 - name: Extract SnapRAID tarball
   ansible.builtin.unarchive:
-    src: "/tmp/snapraid.tar.gz"
-    dest: "/tmp/"
-    remote_src: yes
+    src: /tmp/snapraid.tar.gz
+    dest: /tmp/
+    remote_src: true
   notify: Cleanup SnapRAID download
 
 - name: Configure SnapRAID
   ansible.builtin.command:
-    cmd: "./configure"
-    chdir: "/tmp/snapraid-{{ snapraid_version_num }}"
+    cmd: ./configure
+    chdir: /tmp/snapraid-{{ snapraid_version_num }}
 
 - name: Compile SnapRAID
   ansible.builtin.command:
-    cmd: "make"
-    chdir: "/tmp/snapraid-{{ snapraid_version_num }}"
+    cmd: make
+    chdir: /tmp/snapraid-{{ snapraid_version_num }}
 
 - name: Install SnapRAID
   ansible.builtin.command:
-    cmd: "sudo make install"
-    chdir: "/tmp/snapraid-{{ snapraid_version_num }}"
+    cmd: sudo make install
+    chdir: /tmp/snapraid-{{ snapraid_version_num }}
   become: true

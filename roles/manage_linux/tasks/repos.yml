@@ -6,6 +6,6 @@
 
 - name: Add the repository to apt sources
   ansible.builtin.apt_repository:
-    repo: "deb https://packagecloud.io/ookla/speedtest-cli/ubuntu/ trusty main"
+    repo: deb https://packagecloud.io/ookla/speedtest-cli/ubuntu/ trusty main
     state: present
     filename: ookla_speedtest-cli.list

@@ -1,3 +1,4 @@
+---
 - name: Count the number of data disks
   ansible.builtin.set_fact:
     data_disks_count: "{{ data_disks | length }}"

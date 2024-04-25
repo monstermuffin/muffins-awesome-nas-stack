@@ -2,7 +2,7 @@
 - name: Uncomment user_allow_other in /etc/fuse.conf
   ansible.builtin.lineinfile:
     path: /etc/fuse.conf
-    regexp: '^#?(user_allow_other)'
-    line: 'user_allow_other'
+    regexp: ^#?(user_allow_other)
+    line: user_allow_other
   notify:
     - Reload systemd daemon

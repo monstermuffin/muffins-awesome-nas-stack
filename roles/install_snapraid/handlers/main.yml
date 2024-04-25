@@ -4,5 +4,5 @@
     path: "{{ item }}"
     state: absent
   loop:
-    - "/tmp/snapraid.tar.gz"
-    - "/tmp/snapraid-{{ snapraid_version_num }}"
+    - /tmp/snapraid.tar.gz
+    - /tmp/snapraid-{{ snapraid_version_num }}

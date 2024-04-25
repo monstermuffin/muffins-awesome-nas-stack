@@ -1,18 +1,18 @@
 ---
 - name: Clone the mergerfs-cache-mover repository into the specified directory
   ansible.builtin.git:
-    repo: 'https://github.com/MonsterMuffin/mergerfs-cache-mover.git'
+    repo: https://github.com/MonsterMuffin/mergerfs-cache-mover.git
     dest: "{{ cache_mover_dir }}"
-    clone: yes
-    update: yes
-    force: yes
+    clone: true
+    update: true
+    force: true
 
 - name: Set correct permissions for the script
   ansible.builtin.file:
     path: "{{ cache_mover_dir }}/cache-mover.py"
     owner: "{{ user }}"
     group: "{{ user }}"
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy the cache mover configuration
   ansible.builtin.template:
@@ -25,7 +25,7 @@
     dest: /etc/systemd/system/cache_mover.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: reload systemd
 
 - name: Set up the systemd timer unit
@@ -34,5 +34,5 @@
     dest: /etc/systemd/system/cache_mover.timer
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify: start and enable cache mover timer

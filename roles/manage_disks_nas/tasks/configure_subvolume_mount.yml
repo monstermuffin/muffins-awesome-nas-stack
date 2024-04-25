@@ -7,7 +7,7 @@
   ansible.builtin.file:
     path: "{{ data_mount_path }}/data{{ '%02d' % item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   loop: "{{ range(1, data_disks | length + 1) }}"
 
 - name: Print rendered template
@@ -22,7 +22,7 @@
     create: true
 
 - name: Mount Btrfs subvolumes
-  ansible.builtin.mount:
+  ansible.posix.mount:
     path: "{{ data_mount_path }}/data{{ '%02d' % (index + 1) }}"
     src: "{{ item }}"
     fstype: btrfs

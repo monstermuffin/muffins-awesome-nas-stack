@@ -2,13 +2,13 @@
 - name: Maintain MANS
   hosts: mans-host
   become: true
-  gather_facts: yes
+  gather_facts: true
   vars_files:
     - vars.yml
 
   pre_tasks:
     - name: Check if operating system is Debian
-      fail:
+      ansible.builtin.fail:
         msg: "This playbook is only supported on Debian. Disable this check at your own risk by setting 'skip_os_check: true' in vars.yml."
       when:
         - ansible_distribution != "Debian"
@@ -16,48 +16,48 @@
 
   tasks:
     - name: Run wipecheck role
-      include_role:
+      ansible.builtin.include_role:
         name: wipecheck
 
     - name: Run manage_linux role
-      include_role:
+      ansible.builtin.include_role:
         name: manage_linux
 
     - name: Run stefangweichinger.ansible_rclone role
-      include_role:
+      ansible.builtin.include_role:
         name: stefangweichinger.ansible_rclone
       when: install_rclone
 
     - name: Run geerlingguy.docker role
-      include_role:
+      ansible.builtin.include_role:
         name: geerlingguy.docker
 
     - name: Run install_mergerfs role
-      include_role:
+      ansible.builtin.include_role:
         name: install_mergerfs
 
     - name: Run install_snapraid role
-      include_role:
+      ansible.builtin.include_role:
         name: install_snapraid
 
     - name: Run install_btrfs role
-      include_role:
+      ansible.builtin.include_role:
         name: install_btrfs
 
     - name: Run manage_disks_nas role
-      include_role:
+      ansible.builtin.include_role:
         name: manage_disks_nas
 
     - name: Run configure_mergerfs role
-      include_role:
+      ansible.builtin.include_role:
         name: configure_mergerfs
 
     - name: Run configure_snapraid role
-      include_role:
+      ansible.builtin.include_role:
         name: configure_snapraid
 
     - name: Deploy & Configure Samba
-      include_role:
+      ansible.builtin.include_role:
         name: vladgh.samba.server
 
     # - name: Run muffins_cache_mover role
@@ -65,7 +65,6 @@
     #     name: muffins_cache_mover
 
     - name: Run docker_scrutiny role
-      include_role:
+      ansible.builtin.include_role:
         name: docker_scrutiny
       when: configure_scrutiny
-

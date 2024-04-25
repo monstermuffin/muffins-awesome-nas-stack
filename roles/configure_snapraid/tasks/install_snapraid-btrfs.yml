@@ -1,21 +1,21 @@
 ---
-- name: Clone or update snapraid-btrfs repository
+- name: Clone or update snapraid-btrfs repository # noqa latest
   ansible.builtin.git:
-    repo: 'https://github.com/automorphism88/snapraid-btrfs.git'
-    dest: '/tmp/snapraid-btrfs'
+    repo: https://github.com/automorphism88/snapraid-btrfs.git
+    dest: /tmp/snapraid-btrfs
     update: true
 
 - name: Copy snapraid-btrfs script to /usr/local/bin
   ansible.builtin.copy:
-    src: '/tmp/snapraid-btrfs/snapraid-btrfs'
-    dest: '/usr/local/bin/snapraid-btrfs'
-    mode: '0755'
+    src: /tmp/snapraid-btrfs/snapraid-btrfs
+    dest: /usr/local/bin/snapraid-btrfs
+    mode: "0755"
     remote_src: true
 
 - name: Ensure snapraid-btrfs is executable
   ansible.builtin.file:
-    path: '/usr/local/bin/snapraid-btrfs'
-    mode: '0755'
+    path: /usr/local/bin/snapraid-btrfs
+    mode: "0755"
 
 - name: Verify snapraid-btrfs can see Snapper configs
   ansible.builtin.command:
@@ -24,14 +24,6 @@
   changed_when: false
   failed_when: snapraid_btrfs_output.rc != 0 and "No snapper configs found" not in snapraid_btrfs_output.stderr
   become: true
-
-# - name: Verify snapraid-btrfs can see Snapper configs
-#   ansible.builtin.command:
-#     cmd: "snapraid-btrfs list"
-#   register: snapraid_btrfs_output
-#   changed_when: false
-#   failed_when: snapraid_btrfs_output.rc != 0 and "No snapper configs found" not in snapraid_btrfs_output.stderr
-#   become: true # must be run as root to list, so we're just going to ignore that warning...
 
 - name: Display snapraid-btrfs output
   ansible.builtin.debug:

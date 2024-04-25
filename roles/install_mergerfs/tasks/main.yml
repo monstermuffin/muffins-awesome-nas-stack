@@ -37,8 +37,9 @@
 
 - name: Determine package download url
   ansible.builtin.set_fact:
-    mergerfs_package_url: "https://github.com/trapexit/mergerfs/releases/download/{{ mergerfs_version }}/\
-      {{ mergerfs_pkg_prefix }}{{ mergerfs_version }}{{ mergerfs_pkg_suffix }}"
+    mergerfs_package_url: >
+      https://github.com/trapexit/mergerfs/releases/download/{{ mergerfs_version }}/
+      {{ mergerfs_pkg_prefix }}{{ mergerfs_version }}{{ mergerfs_pkg_suffix }}
 
 - name: Install/update mergerfs
   become: true

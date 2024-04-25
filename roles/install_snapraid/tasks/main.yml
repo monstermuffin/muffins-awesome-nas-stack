@@ -41,7 +41,7 @@
 
 - name: Determine SnapRAID package download url
   ansible.builtin.set_fact:
-    snapraid_package_url: "https://github.com/amadvance/snapraid/releases/download/{{ snapraid_version }}/snapraid-{{ snapraid_version_num }}.tar.gz"
+    snapraid_package_url: https://github.com/amadvance/snapraid/releases/download/{{ snapraid_version }}/snapraid-{{ snapraid_version_num }}.tar.gz
 
 - name: Debug latest SnapRAID version from GitHub
   ansible.builtin.debug:

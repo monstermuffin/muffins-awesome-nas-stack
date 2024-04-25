@@ -5,7 +5,7 @@ install_rclone: true
 configure_scrutiny: true
 skip_os_check: false
 
-wipe_and_setup: false  # Set this to true to wipe and setup the disks
+wipe_and_setup: false # Set this to true to wipe and setup the disks
 
 #extra_apps
 extra_apps:
@@ -28,7 +28,7 @@ timezone: Europe/London
 smb_media_share_name: media-share
 
 #sshkeys
-ssh_key_option: none  # Options: github, url, file, none
+ssh_key_option: none # Options: github, url, file, none
 github_username: <YOUR_GITHUB_USERNAME>
 ssh_key_url: https://example.com/ssh_keys.txt
 ssh_key_file: /path/to/local/ssh_keys.txt
@@ -47,8 +47,8 @@ users:
 
 #samba config
 samba_users:
-- name: media
-  password: <SOME PASS - USE VAULT, OR DON'T IDC>
+  - name: media
+    password: <SOME PASS - USE VAULT, OR DON'T IDC>
 samba_shares:
   - name: "{{ smb_media_share_name }}"
     path: "{{ media_cached }}"
@@ -62,7 +62,6 @@ samba_shares:
     write_list: media,"{{ user }}"
     owner: media
     group: media
-
 
 #mounts
 media_cached: /mnt/media
@@ -108,14 +107,14 @@ cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
 cache_mover_user: media
 cache_mover_group: media
-cache_file_chmod: '770'
-cache_folder_chmod: '770'
+cache_file_chmod: "770"
+cache_folder_chmod: "770"
 on_calendar_schedule: "*-*-* 03:00:00" #3AM daily
 
 #scrutiny vars
 #https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
-scrutiny_discord_token: ["TOKEN"]
-scrutiny_discord_webhookid: ["WEBHOOKID"]
+scrutiny_discord_token: [TOKEN]
+scrutiny_discord_webhookid: [WEBHOOKID]
 #mapping for scrutiny
 disk_mapping:
   - /dev/disk/by-id/ata-xxxx:/dev/sda
