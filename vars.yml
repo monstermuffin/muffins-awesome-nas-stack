@@ -1,90 +1,91 @@
 ---
-#optional:
 install_zsh: true
 install_rclone: true
 configure_scrutiny: true
+configure_hdidle: true # https://github.com/adelolmo/hd-idle
 skip_os_check: false
 
-wipe_and_setup: false # Set this to true to wipe and setup the disks
+wipe_and_setup: true # Set this to true to enable wiping of disks. If any disks need to be wiped you will be prompted again.
 
-#extra_apps
-extra_apps:
-  - fuse
-  - cifs-utils
-  - nfs-kernel-server
-  - nfs-common
-  - samba
-  - hdparm
-  - fdisk
-  - parted
-  - gdisk
-  - apparmor
-  - apparmor-utils
-  - snapraid
-  - snapper
+# extra_apps: # add any extra apps you want installed to this list.
+# - like
+# - this
 
-#generic:
+# generic:
 timezone: Europe/London
 smb_media_share_name: media-share
 
-#sshkeys
+# sshkeys
 ssh_key_option: none # Options: github, url, file, none
 github_username: <YOUR_GITHUB_USERNAME>
 ssh_key_url: https://example.com/ssh_keys.txt
 ssh_key_file: /path/to/local/ssh_keys.txt
 
-#users/groups
-user: <YOUR_USERNAME>
+# users/groups
+user: "{{ ansible_user }}"
 media_group: media # Group for share perms.
+
 docker_users:
   - "{{ user }}"
+
 users:
+  - name: "{{ user }}"
+    groups:
+      - media
+      - docker
   - name: media
     groups:
       - media
-    create_home: no
+    create_home: false
     shell: /sbin/nologin
 
-#samba config
+# samba config
 samba_users:
   - name: media
-    password: <SOME PASS - USE VAULT, OR DON'T IDC>
+    password: qwerty
+
 samba_shares:
   - name: "{{ smb_media_share_name }}"
     path: "{{ media_cached }}"
-    guest_ok: no
-    writable: yes
-    force_group: media
+    guest_ok: false
+    writable: true
+    force_group: "{{ media_group }}"
     create_mode: "0770"
     directory_mode: "0770"
     force_create_mode: "0770"
     force_directory_mode: "0770"
-    write_list: media,"{{ user }}"
-    owner: media
-    group: media
+    write_list:
+      - "{{ media_group }}"
+      - "{{ user }}"
+    owner: "{{ media_group }}"
+    group: "{{ media_group }}"
 
-#mounts
+# mounts
 media_cached: /mnt/media
+media_noncached: /mnt/media # Only used if there is no cache
 media_cold: /mnt/media-cold
-cache_pool: /mnt/cache-pool
 data_mount_path: /mnt/data-disks
 parity_mount_path: /mnt/parity-disks
 cache_mount_path: /mnt/cache-disks
-
-#content files
+cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
+# content files
 content_files:
   - /var/snapraid/snapraid.content
-  - /mnt/cache-disks/cache01/snapraid/snapraid.content
-#dirs:
+  - /mnt/cache-disks/cache01/snapraid/cache/snapraid.content # remove if you have no cache disks
+  - /mnt/data-disks/data01/snapraid/data/snapraid.content
+## must enable a 3rd content file with 2+ parity
+
+# dirs:
 dir_snapraid_btfs_runner: /var/snapraid-btrfs-runner
 
-#data_directories
+# data_directories
 data_directories:
   - movies
   - tv
   - music
   - youtube
 
+# disks
 data_disks:
   - /dev/disk/by-id/ata-xxxx
   - /dev/disk/by-id/ata-xxxx
@@ -98,24 +99,67 @@ parity_disks:
 cache_disks:
   - /dev/disk/by-id/nvme-xxxx
 
-#cache mover vars
+# cache mover vars
+cache_mover_dir: /opt/mergerfs-cache-mover/
 cache_mover_log_path: /var/log/cache-mover.log
 cache_mover_threshold_percentage: 70
 cache_mover_target_percentage: 30
 cache_mover_max_workers: 8
 cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
-cache_mover_user: media
-cache_mover_group: media
+cache_mover_user: media # user and group for the permissions of the moved files
+cache_mover_group: media # user and group for the permissions of the moved files
 cache_file_chmod: "770"
 cache_folder_chmod: "770"
-on_calendar_schedule: "*-*-* 03:00:00" #3AM daily
+on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
 
-#scrutiny vars
-#https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
-scrutiny_discord_token: [TOKEN]
-scrutiny_discord_webhookid: [WEBHOOKID]
-#mapping for scrutiny
+# scrutiny vars
+# https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
+# Discord
+scrutiny_discord_enabled: true
+scrutiny_discord_token: YOUR_DISCORD_TOKEN
+scrutiny_discord_webhookid: YOUR_DISCORD_WEBHOOK_ID
+
+# Telegram
+scrutiny_telegram_enabled: false
+scrutiny_telegram_token: YOUR_TELEGRAM_TOKEN
+scrutiny_telegram_channels: channel-1,channel-2
+
+# Pushover
+scrutiny_pushover_enabled: false
+scrutiny_pushover_token: YOUR_PUSHOVER_TOKEN
+scrutiny_pushover_userkey: YOUR_PUSHOVER_USER_KEY
+scrutiny_pushover_priority: 1
+scrutiny_pushover_devices: device1,device2
+
+# Slack
+scrutiny_slack_enabled: false
+scrutiny_slack_botname: YOUR_SLACK_BOTNAME
+scrutiny_slack_token_a: YOUR_SLACK_TOKEN_A
+scrutiny_slack_token_b: YOUR_SLACK_TOKEN_B
+scrutiny_slack_token_c: YOUR_SLACK_TOKEN_C
+
+# Gotify
+scrutiny_gotify_enabled: false
+scrutiny_gotify_host: YOUR_GOTIFY_HOST
+scrutiny_gotify_token: YOUR_GOTIFY_TOKEN
+
+# Ntfy
+scrutiny_ntfy_enabled: false
+scrutiny_ntfy_username: YOUR_NTFY_USERNAME
+scrutiny_ntfy_password: YOUR_NTFY_PASSWORD
+scrutiny_ntfy_host: YOUR_NTFY_HOST
+scrutiny_ntfy_port: YOUR_NTFY_PORT
+scrutiny_ntfy_topic: YOUR_NTFY_TOPIC
+
+# Pushbullet
+scrutiny_pushbullet_enabled: false
+scrutiny_pushbullet_token: YOUR_PUSHBULLET_TOKEN
+scrutiny_pushbullet_device: "" # Leave empty, or specify a device
+scrutiny_pushbullet_channel: "" # Leave empty, or specify a channel
+scrutiny_pushbullet_email: "" # Leave empty, or specify an email
+
+# disk mapping for scrutiny
 disk_mapping:
   - /dev/disk/by-id/ata-xxxx:/dev/sda
   - /dev/disk/by-id/ata-xxxx:/dev/sdb
