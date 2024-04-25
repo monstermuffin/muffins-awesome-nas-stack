@@ -60,6 +60,19 @@
     index_var: index
   when: cache_disks_only | length > 0
 
+- name: Set permissions on cache disk directories
+  ansible.builtin.file:
+    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "0770"
+    recurse: yes
+  loop: "{{ cache_disks_only }}"
+  loop_control:
+    index_var: index
+  when: cache_disks_only | length > 0
+
 # Cache Paths
 - name: Ensure cache paths exist
   ansible.builtin.file:
