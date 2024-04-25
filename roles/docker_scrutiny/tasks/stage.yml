@@ -1,0 +1,14 @@
+---
+- name: Ensure Scrutiny directories exist.
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ scrutiny_config_path }}"
+    - "{{ scrutiny_influxdb_path }}"
+
+- name: Download the Scrutiny configuration file
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml
+    dest: "{{ scrutiny_config_file }}"
+    mode: "0644"

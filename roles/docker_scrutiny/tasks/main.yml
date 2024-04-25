@@ -1,37 +1,12 @@
 ---
-- name: Ensure Scrutiny directories exist.
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-  loop:
-    - "{{ scrutiny_config_path }}"
-    - "{{ scrutiny_influxdb_path }}"
+- name: Stage Scrutiny
+  ansible.builtin.include_tasks:
+    file: stage.yml
 
-- name: Download the Scrutiny configuration file
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml
-    dest: "{{ scrutiny_config_file }}"
-    mode: "0644"
+- name: Configure Notifications
+  ansible.builtin.include_tasks:
+    file: notify.yml
 
-- name: Update Scrutiny configuration file with Discord webhook details
-  ansible.builtin.replace:
-    path: "{{ scrutiny_config_file }}"
-    regexp: '#notify:\n#  urls:\n#    - "discord://token@channel"'
-    replace: notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"
-  when:
-    - scrutiny_discord_token is defined and scrutiny_discord_token != ''
-    - scrutiny_discord_webhookid is defined and scrutiny_discord_webhookid != ''
-
-- name: Deploy Scrutiny container.
-  community.docker.docker_container:
-    name: scrutiny
-    image: "{{ scrutiny_image }}"
-    state: started
-    pull: true
-    ports: "{{ scrutiny_ports }}"
-    volumes: "{{ scrutiny_volumes }}"
-    devices: "{{ disk_mapping }}"
-    capabilities:
-      - SYS_RAWIO
-      - SYS_ADMIN # Required for NVME https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130
-    restart_policy: unless-stopped
+- name: Deploy Scrutiny
+  ansible.builtin.include_tasks:
+    file: deploy.yml
