@@ -35,11 +35,19 @@
     var: installed_version
   when: installed_mergerfs_version.rc == 0
 
+- name: Build package download url
+  ansible.builtin.set_fact:
+    mergerfs_package_url_parts:
+      - https://github.com/trapexit/mergerfs/releases/download/
+      - "{{ mergerfs_version }}"
+      - /
+      - "{{ mergerfs_pkg_prefix }}"
+      - "{{ mergerfs_version }}"
+      - "{{ mergerfs_pkg_suffix }}"
+
 - name: Determine package download url
   ansible.builtin.set_fact:
-    mergerfs_package_url: >
-      https://github.com/trapexit/mergerfs/releases/download/{{ mergerfs_version }}/
-      {{ mergerfs_pkg_prefix }}{{ mergerfs_version }}{{ mergerfs_pkg_suffix }}
+    mergerfs_package_url: "{{ mergerfs_package_url_parts | join('') }}"
 
 - name: Install/update mergerfs
   become: true
