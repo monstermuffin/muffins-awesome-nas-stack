@@ -110,6 +110,7 @@
     - disks_to_wipe | length > 0
     - wipe_and_setup
     - user_confirmation.user_input | default('n') | lower == 'y'
+  ignore_errors: true
 
 - name: Wipe disk labels
   ansible.builtin.command: sudo wipefs -a {{ item }}
