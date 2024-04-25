@@ -8,11 +8,11 @@ ExecStart=/usr/bin/mergerfs \
   -f \
   -o cache.files=off \
   -o dropcacheonclose=true \
-  -o category.create=epmfs \
+  -o category.create=ff \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs-cache \
-  {{ cache_disks[0] }}:{{ media_cold }} \
+  {{ cache_mounts|join(':') }}:{{ data_mounts|join(':') }} \
   {{ media_cached }}
 ExecStop=/bin/fusermount -uz {{ media_cached }}
 Restart=on-failure

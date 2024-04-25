@@ -12,7 +12,7 @@ ExecStart=/usr/bin/mergerfs \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_btrfs_cold \
-  {{ data_mounts|join(':') }} \
+  {{ data_mounts | join(':') }} \
   {{ media_cold }}
 ExecStop=/bin/fusermount -uz {{ media_cold }}
 Restart=on-failure
