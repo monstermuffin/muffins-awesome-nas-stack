@@ -6,6 +6,7 @@
     clone: true
     update: true
     force: true
+  when: cache_disks_exist
 
 - name: Set correct permissions for the script
   ansible.builtin.file:
@@ -13,11 +14,28 @@
     owner: "{{ user }}"
     group: "{{ user }}"
     mode: "0755"
+  when: cache_disks_exist
+
+- name: Set cache_path variable for single cache disk
+  ansible.builtin.set_fact:
+    mover_cache_path: /mnt/cache-disks/cache01
+  when: cache_disks_only | length == 1
+
+- name: Set cache_path variable for single cache path
+  ansible.builtin.set_fact:
+    mover_cache_path: "{{ cache_paths_only[0] }}"
+  when: cache_disks_only | length == 0 and cache_paths_only | length == 1
+
+- name: Set cache_path variable for multiple cache disks or paths
+  ansible.builtin.set_fact:
+    mover_cache_path: "{{ cache_pool }}"
+  when: (cache_disks_only | length > 1) or (cache_paths_only | length > 1)
 
 - name: Deploy the cache mover configuration
   ansible.builtin.template:
     src: config.yml.j2
     dest: "{{ cache_mover_dir }}/config.yml"
+  when: cache_disks_exist
 
 - name: Set up the systemd service unit
   ansible.builtin.template:
@@ -27,6 +45,7 @@
     group: root
     mode: "0644"
   notify: reload systemd
+  when: cache_disks_exist
 
 - name: Set up the systemd timer unit
   ansible.builtin.template:
@@ -36,3 +55,4 @@
     group: root
     mode: "0644"
   notify: start and enable cache mover timer
+  when: cache_disks_exist
