@@ -9,7 +9,9 @@
   pre_tasks:
     - name: Check if operating system is Debian
       ansible.builtin.fail:
-        msg: "This playbook is only supported on Debian. Disable this check at your own risk by setting 'skip_os_check: true' in vars.yml."
+        msg: >
+          This playbook is only supported on Debian.
+          Disable this check by setting 'skip_os_check: true' in vars.yml.
       when:
         - ansible_distribution != "Debian"
         - not skip_os_check|default(false)|bool
