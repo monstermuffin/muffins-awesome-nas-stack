@@ -1,0 +1,36 @@
+---
+- name: Get latest hd-idle release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/adelolmo/hd-idle/releases/latest
+    method: GET
+    return_content: true
+    headers:
+      Accept: application/vnd.github.v3+json
+  register: latest_release
+
+- name: Extract download URL for hd-idle Debian package
+  ansible.builtin.set_fact:
+    hd_idle_deb_url: "{{ item.browser_download_url }}"
+  loop: "{{ latest_release.json.assets }}"
+  when: item.name is match('hd-idle_.*_amd64.deb')
+
+- name: Download hd-idle Debian package
+  ansible.builtin.get_url:
+    url: "{{ hd_idle_deb_url }}"
+    dest: /tmp/hd-idle.deb
+
+- name: Install hd-idle Debian package
+  ansible.builtin.apt:
+    deb: /tmp/hd-idle.deb
+
+- name: Configure hd-idle
+  ansible.builtin.lineinfile:
+    path: /etc/default/hd-idle
+    regexp: ^START_HD_IDLE=
+    line: START_HD_IDLE=true
+
+- name: Start and enable hd-idle service
+  ansible.builtin.systemd:
+    name: hd-idle
+    state: started
+    enabled: true
