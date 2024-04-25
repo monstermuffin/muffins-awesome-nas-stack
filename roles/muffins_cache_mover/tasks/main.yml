@@ -1,5 +1,5 @@
 ---
-- name: Clone the mergerfs-cache-mover repository into the specified directory
+- name: Clone the mergerfs-cache-mover repository into the specified directory # noqa latest
   ansible.builtin.git:
     repo: https://github.com/MonsterMuffin/mergerfs-cache-mover.git
     dest: "{{ cache_mover_dir }}"
