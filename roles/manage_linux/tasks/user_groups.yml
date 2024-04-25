@@ -9,6 +9,7 @@
   ansible.builtin.user:
     name: "{{ item.name }}"
     groups: "{{ item.groups }}"
+    append: true
     create_home: "{{ item.create_home | default('no') }}"
     shell: "{{ item.shell | default('/bin/bash') }}"
   with_items: "{{ users }}"
