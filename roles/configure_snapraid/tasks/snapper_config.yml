@@ -1,4 +1,11 @@
 ---
+- name: Install snapper
+  ansible.builtin.apt:
+    name:
+      - snapper
+    state: present
+    update_cache: false
+
 - name: Ensure the base config is named 'default'
   ansible.builtin.copy:
     src: /usr/share/snapper/config-templates/default
