@@ -17,44 +17,49 @@
         - not skip_os_check|default(false)|bool
 
   tasks:
-    - name: Run wipecheck role
+    - name: Run wipecheck
       ansible.builtin.include_role:
         name: wipecheck
 
-    - name: Run manage_linux role
+    - name: Run manage_linux
       ansible.builtin.include_role:
         name: manage_linux
 
-    - name: Run stefangweichinger.ansible_rclone role
+    - name: Run manage_zsh
+      ansible.builtin.include_role:
+        name: manage_zsh
+      when: configure_zsh
+
+    - name: Run stefangweichinger.ansible_rclone
       ansible.builtin.include_role:
         name: stefangweichinger.ansible_rclone
       when: install_rclone
 
-    - name: Run geerlingguy.docker role
+    - name: Run geerlingguy.docker
       ansible.builtin.include_role:
         name: geerlingguy.docker
 
-    - name: Run install_mergerfs role
+    - name: Run install_mergerfs
       ansible.builtin.include_role:
         name: install_mergerfs
 
-    - name: Run install_snapraid role
+    - name: Run install_snapraid
       ansible.builtin.include_role:
         name: install_snapraid
 
-    - name: Run install_btrfs role
+    - name: Run install_btrfs
       ansible.builtin.include_role:
         name: install_btrfs
 
-    - name: Run manage_disks_nas role
+    - name: Run manage_disks_nas
       ansible.builtin.include_role:
         name: manage_disks_nas
 
-    - name: Run configure_mergerfs role
+    - name: Run configure_mergerfs
       ansible.builtin.include_role:
         name: configure_mergerfs
 
-    - name: Run configure_snapraid role
+    - name: Run configure_snapraid
       ansible.builtin.include_role:
         name: configure_snapraid
 
@@ -62,11 +67,11 @@
       ansible.builtin.include_role:
         name: vladgh.samba.server
 
-    # - name: Run muffins_cache_mover role
-    #   include_role:
-    #     name: muffins_cache_mover
+    - name: Run muffins_cache_mover
+      ansible.builtin.include_role:
+        name: muffins_cache_mover
 
-    - name: Run docker_scrutiny role
+    - name: Run docker_scrutiny
       ansible.builtin.include_role:
         name: docker_scrutiny
       when: configure_scrutiny
