@@ -1,0 +1,61 @@
+---
+- name: Check for latest version
+  block:
+    - name: Get latest commit from GitHub
+      ansible.builtin.git:
+        repo: "{{ mans_repo_url }}"
+        version: main
+        depth: 1
+        dest: /tmp/role-version-check
+      register: git_result
+
+    - name: Get current version
+      ansible.builtin.command: git rev-parse HEAD
+      args:
+        chdir: "{{ repo_root_dir | default(playbook_dir) }}"
+      register: current_version
+      changed_when: false
+
+    - name: Compare versions
+      ansible.builtin.set_fact:
+        is_outdated: "{{ git_result.after != current_version.stdout }}"
+
+    - name: Notify user of outdated version
+      ansible.builtin.debug:
+        msg: "Your local version ({{ current_version.stdout }}) is behind the latest version ({{ git_result.after }})."
+      when: is_outdated
+
+    - name: Prompt for update
+      ansible.builtin.pause:
+        prompt: "Would you like to update to the latest version? (yes/no)"
+      register: update_prompt
+      when: is_outdated and not (auto_update | default(false) | bool)
+
+    - name: Update local repository
+      ansible.builtin.git:
+        repo: "{{ mans_repo_url }}"
+        version: main
+        dest: "{{ repo_root_dir | default(playbook_dir) }}"
+      when:
+        - is_outdated
+        - (auto_update | default(false) | bool) or
+          (update_prompt.user_input | default('no') | lower == 'yes')
+
+    - name: Notify user of update status
+      ansible.builtin.debug:
+        msg: >
+          {% if is_outdated %}
+            {% if (auto_update | default(false) | bool) or (update_prompt.user_input | default('no') | lower == 'yes') %}
+              Repository updated to latest version.
+            {% else %}
+              Continuing with current version. Consider updating for the latest features and bug fixes. Please check the GitHub repo for a changelog.
+            {% endif %}
+          {% else %}
+            Your local version is up to date.
+          {% endif %}
+
+  always:
+    - name: Clean up temp directory
+      ansible.builtin.file:
+        path: /tmp/role-version-check
+        state: absent
