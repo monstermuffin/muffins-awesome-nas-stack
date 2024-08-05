@@ -93,3 +93,4 @@
       loop:
         - "/tmp/snapraid.tar.gz"
         - "/tmp/snapraid-{{ snapraid_latest_version }}"
+      changed_when: false
