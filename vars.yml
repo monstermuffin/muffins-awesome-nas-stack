@@ -1,4 +1,5 @@
 ---
+passwordless_sudo: true
 install_zsh: true
 install_rclone: true
 configure_scrutiny: true
@@ -114,7 +115,13 @@ cache_folder_chmod: "770"
 on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
 
 # scrutiny vars
+scrutiny_mode: "omnibus"  # Can be 'omnibus' or 'collector'. Leave as-is if unsure.
+scrutiny_master_url: "http://scrutiny-master:8080"  # Used only in collector mode
+scrutiny_webui_port: 8080 # Used only in omnibus mode
+
+# Scrutiny notificattion vars
 # https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
+
 # Discord
 scrutiny_discord_enabled: true
 scrutiny_discord_token: YOUR_DISCORD_TOKEN
@@ -158,22 +165,3 @@ scrutiny_pushbullet_token: YOUR_PUSHBULLET_TOKEN
 scrutiny_pushbullet_device: "" # Leave empty, or specify a device
 scrutiny_pushbullet_channel: "" # Leave empty, or specify a channel
 scrutiny_pushbullet_email: "" # Leave empty, or specify an email
-
-# disk mapping for scrutiny
-disk_mapping:
-  - /dev/disk/by-id/ata-xxxx:/dev/sda
-  - /dev/disk/by-id/ata-xxxx:/dev/sdb
-  - /dev/disk/by-id/ata-xxxx:/dev/sdc
-  - /dev/disk/by-id/aata-xxxx:/dev/sdd
-  - /dev/disk/by-id/ata-xxxx:/dev/sde
-  - /dev/disk/by-id/ata-xxxx:/dev/sdf
-  - /dev/disk/by-id/ata-xxxx:/dev/sdg
-  - /dev/disk/by-id/ata-xxxx:/dev/sdh
-  - /dev/disk/by-idata-xxxx:/dev/sdi
-  - /dev/disk/by-id/ata-xxxx:/dev/sdj
-  - /dev/disk/by-id/ata-xxxx:/dev/sdk
-  - /dev/disk/by-id/ata-xxxx:/dev/sdl
-  - /dev/disk/by-id/ata-xxxx:/dev/sdm
-  - /dev/disk/by-id/ata-xxxx:/dev/sdn
-  - /dev/disk/by-id/ata-xxxx:/dev/sdo
-  - /dev/disk/by-id/nvme-xxxx:/dev/nvme0
