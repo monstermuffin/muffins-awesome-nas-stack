@@ -1,14 +1,16 @@
 ---
-- name: Deploy Scrutiny container.
+- name: Deploy Scrutiny container
   community.docker.docker_container:
     name: scrutiny
     image: "{{ scrutiny_image }}"
     state: started
     pull: true
-    ports: "{{ scrutiny_ports }}"
+    ports: "{{ scrutiny_ports if scrutiny_mode != 'collector' else omit }}"
     volumes: "{{ scrutiny_volumes }}"
-    devices: "{{ disk_mapping }}"
+    devices: "{{ all_disks }}"
     capabilities:
       - SYS_RAWIO
-      - SYS_ADMIN # Required for NVME https://github.com/AnalogJ/scrutiny/issues/26#issuecomment-696817130
+      - SYS_ADMIN
     restart_policy: unless-stopped
+    env:
+      COLLECTOR_API_ENDPOINT: "{{ scrutiny_master_url if scrutiny_mode == 'collector' else omit }}"

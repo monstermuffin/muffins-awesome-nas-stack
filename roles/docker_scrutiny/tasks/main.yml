@@ -1,4 +1,8 @@
 ---
+- name: Filter and combine all disk lists
+  ansible.builtin.set_fact:
+    all_disks: "{{ (data_disks + parity_disks + cache_disks) | select('match', '^/dev/disk/by-id/') | list }}"
+
 - name: Stage Scrutiny
   ansible.builtin.include_tasks:
     file: stage.yml
@@ -6,6 +10,7 @@
 - name: Configure Notifications
   ansible.builtin.include_tasks:
     file: notify.yml
+  when: scrutiny_mode != 'collector'
 
 - name: Deploy Scrutiny
   ansible.builtin.include_tasks:

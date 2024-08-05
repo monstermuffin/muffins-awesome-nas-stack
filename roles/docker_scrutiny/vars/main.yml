@@ -1,8 +1,9 @@
 ---
 # scrutiny vars
-scrutiny_image: ghcr.io/analogj/scrutiny:master-omnibus
+scrutiny_image: "{% if scrutiny_mode == 'collector' %}ghcr.io/analogj/scrutiny:master-collector{% else %}ghcr.io/analogj/scrutiny:master-omnibus{% endif %}"
+
 scrutiny_ports:
-  - 8080:8080
+  - "{{ scrutiny_webui_port }}:8080"
   - 8086:8086
 scrutiny_volumes:
   - "{{ scrutiny_config_path }}:/opt/scrutiny/config"

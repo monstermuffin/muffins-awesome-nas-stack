@@ -1,11 +1,4 @@
 ---
-# - name: Update Scrutiny configuration file with Discord webhook details
-#   ansible.builtin.replace:
-#     path: "{{ scrutiny_config_file }}"
-#     regexp: '#notify:\n#  urls:\n#    - "discord://token@channel"'
-#     replace: notify:\n  urls:\n    - "discord://{{ scrutiny_discord_token }}@{{ scrutiny_discord_webhookid }}"
-#   when: scrutiny_discord_enabled
-
 - name: Update Scrutiny configuration file with notification config
   ansible.builtin.blockinfile:
     path: "{{ scrutiny_config_file }}"
