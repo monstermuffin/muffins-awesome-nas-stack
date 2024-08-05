@@ -1,4 +1,21 @@
 ---
+- name: Get partition information for all disks
+  ansible.builtin.command: lsblk -nlo NAME,TYPE {{ item }}
+  loop: "{{ data_disks + cache_disks + parity_disks }}"
+  register: partition_info
+  changed_when: false
+
+- name: Set facts for partitioned and non-partitioned disks
+  ansible.builtin.set_fact:
+    partitioned_disks: "{{ partition_info.results | selectattr('stdout', 'search', 'part') | map(attribute='item') | list }}"
+    non_partitioned_disks: "{{ partition_info.results | rejectattr('stdout', 'search', 'part') | map(attribute='item') | list }}"
+
+- name: Debug partitioned and non-partitioned disks
+  ansible.builtin.debug:
+    msg:
+      - "Partitioned disks: {{ partitioned_disks }}"
+      - "Non-partitioned disks: {{ non_partitioned_disks }}"
+
 - name: Initialize cache_disks_only and cache_paths_only variables
   ansible.builtin.set_fact:
     cache_disks_only: []
@@ -83,14 +100,23 @@
   ansible.builtin.pause:
     prompt: |
       The following actions will be performed:
-      - Wipe disk labels for: {{ disks_to_wipe | join(', ') }}
-      - Create BTRFS filesystem on: {{ non_btrfs_disks | default([]) | join(', ') }}
-      - Create EXT4 filesystem on: {{ non_ext4_disks | default([]) | join(', ') }}
-
-      Existing cache paths: {{ cache_paths_only | join(', ') }}
-
+      - Wipe disk labels for:
+        {% for disk in disks_to_wipe %}
+        * {{ disk }}
+        {% endfor %}
+      - Create BTRFS filesystem on:
+        {% for disk in non_btrfs_disks | default([]) %}
+        * {{ disk }}
+        {% endfor %}
+      - Create EXT4 filesystem on:
+        {% for disk in non_ext4_disks | default([]) %}
+        * {{ disk }}
+        {% endfor %}
+      Existing cache paths:
+        {% for path in cache_paths_only %}
+        * {{ path }}
+        {% endfor %}
       WARNING: This will result in data loss on the affected disks.
-
       Do you want to proceed? [y/N]:
   register: user_confirmation
   when:

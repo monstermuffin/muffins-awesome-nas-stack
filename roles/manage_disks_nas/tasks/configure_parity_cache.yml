@@ -10,14 +10,21 @@
 - name: Ensure parity mounts are present in fstab
   ansible.builtin.blockinfile:
     path: /etc/fstab
-    block: "{{ lookup('template', 'parity_mounts.j2') }}"
+    block: |
+      {% for disk in parity_disks %}
+      {% if disk in partitioned_disks %}
+      {{ disk }}-part1  {{ parity_mount_path }}/parity{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% else %}
+      {{ disk }}  {{ parity_mount_path }}/parity{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% endif %}
+      {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
     create: true
 
 - name: Mount parity disks # noqa fqcn
   ansible.posix.mount:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}"
+    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
     fstype: ext4
     opts: "{{ manage_disks_nas_ext4_mount_opts }}"
     state: mounted
@@ -26,16 +33,18 @@
     index_var: index
 
 # Cache Disks
-- name: Ensure cache disk mount points exist
-  ansible.builtin.file:
-    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
-    state: directory
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
-    mode: "0770"
-  loop: "{{ cache_disks_only }}"
-  loop_control:
-    index_var: index
+- name: Ensure cache disk mounts are present in fstab
+  ansible.builtin.blockinfile:
+    path: /etc/fstab
+    block: |
+      {% for disk in cache_disks_only %}
+      {% if disk in partitioned_disks %}
+      {{ disk }}-part1  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% else %}
+      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% endif %}
+      {% endfor %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
   when: cache_disks_only | length > 0
 
 - name: Ensure cache disk mounts are present in fstab
@@ -51,7 +60,7 @@
 - name: Mount cache disks
   ansible.posix.mount:
     path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}"
+    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
     fstype: ext4
     opts: "{{ manage_disks_nas_ext4_mount_opts }}"
     state: mounted

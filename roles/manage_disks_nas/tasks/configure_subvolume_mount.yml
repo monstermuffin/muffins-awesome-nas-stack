@@ -10,21 +10,24 @@
     mode: "0755"
   loop: "{{ range(1, data_disks | length + 1) }}"
 
-- name: Print rendered template
-  ansible.builtin.debug:
-    msg: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
-
 - name: Ensure Btrfs subvolume mounts are present in fstab
   ansible.builtin.blockinfile:
     path: /etc/fstab
-    block: "{{ lookup('template', 'btrfs_subvolume_mounts.j2') }}"
-    marker: "########### {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL ###########"
+    block: |
+      {% for disk in data_disks %}
+      {% if disk in partitioned_disks %}
+      {{ disk }}-part1  {{ data_mount_path }}/data{{ '%02d' % (loop.index) }}  btrfs  {{ manage_disks_nas_btrfs_mount_opts }}  0  0
+      {% else %}
+      {{ disk }}  {{ data_mount_path }}/data{{ '%02d' % (loop.index) }}  btrfs  {{ manage_disks_nas_btrfs_mount_opts }}  0  0
+      {% endif %}
+      {% endfor %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - BTRFS SUBVOL"
     create: true
 
 - name: Mount Btrfs subvolumes
   ansible.posix.mount:
     path: "{{ data_mount_path }}/data{{ '%02d' % (index + 1) }}"
-    src: "{{ item }}"
+    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
     fstype: btrfs
     opts: "{{ manage_disks_nas_btrfs_mount_opts }}"
     state: mounted
