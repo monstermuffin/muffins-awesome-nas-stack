@@ -47,8 +47,7 @@
   ansible.builtin.set_fact:
     non_btrfs_disks: "{{ non_btrfs_disks | default([]) + [item.item] }}"
   loop: "{{ data_disks_fs_check_results.results }}"
-  when:
-    - "'btrfs' not in item.stdout"
+  when: "'btrfs' not in item.stdout"
 
 - name: Check filesystem type for cache and parity disks
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
@@ -59,35 +58,52 @@
   ansible.builtin.set_fact:
     non_ext4_disks: "{{ non_ext4_disks | default([]) + [item.item] }}"
   loop: "{{ cache_parity_disks_fs_check_results.results }}"
-  when:
-    - "'ext4' not in item.stdout"
+  when: "'ext4' not in item.stdout"
 
 - name: Set disks_to_wipe
   ansible.builtin.set_fact:
     disks_to_wipe: "{{ (non_btrfs_disks | default([])) + (non_ext4_disks | default([])) }}"
 
-- name: Debug non_btrfs_disks, non_ext4_disks, and disks_to_wipe
+- name: Debug non_btrfs_disks
   ansible.builtin.debug:
-    msg:
-      - "Non-BTRFS disks: {{ non_btrfs_disks | default([]) }}"
-      - "Non-EXT4 disks: {{ non_ext4_disks | default([]) }}"
-      - "Disks to wipe: {{ disks_to_wipe }}"
+    msg: "Non-BTRFS disks: {{ non_btrfs_disks | default([]) }}"
+  when: non_btrfs_disks is defined
 
-- name: Fail if disks need to be wiped but wipe_and_setup is false
-  ansible.builtin.fail:
-    msg: >
-      Disks need to be wiped and formatted, but wipe_and_setup is set to false.
-      Please set wipe_and_setup to true to proceed.
-  when:
-    - disks_to_wipe | length > 0
-    - not wipe_and_setup
+- name: Debug non_btrfs_disks (undefined)
+  ansible.builtin.debug:
+    msg: "Non-BTRFS disks is undefined"
+  when: non_btrfs_disks is not defined
+
+- name: Debug non_ext4_disks
+  ansible.builtin.debug:
+    msg: "Non-EXT4 disks: {{ non_ext4_disks | default([]) }}"
+  when: non_ext4_disks is defined
+
+- name: Debug non_ext4_disks (undefined)
+  ansible.builtin.debug:
+    msg: "Non-EXT4 disks is undefined"
+  when: non_ext4_disks is not defined
+
+- name: Debug disks_to_wipe
+  ansible.builtin.debug:
+    msg: "Disks to wipe: {{ disks_to_wipe | default([]) }}"
+  when: disks_to_wipe is defined
+
+- name: Debug disks_to_wipe (undefined)
+  ansible.builtin.debug:
+    msg: "Disks to wipe is undefined"
+  when: disks_to_wipe is not defined
+
+- name: Debug prompt condition
+  ansible.builtin.debug:
+    msg: "Prompt condition: {{ ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)) and (wipe_and_setup | default(false)) }}"
 
 - name: Prompt user for confirmation to wipe and reformat disks
   ansible.builtin.pause:
     prompt: |
       The following actions will be performed:
       - Wipe disk labels for:
-        {% for disk in disks_to_wipe %}
+        {% for disk in disks_to_wipe | default([]) %}
         * {{ disk }}
         {% endfor %}
       - Create BTRFS filesystem on:
@@ -99,15 +115,19 @@
         * {{ disk }}
         {% endfor %}
       Existing cache paths:
-        {% for path in cache_paths_only %}
+        {% for path in cache_paths_only | default([]) %}
         * {{ path }}
         {% endfor %}
       WARNING: This will result in data loss on the affected disks.
       Do you want to proceed? [y/N]:
   register: user_confirmation
   when:
-    - (disks_to_wipe | length > 0) or (non_btrfs_disks | length > 0) or (non_ext4_disks | length > 0)
-    - wipe_and_setup
+    - (disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)
+    - wipe_and_setup | default(false)
+
+- name: Debug after prompt
+  ansible.builtin.debug:
+    msg: "Prompt task executed: {{ user_confirmation is defined }}"
 
 - name: Fail if user does not confirm disk wiping
   ansible.builtin.fail:
@@ -115,25 +135,28 @@
       User did not confirm disk wiping.
       Playbook execution stopped.
   when:
-    - (disks_to_wipe | length > 0) or (non_ext4_disks | length > 0) or (non_btrfs_disks | length > 0)
-    - wipe_and_setup
-    - user_confirmation.user_input | default('n') | lower != 'y'
+    - disks_to_wipe | default([]) | length > 0  # Only run if there are disks to wipe
+    - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
+    - user_confirmation is defined              # Only run if the prompt was actually shown
+    - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
-- name: Unmount disks_to_wipe  # noqa ignore-errors
+- name: Unmount disks_to_wipe # noqa ignore-errors
   ansible.builtin.command: sudo umount {{ item }}
-  with_items: "{{ disks_to_wipe }}"
+  with_items: "{{ disks_to_wipe | default([]) }}"
   when:
-    - disks_to_wipe | length > 0
-    - wipe_and_setup
+    - disks_to_wipe | default([]) | length > 0
+    - wipe_and_setup | default(false)
+    - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
   ignore_errors: true
 
 - name: Wipe disk labels
   ansible.builtin.command: sudo wipefs -a {{ item }}
-  with_items: "{{ disks_to_wipe }}"
+  with_items: "{{ disks_to_wipe | default([]) }}"
   when:
-    - disks_to_wipe | length > 0
-    - wipe_and_setup
+    - disks_to_wipe | default([]) | length > 0
+    - wipe_and_setup | default(false)
+    - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
 
 - name: Create BTRFS filesystem on data disks
@@ -142,8 +165,9 @@
     dev: "{{ item }}"
   with_items: "{{ non_btrfs_disks | default([]) }}"
   when:
-    - non_btrfs_disks | length > 0
-    - wipe_and_setup
+    - non_btrfs_disks | default([]) | length > 0
+    - wipe_and_setup | default(false)
+    - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
 
 - name: Create EXT4 filesystem on cache and parity disks
@@ -152,11 +176,12 @@
     dev: "{{ item }}"
   with_items: "{{ non_ext4_disks | default([]) }}"
   when:
-    - non_ext4_disks | length > 0
-    - wipe_and_setup
+    - non_ext4_disks | default([]) | length > 0
+    - wipe_and_setup | default(false)
+    - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
 
-- name: Get filesystem type for all disks  # noqa command-instead-of-shell
+- name: Get filesystem type for all disks # noqa command-instead-of-shell
   ansible.builtin.shell: lsblk -f {{ item }}
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types

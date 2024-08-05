@@ -24,13 +24,18 @@
   loop_control:
     index_var: index
 
-- name: Generate cache_mounts list
+- name: Generate cache_mounts list for cache disks
   ansible.builtin.set_fact:
-    cache_mounts: >-
-      {{
-        (cache_disks_only | map('regex_replace', '^(.*)$', cache_mount_path + '/cache%02d') | list) +
-        cache_paths_only
-      }}
+    cache_mounts: "{{ cache_mounts | default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"
+  loop: "{{ cache_disks_only }}"
+  loop_control:
+    index_var: index
+  when: cache_disks_only | length > 0
+
+- name: Add cache paths to cache_mounts list
+  ansible.builtin.set_fact:
+    cache_mounts: "{{ cache_mounts | default([]) + cache_paths_only }}"
+  when: cache_paths_only | length > 0
 
 - name: Deploy mergerfs media_cached systemd service (single cache disk/path)
   ansible.builtin.template:
