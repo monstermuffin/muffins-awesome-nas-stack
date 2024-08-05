@@ -6,6 +6,7 @@
 - name: Passwordless-Sudo
   ansible.builtin.include_tasks:
     file: passwdless_sudo.yml
+  when: passwordless_sudo
 
 - name: Create and append users/groups
   ansible.builtin.include_tasks:
@@ -14,6 +15,10 @@
 - name: Install packages
   ansible.builtin.include_tasks:
     file: apps.yml
+
+- name: Install Fastfetch
+  ansible.builtin.include_tasks:
+    file: fastfetch.yml
 
 - name: Apply Keys
   ansible.builtin.include_tasks:
