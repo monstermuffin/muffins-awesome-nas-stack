@@ -1,6 +1,8 @@
 ---
 passwordless_sudo: true
-install_zsh: true
+configure_zsh: true
+configure_powerlevel10k: true
+fastfetch_motd: true
 install_rclone: true
 configure_scrutiny: true
 configure_hdidle: true # https://github.com/adelolmo/hd-idle
@@ -101,6 +103,7 @@ cache_disks:
   - /dev/disk/by-id/nvme-xxxx
 
 # cache mover vars
+cache_mover_autoupdate: true
 cache_mover_dir: /opt/mergerfs-cache-mover/
 cache_mover_log_path: /var/log/cache-mover.log
 cache_mover_threshold_percentage: 70
