@@ -4,9 +4,9 @@ maintain_aah-fs01.yml
 *.DS_Store*
 test.yml
 .vscode/*
-concatenated_files.yml
 export.sh
-output.yml
-output1.yml
+output*.yml
 test_vars.yml
 *_old*
+aah-fs01_vars.yml
+*test*
