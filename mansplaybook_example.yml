@@ -3,7 +3,11 @@
   hosts: localhost
   connection: local
   gather_facts: false
+
   tasks:
+    - name: Run version check
+      ansible.builtin.include_role:
+        name: version_check
 
 - name: Maintain MANS
   hosts: mans-host
