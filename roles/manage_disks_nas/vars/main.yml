@@ -1,5 +1,6 @@
 ---
 # I don't remember why this is here but it looks important.
+# # Turns out it is _very_ important :kek:
 partition_path: >-
   {{
     device + '-part' + partition if '-part' in device
