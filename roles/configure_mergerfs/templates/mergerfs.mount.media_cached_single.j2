@@ -1,5 +1,5 @@
 [Unit]
-Description=MergerFS mount for /mnt/media (single cache disk/path)
+Description=MergerFS mount for /mnt/media (cache disk(s)/path(s))
 
 [Service]
 Type=simple
@@ -11,7 +11,7 @@ ExecStart=/usr/bin/mergerfs \
   -o category.create=ff \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
-  -o fsname=mergerfs_cache \
+  -o fsname=mergerfs_cached \
   {{ cache_mounts|join(':') }}:{{ data_mounts|join(':') }} \
   {{ media_cached }}
 ExecStop=/bin/fusermount -uz {{ media_cached }}
