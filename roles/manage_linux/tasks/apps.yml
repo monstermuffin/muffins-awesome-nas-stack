@@ -29,7 +29,6 @@
       - tree
       - zip
       - vim
-      - fastfetch
       - fuse
       - cifs-utils
       - nfs-kernel-server
@@ -41,5 +40,3 @@
       - gdisk
       - apparmor
       - apparmor-utils
-      - snapraid
-      - snapper
