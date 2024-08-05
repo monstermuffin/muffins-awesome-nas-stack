@@ -12,7 +12,7 @@
     - name: Get current version
       ansible.builtin.command: git rev-parse HEAD
       args:
-        chdir: "{{ ansible_playbook_dir }}"
+        chdir: "{{ playbook_dir }}"
       register: current_version
       changed_when: false
 
@@ -35,7 +35,7 @@
       ansible.builtin.git:
         repo: "{{ mans_repo_url }}"
         version: main
-        dest: "{{ ansible_playbook_dir }}"
+        dest: "{{ playbook_dir }}"
       when:
         - is_outdated
         - (auto_update | default(false) | bool) or
@@ -48,7 +48,7 @@
             {% if (auto_update | default(false) | bool) or (update_prompt.user_input | default('no') | lower == 'yes') %}
               Repository updated to latest version.
             {% else %}
-              Continuing with current version. Consider updating soon for the latest features and bug fixes.
+              Continuing with current version. Consider updating for the latest features and bug fixes. Please check the GitHub repo for a changelog.
             {% endif %}
           {% else %}
             Your local version is up to date.
@@ -59,3 +59,4 @@
       ansible.builtin.file:
         path: /tmp/role-version-check
         state: absent
+      changed_when: false
