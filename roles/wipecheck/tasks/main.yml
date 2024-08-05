@@ -14,7 +14,7 @@
 
     - name: Recap disk wiping confirmation
       ansible.builtin.debug:
-        msg: You have confirmed to proceed with disk wiping. All data on the non-compliant disks will be permanently erased.
+        msg: You have confirmed to proceed with disk wiping. You will be prompted if/when disks need to be wiped.
       when: wipe_confirmation.user_input == 'yes'
 
     - name: Abort playbook if user does not confirm
