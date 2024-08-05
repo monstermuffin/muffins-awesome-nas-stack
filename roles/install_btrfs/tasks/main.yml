@@ -23,16 +23,17 @@
 
 - name: Set latest btrfs-progs version fact
   ansible.builtin.set_fact:
-    btrfs_latest_version: "{{ btrfs_github_release_page.json.tag_name[1:] }}"
+    btrfs_latest_version: "{{ btrfs_github_release_page.json.tag_name | regex_replace('^v', '') }}"
 
 - name: Extract version number from installed version
   ansible.builtin.set_fact:
-    installed_version_number: "{{ installed_version.stdout.split()[-1][1:] }}"
+    installed_version_number: "{{ installed_version.stdout.split()[1] | regex_replace('^v', '') }}"
   when: installed_version.rc == 0
 
 - name: Compare installed version with the latest version
   ansible.builtin.set_fact:
-    update_needed: "{{ btrfs_latest_version != (installed_version_number | default('0')) }}"
+    update_needed: "{{ btrfs_latest_version is version(installed_version_number | default('0'), '>') }}"
+  when: installed_version.rc == 0
 
 - name: Debug installed_version_number
   ansible.builtin.debug:
