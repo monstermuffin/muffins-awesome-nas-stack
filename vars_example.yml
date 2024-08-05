@@ -107,7 +107,7 @@ cache_disks:
 
 # cache mover vars
 cache_mover_autoupdate: true
-cache_mover_dir: /opt/mergerfs-cache-mover/
+cache_mover_dir: /opt/mergerfs-cache-mover
 cache_mover_log_path: /var/log/cache-mover.log
 cache_mover_threshold_percentage: 70
 cache_mover_target_percentage: 30
