@@ -12,22 +12,12 @@
     mode: "0770"
   loop: "{{ range(1, data_disks_count | int + 1) | product(data_directories) | list }}"
 
-- name: Create root directories on cache disks
+- name: Create root directories on cache disks and paths
   ansible.builtin.file:
-    path: "{{ cache_mount_path }}/cache{{ '%02d' % item.0 }}/{{ item.1 }}"
+    path: "{{ item.0 if item.0.startswith('/') else cache_mount_path + '/cache%02d' % loop.index }}/{{ item.1 }}"
     owner: "{{ user }}"
     group: "{{ media_group }}"
     state: directory
     mode: "0770"
-  loop: "{{ range(1, cache_disks_only | length + 1) | product(data_directories) | list }}"
-  when: cache_disks_only | length > 0
-
-- name: Create root directories on cache paths
-  ansible.builtin.file:
-    path: "{{ item.0 | realpath }}/{{ item.1 }}"
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
-    state: directory
-    mode: "0770"
-  loop: "{{ cache_paths_only | product(data_directories) | list }}"
-  when: cache_paths_only | length > 0
+  loop: "{{ (cache_disks_only + cache_paths_only) | product(data_directories) | list }}"
+  when: (cache_disks_only + cache_paths_only) | length > 0

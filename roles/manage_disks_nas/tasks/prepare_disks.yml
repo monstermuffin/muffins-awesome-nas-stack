@@ -1,7 +1,18 @@
 ---
-- name: Get partition information for all disks
+- name: Separate block devices and directory paths
+  ansible.builtin.set_fact:
+    block_devices: "{{ data_disks + parity_disks + cache_disks | select('match', '^/dev/') | list }}"
+    directory_paths: "{{ cache_disks | reject('match', '^/dev/') | list }}"
+
+- name: Debug block devices and directory paths
+  ansible.builtin.debug:
+    msg:
+      - "Block devices: {{ block_devices }}"
+      - "Directory paths: {{ directory_paths }}"
+
+- name: Get partition information for block devices
   ansible.builtin.command: lsblk -nlo NAME,TYPE {{ item }}
-  loop: "{{ data_disks + cache_disks + parity_disks }}"
+  loop: "{{ block_devices }}"
   register: partition_info
   changed_when: false
 
@@ -18,56 +29,36 @@
 
 - name: Initialize cache_disks_only and cache_paths_only variables
   ansible.builtin.set_fact:
-    cache_disks_only: []
-    cache_paths_only: []
-
-- name: Initialize non_btrfs_disks and non_ext4_disks variables
-  ansible.builtin.set_fact:
-    non_btrfs_disks: []
-    non_ext4_disks: []
-
-- name: Identify cache disks and paths
-  ansible.builtin.set_fact:
     cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
-    cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
+    cache_paths_only: "{{ directory_paths }}"
 
-- name: Debug cache_disks_only
+- name: Debug cache_disks_only and cache_paths_only
   ansible.builtin.debug:
-    var: cache_disks_only
-
-- name: Debug cache_paths_only
-  ansible.builtin.debug:
-    var: cache_paths_only
+    msg:
+      - "Cache disks: {{ cache_disks_only }}"
+      - "Cache paths: {{ cache_paths_only }}"
 
 - name: Check filesystem type for data disks
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
-  with_items: "{{ data_disks }}"
+  loop: "{{ data_disks }}"
   register: data_disks_fs_check_results
-
-- name: Debug data_disks_fs_check_results
-  ansible.builtin.debug:
-    var: data_disks_fs_check_results.results
 
 - name: Identify non-BTRFS data disks
   ansible.builtin.set_fact:
     non_btrfs_disks: "{{ non_btrfs_disks | default([]) + [item.item] }}"
-  with_items: "{{ data_disks_fs_check_results.results }}"
+  loop: "{{ data_disks_fs_check_results.results }}"
   when:
     - "'btrfs' not in item.stdout"
 
 - name: Check filesystem type for cache and parity disks
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
-  with_items: "{{ cache_disks_only + parity_disks }}"
+  loop: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
-
-- name: Debug cache_parity_disks_fs_check_results
-  ansible.builtin.debug:
-    var: cache_parity_disks_fs_check_results.results
 
 - name: Identify non-EXT4 cache and parity disks
   ansible.builtin.set_fact:
     non_ext4_disks: "{{ non_ext4_disks | default([]) + [item.item] }}"
-  with_items: "{{ cache_parity_disks_fs_check_results.results }}"
+  loop: "{{ cache_parity_disks_fs_check_results.results }}"
   when:
     - "'ext4' not in item.stdout"
 
@@ -75,17 +66,12 @@
   ansible.builtin.set_fact:
     disks_to_wipe: "{{ (non_btrfs_disks | default([])) + (non_ext4_disks | default([])) }}"
 
-- name: Debug non_btrfs_disks
+- name: Debug non_btrfs_disks, non_ext4_disks, and disks_to_wipe
   ansible.builtin.debug:
-    var: non_btrfs_disks
-
-- name: Debug non_ext4_disks
-  ansible.builtin.debug:
-    var: non_ext4_disks
-
-- name: Debug disks_to_wipe
-  ansible.builtin.debug:
-    var: disks_to_wipe
+    msg:
+      - "Non-BTRFS disks: {{ non_btrfs_disks | default([]) }}"
+      - "Non-EXT4 disks: {{ non_ext4_disks | default([]) }}"
+      - "Disks to wipe: {{ disks_to_wipe }}"
 
 - name: Fail if disks need to be wiped but wipe_and_setup is false
   ansible.builtin.fail:
