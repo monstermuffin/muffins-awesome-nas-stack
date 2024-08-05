@@ -14,7 +14,6 @@ configure_snapraid_logging_file: /var/log/snapraid-btrfs-runner.log
 configure_snapraid_logging_maxsize: 5000
 
 # SnapRAID settings
-configure_snapraid_snapraid_deletethreshold: 40
 configure_snapraid_snapraid_touch: false
 
 # snapraid-btrfs-runner settings

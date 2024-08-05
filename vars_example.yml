@@ -18,6 +18,9 @@ wipe_and_setup: true # Set this to true to enable wiping of disks. If any disks 
 timezone: Europe/London
 smb_media_share_name: media-share
 
+# snapraid/snapper
+configure_snapraid_snapraid_deletethreshold: 150
+
 # sshkeys
 ssh_key_option: none # Options: github, url, file, none
 github_username: <YOUR_GITHUB_USERNAME>
