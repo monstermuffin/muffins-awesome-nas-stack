@@ -1,53 +1,64 @@
----
-- name: Required packages
+- name: Install required packages
   ansible.builtin.package:
     name:
       - git
       - zsh
       - powerline
-      - fonts-powerline
     state: present
+  become: true
 
 - name: Set ZSH as default shell
   ansible.builtin.user:
     name: "{{ user }}"
     shell: /bin/zsh
-
-- name: Download Oh My ZSH installer # noqa ignore-errors
-  ansible.builtin.get_url:
-    url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-    dest: /tmp/install-ohmyzsh.sh
-    mode: "0755"
-  ignore_errors: true
-
-- name: Check if Oh My ZSH is installed
-  ansible.builtin.stat:
-    path: /home/{{ user }}/.oh-my-zsh
-  register: zsh_ohmyzsh_installed
+  become: true
 
 - name: Install Oh My ZSH
-  become_user: "{{ user }}"
-  ansible.builtin.command: /tmp/install-ohmyzsh.sh --unattended
-  when: not zsh_ohmyzsh_installed.stat.exists
-
-- name: Install Oh My ZSH plugins and themes
-  become_user: "{{ user }}"
   block:
-    - name: Clone zsh-autosuggestions
-      ansible.builtin.git:
-        repo: https://github.com/zsh-users/zsh-autosuggestions
-        dest: /home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-        version: master
-        force: true
+    - name: Download Oh My ZSH installer # noqa ignore-errors
+      ansible.builtin.get_url:
+        url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/install-ohmyzsh.sh
+        mode: "0755"
+      ignore_errors: true
 
-    - name: Clone zsh-syntax-highlighting
-      ansible.builtin.git:
-        repo: https://github.com/zsh-users/zsh-syntax-highlighting
-        dest: /home/{{ user }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-        version: master
-        force: true
+    - name: Check if Oh My ZSH is installed
+      ansible.builtin.stat:
+        path: /home/{{ user }}/.oh-my-zsh
+      register: zsh_ohmyzsh_installed
 
+    - name: Run Oh My ZSH installer
+      become_user: "{{ user }}"
+      ansible.builtin.command: /tmp/install-ohmyzsh.sh --unattended
+      when: not zsh_ohmyzsh_installed.stat.exists
+
+- name: Install Oh My ZSH plugins
+  become_user: "{{ user }}"
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "/home/{{ user }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    version: master
+    force: true
+  loop:
+    - { name: zsh-autosuggestions, repo: https://github.com/zsh-users/zsh-autosuggestions }
+    - { name: zsh-syntax-highlighting, repo: https://github.com/zsh-users/zsh-syntax-highlighting }
+
+- name: Add fastfetch aliases
+  become_user: "{{ user }}"
+  ansible.builtin.blockinfile:
+    path: "/home/{{ user }}/.zshrc"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Fastfetch aliases"
+    block: |
+      # Aliases for fastfetch
+      alias fetch='fastfetch'
+      alias neofetch='fastfetch'
+    insertafter: EOF
+
+- name: Install and configure Powerlevel10k
+  when: configure_powerlevel10k
+  block:
     - name: Clone Powerlevel10k
+      become_user: "{{ user }}"
       ansible.builtin.git:
         repo: https://github.com/romkatv/powerlevel10k
         dest: /home/{{ user }}/.oh-my-zsh/custom/themes/powerlevel10k
@@ -61,3 +72,66 @@
         regexp: ^ZSH_THEME=".*"
         line: ZSH_THEME="powerlevel10k/powerlevel10k"
         state: present
+
+    # - name: Add Powerlevel10k instant prompt to .zshrc
+    #   become_user: "{{ user }}"
+    #   ansible.builtin.blockinfile:
+    #     path: /home/{{ user }}/.zshrc
+    #     insertbefore: BOF
+    #     block: |
+    #       # Enable Powerlevel10k instant prompt
+    #       if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    #         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    #       fi
+
+- name: Configure fastfetch motd
+  when: fastfetch_motd | default(false) | bool
+  block:
+    - name: Create fastfetch script
+      become_user: "{{ user }}"
+      ansible.builtin.copy:
+        dest: "/home/{{ user }}/.fastfetch.sh"
+        mode: '0755'
+        content: |
+          #!/bin/bash
+          if [[ $- == *i* && $TERM_PROGRAM != "vscode" && -z "$FASTFETCH_DISPLAYED" ]]; then
+            fastfetch
+            export FASTFETCH_DISPLAYED=1
+          fi
+
+    - name: Source fastfetch script in .zshrc
+      become_user: "{{ user }}"
+      ansible.builtin.blockinfile:
+        path: "/home/{{ user }}/.zshrc"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - Fastfetch"
+        block: |
+          # Run fastfetch
+          source ~/.fastfetch.sh
+        insertafter: "# {mark} ANSIBLE MANAGED BLOCK - Powerlevel10k instant prompt"
+
+    - name: Source fastfetch script in .zprofile
+      become_user: "{{ user }}"
+      ansible.builtin.lineinfile:
+        path: "/home/{{ user }}/.zprofile"
+        line: 'source ~/.fastfetch.sh'
+        create: true
+
+    - name: Disable default MOTD
+      become: true
+      ansible.builtin.file:
+        path: /etc/motd
+        state: absent
+
+    - name: Disable login information in /etc/issue
+      become: true
+      ansible.builtin.copy:
+        content: ""
+        dest: /etc/issue
+        force: true
+
+    - name: Disable login information in /etc/issue.net
+      become: true
+      ansible.builtin.copy:
+        content: ""
+        dest: /etc/issue.net
+        force: true
