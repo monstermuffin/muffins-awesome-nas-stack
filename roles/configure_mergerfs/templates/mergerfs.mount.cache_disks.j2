@@ -12,7 +12,7 @@ ExecStart=/usr/bin/mergerfs \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_cache_pool \
-  {% for index in range(1, cache_disks_only | length + 1) %}{{ cache_mount_path }}/cache{{ '%02d' % index }}:{% endfor %}{% for path in cache_paths_only %}{{ path }}:{% endfor %} \
+  {% for index in range(1, cache_disks_only | length + 1) %}{{ cache_mount_path }}/cache{{ '%02d' % index }}{% if not loop.last %}:{% endif %}{% endfor %}{% if cache_paths_only %}{% if cache_disks_only %}:{% endif %}{% for path in cache_paths_only %}{{ path }}{% if not loop.last %}:{% endif %}{% endfor %}{% endif %} \
   {{ cache_pool }}
 ExecStop=/bin/fusermount -uz {{ cache_pool }}
 Restart=on-failure
