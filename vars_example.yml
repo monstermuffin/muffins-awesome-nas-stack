@@ -77,9 +77,10 @@ cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
 # content files
 content_files:
   - /var/snapraid/snapraid.content
+  - /mnt/parity-disks/parity01/snapraid/snapraid.content
   - /mnt/cache-disks/cache01/snapraid/cache/snapraid.content # remove if you have no cache disks
-  - /mnt/data-disks/data01/snapraid/data/snapraid.content
-## must enable a 3rd content file with 2+ parity
+    ## must enable a 3rd content file with 2+ parity
+    ## cannot be in a btrfs subvolume
 
 # dirs:
 dir_snapraid_btfs_runner: /var/snapraid-btrfs-runner
