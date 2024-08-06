@@ -181,7 +181,7 @@
     - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
 
-- name: Get filesystem type for all disks # noqa shell-in
+- name: Get filesystem type for all disks # noqa command-instead-of-shell
   ansible.builtin.shell: lsblk -f {{ item }}
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
