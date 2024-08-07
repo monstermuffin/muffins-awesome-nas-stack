@@ -48,6 +48,7 @@
     - name: Run geerlingguy.docker
       ansible.builtin.include_role:
         name: geerlingguy.docker
+      when: install_docker or configure_scrutiny
 
     - name: Run install_mergerfs
       ansible.builtin.include_role:
