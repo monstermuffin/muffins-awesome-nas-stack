@@ -2,7 +2,12 @@
 
 ## Changelog
 
-* [v0.89 Beta Release](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.89)
+* v0.89.1 - No release
+  * Modified mergerfs `minfreespace` from 1G to 10G.
+  * Added `cache_pool_policy` var to allow users to select a different mergerfs policy if required for multiple cache devices.
+
+* [v0.89 - Beta Release](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.89)
+  * Released role in a state that is ready to be deployed/tested by others.
 
 ## Intro
 
