@@ -8,7 +8,7 @@ ExecStart=/usr/bin/mergerfs \
   -f \
   -o cache.files=off \
   -o dropcacheonclose=true \
-  -o category.create=epmfs \
+  -o category.create={{ cache_pool_policy }} \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_cache_pool \
