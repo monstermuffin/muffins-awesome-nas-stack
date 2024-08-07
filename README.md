@@ -2,7 +2,7 @@
 
 ## Changelog
 
-* [v0.89 Beta Release]((https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/v0.89))
+* [v0.89 Beta Release](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.89)
 
 ## Intro
 
