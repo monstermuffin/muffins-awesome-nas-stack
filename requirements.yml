@@ -2,7 +2,7 @@
 roles:
   - name: stefangweichinger.ansible_rclone
   - name: geerlingguy.docker
-    version: 7.0.1
+    version: 7.3.0
 
 collections:
   - name: community.general
