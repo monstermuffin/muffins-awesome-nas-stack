@@ -7,16 +7,30 @@
     - "{{ scrutiny_config_path }}"
     - "{{ scrutiny_influxdb_path }}"
 
+- name: Check if Scrutiny configuration file exists
+  ansible.builtin.stat:
+    path: "{{ scrutiny_config_file }}"
+  register: config_file_stat
+
 - name: Download the Scrutiny configuration file
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.scrutiny.yaml
     dest: "{{ scrutiny_config_file }}"
     mode: "0644"
-  when: scrutiny_mode != 'collector'
+  when:
+    - scrutiny_mode != 'collector'
+    - not config_file_stat.stat.exists
+
+- name: Check if Scrutiny collector configuration file exists
+  ansible.builtin.stat:
+    path: "{{ scrutiny_config_path }}/collector.yaml"
+  register: collector_config_file_stat
 
 - name: Download the Scrutiny collector configuration file
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector.yaml
     dest: "{{ scrutiny_config_path }}/collector.yaml"
     mode: "0644"
-  when: scrutiny_mode == 'collector'
+  when:
+    - scrutiny_mode == 'collector'
+    - not collector_config_file_stat.stat.exists

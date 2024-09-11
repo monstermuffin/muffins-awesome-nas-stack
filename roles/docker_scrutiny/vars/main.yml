@@ -10,6 +10,7 @@ scrutiny_volumes:
   - "{{ scrutiny_influxdb_path }}:/opt/scrutiny/influxdb"
   - "{{ scrutiny_config_file }}:/opt/scrutiny/config/scrutiny.yaml"
   - /run/udev:/run/udev:ro
+  - /dev:/dev:ro
 scrutiny_config_path: /opt/docker/scrutiny/data
 scrutiny_config_file: /opt/docker/scrutiny/data/scrutiny.yaml
 scrutiny_influxdb_path: /opt/docker/scrutiny/influxdb2

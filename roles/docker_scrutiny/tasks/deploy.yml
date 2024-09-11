@@ -7,10 +7,13 @@
     pull: true
     ports: "{{ scrutiny_ports if scrutiny_mode != 'collector' else omit }}"
     volumes: "{{ scrutiny_volumes }}"
-    devices: "{{ all_disks }}"
-    capabilities:
-      - SYS_RAWIO
-      - SYS_ADMIN
+    privileged: true
     restart_policy: unless-stopped
     env:
       COLLECTOR_API_ENDPOINT: "{{ scrutiny_master_url if scrutiny_mode == 'collector' else omit }}"
+
+- name: Display warning about privileged mode
+  ansible.builtin.debug:
+    msg: >
+      WARNING: Scrutiny is running in privileged mode, which gives it full access to the host system.
+      Disable auto deployment and do this manually yourself if this is an issue for you.
