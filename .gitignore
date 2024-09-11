@@ -10,3 +10,6 @@ test_vars.yml
 *_old*
 aah-fs01_vars.yml
 *test*
+*.pyc
+__pycache__/
+*.py[cod]
