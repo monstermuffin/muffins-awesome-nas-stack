@@ -12,8 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run ansible-lint
-        # TODO: pin to version once >24.7.0 is released
-        # See https://github.com/ansible/ansible-lint/discussions/4281
-        uses: ansible/ansible-lint@main
+        uses: ansible/ansible-lint@v24.9.0
         with:
           requirements_file: requirements.yml
