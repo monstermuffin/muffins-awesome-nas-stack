@@ -1,9 +1,12 @@
 ---
 roles:
   - name: stefangweichinger.ansible_rclone
+    version: 0.2.0
   - name: geerlingguy.docker
-    version: 7.0.1
+    version: 7.3.0
 
 collections:
   - name: community.general
+    version: 9.3.0
   - name: vladgh.samba
+    version: 3.4.0
