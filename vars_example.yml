@@ -119,8 +119,8 @@ cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
 cache_mover_user: "{{ user }}" # user and group for the permissions of the moved files
 cache_mover_group: "{{ media_group }}" # user and group for the permissions of the moved files
-cache_file_chmod: "660"
-cache_folder_chmod: "660"
+cache_file_chmod: "770"
+cache_folder_chmod: "770"
 on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
 
 # scrutiny vars
