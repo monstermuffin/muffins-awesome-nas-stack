@@ -7,7 +7,6 @@ skip_list:
   - name[casing]
   - name[template]
   - var-naming[no-role-prefix]
-  - partial-become[task]
   - no-changed-when
   - risky-file-permissions
   - command-instead-of-module

@@ -23,7 +23,7 @@
 
     - name: Verify existing snapper configs
       ansible.builtin.command:
-        cmd: sudo snapper list-configs
+        cmd: snapper list-configs
       register: snapper_configs
       changed_when: false
       failed_when: false
@@ -40,7 +40,7 @@
 
     - name: Destroy invalid snapper configurations
       ansible.builtin.command:
-        cmd: sudo snapper -c data{{ '%02d' % item }} delete-config
+        cmd: snapper -c data{{ '%02d' % item }} delete-config
       loop: "{{ range(1, data_disks | length + 1) }}"
       when:
         - data_disks is defined
@@ -51,7 +51,7 @@
 
     - name: Attempt to create Snapper configuration
       ansible.builtin.command:
-        cmd: sudo snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
+        cmd: snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
       register: create_config_result
       failed_when: false
       changed_when: create_config_result.rc == 0
@@ -63,7 +63,7 @@
 
     - name: Remove existing snapshots for failed configs  # noqa command-instead-of-module
       ansible.builtin.command:
-        cmd: sudo btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots/*
+        cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots/*
       loop: "{{ range(1, data_disks | length + 1) }}"
       when:
         - data_disks is defined
@@ -74,7 +74,7 @@
 
     - name: Remove .snapshots subvolume for failed configs  # noqa command-instead-of-module
       ansible.builtin.command:
-        cmd: sudo btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots
+        cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots
       loop: "{{ range(1, data_disks | length + 1) }}"
       when:
         - data_disks is defined
@@ -85,7 +85,7 @@
 
     - name: Retry creating Snapper configuration for failed configs
       ansible.builtin.command:
-        cmd: sudo snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
+        cmd: snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
       loop: "{{ range(1, data_disks | length + 1) }}"
       when:
         - data_disks is defined
@@ -105,7 +105,7 @@
 
     - name: Verify snapper configs
       ansible.builtin.command:
-        cmd: sudo snapper list-configs
+        cmd: snapper list-configs
       register: snapper_configs_new
       changed_when: false
 
@@ -158,20 +158,20 @@
 
         - name: Delete all snapshots  # noqa command-instead-of-module
           ansible.builtin.command:
-            cmd: "sudo btrfs subvolume delete -C {{ item.1.path }}/snapshot"
+            cmd: "btrfs subvolume delete -C {{ item.1.path }}/snapshot"
           loop: "{{ snapshot_dirs.results | subelements('files') }}"
           when: snapshot_dirs.results is defined
           failed_when: false
 
         - name: Remove .snapshots subvolume on all disks  # noqa command-instead-of-module
           ansible.builtin.command:
-            cmd: "sudo btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots"
+            cmd: "btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots"
           loop: "{{ range(1, data_disks | length + 1) | list }}"
           failed_when: false
 
         - name: Recreate all snapper configs
           ansible.builtin.command:
-            cmd: "sudo snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
+            cmd: "snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}"
           loop: "{{ range(1, data_disks | length + 1) | list }}"
           register: create_config_result
           failed_when:
@@ -190,7 +190,7 @@
 
         - name: Verify final snapper configs after reset
           ansible.builtin.command:
-            cmd: sudo snapper list-configs
+            cmd: snapper list-configs
           register: snapper_configs_reset
           changed_when: false
 
@@ -225,7 +225,7 @@
   always:
     - name: Final verification of Snapper configs
       ansible.builtin.command:
-        cmd: sudo snapper list-configs
+        cmd: snapper list-configs
       register: final_snapper_configs
       changed_when: false
 
