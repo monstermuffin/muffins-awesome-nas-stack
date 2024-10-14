@@ -52,6 +52,7 @@
               alias fetch='fastfetch'
               alias neofetch='fastfetch'
             insertafter: EOF
+          when: fastfetch_motd
 
         - name: Install and configure Powerlevel10k
           when: configure_powerlevel10k

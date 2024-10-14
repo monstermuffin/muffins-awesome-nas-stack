@@ -19,7 +19,9 @@
 - name: Install Fastfetch
   ansible.builtin.include_tasks:
     file: fastfetch.yml
-  when: ansible_pkg_mgr == 'apt'
+  when:
+    - ansible_pkg_mgr == 'apt'
+    - fastfetch_motd
 
 - name: Apply Keys
   ansible.builtin.include_tasks:
