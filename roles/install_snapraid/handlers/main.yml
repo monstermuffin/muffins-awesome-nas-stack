@@ -1,8 +1,5 @@
 ---
 - name: Cleanup SnapRAID download
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: /tmp/snapraid-{{ snapraid_latest_version }}
     state: absent
-  loop:
-    - /tmp/snapraid.tar.gz
-    - /tmp/snapraid-{{ snapraid_version_num }}

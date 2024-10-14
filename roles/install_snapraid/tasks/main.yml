@@ -8,6 +8,7 @@
   register: installed_snapraid_version
   changed_when: false
   ignore_errors: true
+  check_mode: false
 
 - name: Set update_needed to true if snapraid is not installed
   ansible.builtin.set_fact:
@@ -47,10 +48,6 @@
     - ansible_pkg_mgr == 'apt'
     - update_needed
   block:
-    - name: Build snapraid package download url
-      ansible.builtin.set_fact:
-        snapraid_package_url: "https://github.com/amadvance/snapraid/releases/download/v{{ snapraid_latest_version }}/snapraid-{{ snapraid_latest_version }}.tar.gz"
-
     - name: Install required packages for SnapRAID installation
       ansible.builtin.apt:
         name:
@@ -59,17 +56,12 @@
         state: present
         update_cache: true
 
-    - name: Download SnapRAID tarball
-      ansible.builtin.get_url:
-        url: "{{ snapraid_package_url }}"
-        dest: /tmp/snapraid.tar.gz
-        mode: "0755"
-
-    - name: Extract SnapRAID tarball
+    - name: Extract SnapRAID tarball from release URL
       ansible.builtin.unarchive:
-        src: /tmp/snapraid.tar.gz
+        src: https://github.com/amadvance/snapraid/releases/download/v{{ snapraid_latest_version }}/snapraid-{{ snapraid_latest_version }}.tar.gz
         dest: /tmp/
         remote_src: true
+      notify: Cleanup SnapRAID download
 
     - name: Configure SnapRAID
       ansible.builtin.command:
@@ -85,12 +77,3 @@
       ansible.builtin.command:
         cmd: make install
         chdir: "/tmp/snapraid-{{ snapraid_latest_version }}"
-
-    - name: Cleanup SnapRAID installation files
-      ansible.builtin.file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - "/tmp/snapraid.tar.gz"
-        - "/tmp/snapraid-{{ snapraid_latest_version }}"
-      changed_when: false
