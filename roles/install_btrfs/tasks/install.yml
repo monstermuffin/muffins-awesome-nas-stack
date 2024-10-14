@@ -51,7 +51,7 @@
 
 - name: Install btrfs-progs # noqa command-instead-of-shell
   ansible.builtin.shell:
-    cmd: sudo make install
+    cmd: make install
     chdir: /tmp/btrfs-progs
 
 - name: Cleanup cloned repository

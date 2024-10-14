@@ -7,7 +7,6 @@
     group: root
     mode: "0755"
   loop: "{{ content_files }}"
-  become: true
 
 - name: Generate SnapRAID configuration
   ansible.builtin.template:

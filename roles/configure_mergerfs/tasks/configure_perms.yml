@@ -5,7 +5,6 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-  become: true
 
 - name: Set permissions on media_noncached
   ansible.builtin.file:
@@ -13,7 +12,6 @@
     owner: "{{ user }}"
     group: "{{ media_group }}"
     mode: "0770"
-  become: true
   when: not cache_disks_exist
 
 - name: Set permissions on .snapshots directory for media_cached
@@ -23,7 +21,6 @@
     group: root
     mode: "0770"
     recurse: true
-  become: true
   failed_when: false
   when: cache_disks_exist
 
@@ -34,6 +31,5 @@
     group: root
     mode: "0770"
     recurse: true
-  become: true
   failed_when: false
   when: not cache_disks_exist

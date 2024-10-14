@@ -1,11 +1,9 @@
 ---
 - name: reload systemd
-  become: true
   ansible.builtin.systemd:
     daemon_reload: true
 
 - name: start and enable cache mover timer
-  become: true
   ansible.builtin.systemd:
     name: cache_mover.timer
     state: started
