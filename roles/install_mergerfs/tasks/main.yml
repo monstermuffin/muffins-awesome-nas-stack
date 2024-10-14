@@ -8,6 +8,7 @@
   register: installed_mergerfs_version
   changed_when: false
   ignore_errors: true
+  check_mode: false
 
 - name: Set update_needed to true if mergerfs is not installed
   ansible.builtin.set_fact:
