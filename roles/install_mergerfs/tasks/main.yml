@@ -8,6 +8,7 @@
   register: installed_mergerfs_version
   changed_when: false
   ignore_errors: true
+  check_mode: false
 
 - name: Set update_needed to true if mergerfs is not installed
   ansible.builtin.set_fact:
@@ -47,10 +48,6 @@
     - ansible_pkg_mgr == 'apt'
     - update_needed
   block:
-    - name: Build mergerfs package download url
-      ansible.builtin.set_fact:
-        mergerfs_package_url: "https://github.com/trapexit/mergerfs/releases/download/{{ mergerfs_latest_version }}/{{ mergerfs_pkg_prefix }}{{ mergerfs_latest_version }}{{ mergerfs_pkg_suffix }}"
-
     - name: Install xz-utils package for .deb package installation
       ansible.builtin.apt:
         name: xz-utils
@@ -59,5 +56,7 @@
 
     - name: Install mergerfs package with apt
       ansible.builtin.apt:
-        deb: "{{ mergerfs_package_url }}"
+        deb: >-
+          https://github.com/trapexit/mergerfs/releases/download/{{
+            mergerfs_latest_version + '/' + mergerfs_pkg_prefix + mergerfs_latest_version + mergerfs_pkg_suffix }}
         state: present
