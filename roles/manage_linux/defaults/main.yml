@@ -1,0 +1,15 @@
+---
+timezone: ''
+users: []
+groups: [] # noqa var-naming
+
+fastfetch_version: latest
+# wy tf am I supporting risc? lmao
+fastfetch_architecture: >-
+  {{
+    'amd64' if ansible_architecture == 'x86_64' else
+    'aarch64' if ansible_architecture == 'aarch64' else
+    'armv7l' if ansible_architecture == 'armv7l' else
+    'riscv64' if ansible_architecture == 'riscv64' else
+    'unknown'
+  }}

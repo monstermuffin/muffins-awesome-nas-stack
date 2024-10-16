@@ -9,34 +9,34 @@
   until: apt_defaults is success
   vars:
     default_apps:
+      - apparmor
+      - apparmor-utils
+      - autofs
       - build-essential
-      - gcc
       - ca-certificates
+      - cifs-utils
       - curl
       - dnsutils
+      - fdisk
+      - fuse
+      - gcc
+      - gdisk
       - git
+      - hdparm
       - htop
-      - iotop
       - iftop
+      - iotop
       - mlocate
       - ncdu
       - net-tools
-      - python3-pip
-      - autofs
-      - rsync
-      - tmux
-      - software-properties-common
-      - tree
-      - zip
-      - vim
-      - fuse
-      - cifs-utils
-      - nfs-kernel-server
       - nfs-common
-      - samba
-      - hdparm
-      - fdisk
+      - nfs-kernel-server
       - parted
-      - gdisk
-      - apparmor
-      - apparmor-utils
+      - python3-pip
+      - rsync
+      - samba
+      - software-properties-common
+      - tmux
+      - tree
+      - vim
+      - zip

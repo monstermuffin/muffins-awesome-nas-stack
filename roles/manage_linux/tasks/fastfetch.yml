@@ -1,87 +1,38 @@
 ---
-- name: Set default value for update_needed
-  ansible.builtin.set_fact:
-    update_needed: false
 
-- name: Check if Fastfetch is installed
+- name: Find latest release of fastfetch
+  community.general.github_release:
+    user: fastfetch-cli
+    repo: fastfetch
+    action: latest_release
+  register: fastfetch_latest_release
+  delegate_to: localhost
+  run_once: true
+  become: false
+  when: fastfetch_version == 'latest'
+
+- name: Set fastfetch latest version
+  ansible.builtin.set_fact:
+    fastfetch_version: "{{ fastfetch_latest_release.tag if fastfetch_version == 'latest' else fastfetch_version }}"
+
+- name: Check fastfetch install state/version
   ansible.builtin.command: fastfetch --version
-  register: installed_fastfetch_version
   changed_when: false
-  ignore_errors: true
-
-- name: Set update_needed to true if Fastfetch is not installed
-  ansible.builtin.set_fact:
-    update_needed: true
-  when: installed_fastfetch_version.rc != 0
-
-- name: Get latest release information from GitHub for Fastfetch
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest
-    return_content: true
-  register: fastfetch_github_release_page
+  failed_when: false
   check_mode: false
-
-- name: Set latest Fastfetch version fact
-  ansible.builtin.set_fact:
-    fastfetch_latest_version: "{{ fastfetch_github_release_page.json.tag_name | regex_replace('^v', '') }}"
-
-- name: Extract version number from installed Fastfetch version
-  ansible.builtin.set_fact:
-    installed_fastfetch_version_number: "{{ installed_fastfetch_version.stdout.split()[1] | regex_replace('^v', '') }}"
-  when: installed_fastfetch_version.rc == 0
-
-- name: Compare installed Fastfetch version with the latest version
-  ansible.builtin.set_fact:
-    update_needed: "{{ fastfetch_latest_version != (installed_fastfetch_version_number | default('0')) }}"
-
-- name: Debug installed_fastfetch_version_number
-  ansible.builtin.debug:
-    var: installed_fastfetch_version_number
-
-- name: Debug fastfetch_latest_version
-  ansible.builtin.debug:
-    var: fastfetch_latest_version
+  register: fastfetch_install_state
 
 - name: Install/update Fastfetch
-  when:
-    - ansible_pkg_mgr == 'apt'
-    - update_needed
+  when: >-
+    fastfetch_install_state.rc != 0
+    or fastfetch_install_state.stdout.split()[1] != fastfetch_version
   block:
-    - name: Gather system facts
-      ansible.builtin.setup:
-
-    - name: Map system architecture to Fastfetch package architecture
-      ansible.builtin.set_fact: # wy tf am I supporting risc? lmao
-        fastfetch_architecture: >-
-          {{
-            'amd64' if ansible_architecture == 'x86_64' else
-            'aarch64' if ansible_architecture == 'aarch64' else
-            'armv7l' if ansible_architecture == 'armv7l' else
-            'riscv64' if ansible_architecture == 'riscv64' else
-            'unknown'
-          }}
-
     - name: Fail if architecture is not supported
       ansible.builtin.fail:
         msg: "Unsupported architecture: {{ ansible_architecture }}"
       when: fastfetch_architecture == "unknown"
 
-    - name: Build Fastfetch package download URL
-      ansible.builtin.set_fact:
-        fastfetch_package_url: "https://github.com/fastfetch-cli/fastfetch/releases/download/{{ fastfetch_latest_version }}/fastfetch-linux-{{ fastfetch_architecture }}.deb"
-
-    - name: Download Fastfetch .deb package
-      ansible.builtin.get_url:
-        url: "{{ fastfetch_package_url }}"
-        dest: /tmp/fastfetch.deb
-        mode: "0755"
-
-    - name: Install Fastfetch .deb package
+    - name: Install Fastfetch
       ansible.builtin.apt:
-        deb: /tmp/fastfetch.deb
+        deb: https://github.com/fastfetch-cli/fastfetch/releases/download/{{ fastfetch_version }}/fastfetch-linux-{{ fastfetch_architecture }}.deb
         state: present
-
-    - name: Cleanup Fastfetch .deb package
-      ansible.builtin.file:
-        path: /tmp/fastfetch.deb
-        state: absent

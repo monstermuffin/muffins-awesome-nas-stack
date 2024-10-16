@@ -113,7 +113,7 @@ ___
 
 `configure_powerlevel10k: true` — Configures [powerlevel10k](https://github.com/romkatv/powerlevel10k)
 
-`fastfetch_motd: true` — Sets a MOTD to be fastfetch. Useful IMO. Must have zsh enabled to work.
+`fastfetch_motd: true` — Sets a MOTD to be fastfetch. Useful IMO. Must have zsh enabled to work. Fastfetch will be installed if missing.
 
 `install_rclone: true` — Installs rclone.
 
