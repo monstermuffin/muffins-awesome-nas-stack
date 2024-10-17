@@ -33,54 +33,53 @@
     index_var: index
 
 # Cache Disks
-- name: Ensure cache disk mounts are present in fstab
-  ansible.builtin.blockinfile:
-    path: /etc/fstab
-    block: |
-      {% for disk in cache_disks_only %}
-      {% if disk in partitioned_disks %}
-      {{ disk }}-part1  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-      {% else %}
-      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-      {% endif %}
-      {% endfor %}
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
+- name: Cache disks block
   when: cache_disks_only | length > 0
+  block:
+    - name: Ensure cache disk mounts are present in fstab
+      ansible.builtin.blockinfile:
+        path: /etc/fstab
+        block: |
+          {% for disk in cache_disks_only %}
+          {% if disk in partitioned_disks %}
+          {{ disk }}-part1  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+          {% else %}
+          {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+          {% endif %}
+          {% endfor %}
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
 
-- name: Ensure cache disk mounts are present in fstab
-  ansible.builtin.blockinfile:
-    path: /etc/fstab
-    block: |
-      {% for disk in cache_disks_only %}
-      {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-      {% endfor %}
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
-  when: cache_disks_only | length > 0
+    - name: Ensure cache disk mounts are present in fstab
+      ansible.builtin.blockinfile:
+        path: /etc/fstab
+        block: |
+          {% for disk in cache_disks_only %}
+          {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+          {% endfor %}
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
 
-- name: Mount cache disks
-  ansible.posix.mount:
-    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
-    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
-    fstype: ext4
-    opts: "{{ manage_disks_nas_ext4_mount_opts }}"
-    state: mounted
-  loop: "{{ cache_disks_only }}"
-  loop_control:
-    index_var: index
-  when: cache_disks_only | length > 0
+    - name: Mount cache disks
+      ansible.posix.mount:
+        path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
+        src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
+        fstype: ext4
+        opts: "{{ manage_disks_nas_ext4_mount_opts }}"
+        state: mounted
+      loop: "{{ cache_disks_only }}"
+      loop_control:
+        index_var: index
 
-- name: Set permissions on cache disk directories
-  ansible.builtin.file:
-    path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
-    state: directory
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
-    mode: "0770"
-    recurse: true
-  loop: "{{ cache_disks_only }}"
-  loop_control:
-    index_var: index
-  when: cache_disks_only | length > 0
+    - name: Set permissions on cache disk directories
+      ansible.builtin.file:
+        path: "{{ cache_mount_path }}/cache{{ '%02d' % (index + 1) }}"
+        state: directory
+        owner: "{{ user }}"
+        group: "{{ media_group }}"
+        mode: "0770"
+        recurse: true
+      loop: "{{ cache_disks_only }}"
+      loop_control:
+        index_var: index
 
 # Cache Paths
 - name: Ensure cache paths exist
