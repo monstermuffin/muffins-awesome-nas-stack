@@ -27,3 +27,13 @@
 - name: Display snapraid-btrfs output
   ansible.builtin.debug:
     var: snapraid_btrfs_output.stdout_lines
+
+# TODO: Remove this once the following PR is merged https://github.com/automorphism88/snapraid-btrfs/pull/34
+- name: Patch snapraid-btrfs
+  ansible.builtin.lineinfile:
+    path: /usr/local/bin/snapraid-btrfs
+    regexp: >-
+      ^(\s{8})sed -e '/\^SUBVOLUME /!d' -e 's/\^SUBVOLUME\[ ]\*\| //'\)\"$
+    line: >-
+      \1sed -e '/^SUBVOLUME /!d' -e 's/^SUBVOLUME[ ]*[|│] //')"
+    backrefs: true
