@@ -20,7 +20,7 @@
 - name: Install Fastfetch
   ansible.builtin.include_tasks:
     file: fastfetch.yml
-  when: fastfetch_motd
+  when: fastfetch_motd or install_fastfetch
 
 - name: Apply SSH keys
   ansible.builtin.include_tasks:

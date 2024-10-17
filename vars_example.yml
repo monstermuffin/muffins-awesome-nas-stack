@@ -2,9 +2,10 @@
 passwordless_sudo: true
 configure_zsh: true
 configure_powerlevel10k: true
-fastfetch_motd: true
 install_rclone: true
 install_docker: true
+install_fastfetch: true
+fastfetch_motd: true
 configure_scrutiny: true
 configure_hdidle: true # https://github.com/adelolmo/hd-idle
 skip_os_check: false
