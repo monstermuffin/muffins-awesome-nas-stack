@@ -141,11 +141,15 @@
   rescue:
     - name: Reset Snapper configurations
       block:
-        - name: Clear SNAPPER_CONFIGS in /etc/default/snapper
+        - name: Clear SNAPPER_CONFIGS
           ansible.builtin.lineinfile:
-            path: /etc/default/snapper
+            path: "{{ item }}"
             regexp: '^SNAPPER_CONFIGS='
             line: 'SNAPPER_CONFIGS=""'
+          loop:
+            - /etc/default/snapper # old default snapper config path
+            - /etc/sysconfig/snapper
+          ignore_errors: true
 
         - name: Remove individual snapper configs
           ansible.builtin.file:
