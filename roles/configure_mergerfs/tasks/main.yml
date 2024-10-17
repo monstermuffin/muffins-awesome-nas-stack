@@ -14,6 +14,17 @@
     cache_disks_count: "{{ (cache_disks_only + cache_paths_only) | length }}"
   when: cache_disks_exist
 
+- name: Count the number of data_disks
+  ansible.builtin.set_fact:
+    data_disks_count: "{{ data_disks | length }}"
+
+- name: Generate data_mounts list
+  ansible.builtin.set_fact:
+    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
+  loop: "{{ data_disks }}"
+  loop_control:
+    index_var: index
+
 - name: Media_cached
   ansible.builtin.include_tasks:
     file: media_cached.yml

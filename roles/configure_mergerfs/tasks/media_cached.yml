@@ -17,13 +17,6 @@
     recurse: true
   when: (cache_disks_only + cache_paths_only) | length > 1
 
-- name: Generate data_mounts list
-  ansible.builtin.set_fact:
-    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
-  loop: "{{ data_disks }}"
-  loop_control:
-    index_var: index
-
 - name: Generate cache_mounts list for cache disks
   ansible.builtin.set_fact:
     cache_mounts: "{{ cache_mounts | default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"

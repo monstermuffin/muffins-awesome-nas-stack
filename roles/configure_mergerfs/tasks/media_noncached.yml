@@ -7,13 +7,6 @@
     group: "{{ media_group }}"
     mode: "0770"
 
-- name: Generate data_mounts list
-  ansible.builtin.set_fact:
-    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
-  loop: "{{ data_disks }}"
-  loop_control:
-    index_var: index
-
 - name: Deploy mergerfs media_noncached systemd service
   ansible.builtin.template:
     src: mergerfs.mount.media_noncached.j2
