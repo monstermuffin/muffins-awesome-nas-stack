@@ -111,7 +111,7 @@ cache_disks:
 
 # cache mover vars - https://github.com/monstermuffin/mergerfs-cache-mover
 cache_mover_autoupdate: true
-cache_mover_update_branch: main #dev applicable here too but could break stuff, check the repo for more info.
+cache_mover_update_branch: main # dev applicable here too but could break stuff, check the repo for more info.
 cache_mover_dir: /opt/mergerfs-cache-mover
 cache_mover_log_path: /var/log/cache-mover.log
 cache_mover_threshold_percentage: 70
