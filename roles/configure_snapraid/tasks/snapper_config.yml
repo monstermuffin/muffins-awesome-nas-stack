@@ -123,9 +123,8 @@
         invalid_subvolume: "{{ 'is not a valid btrfs subvolume' in snapraid_btrfs_output.stderr }}"
         snapper_config_creation_failed: >-
           {{
-            not ansible_check_mode
-            and ((create_config_result.rc != 0 if create_config_result is not skipped else false)
-            or (create_config_result_retry.rc != 0 if create_config_result_retry is not skipped else false))
+            (create_config_result.rc != 0 if create_config_result is not skipped else false)
+            or (create_config_result_retry.rc != 0 if create_config_result_retry is not skipped else false)
           }}
 
     - name: Display snapraid-btrfs output

@@ -1,5 +1,6 @@
+{{ ansible_managed | comment }}
 [Unit]
-Description=MergerFS mount for /mnt/media (cache disk(s)/path(s))
+Description=MergerFS mount for {{ media_cached }} (cache disk(s)/path(s))
 
 [Service]
 Type=simple

@@ -42,6 +42,7 @@
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   loop: "{{ data_disks }}"
   register: data_disks_fs_check_results
+  changed_when: false
 
 - name: Identify non-BTRFS data disks
   ansible.builtin.set_fact:
@@ -55,6 +56,7 @@
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   loop: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
+  changed_when: false
 
 - name: Identify non-EXT4 cache and parity disks
   ansible.builtin.set_fact:
@@ -144,9 +146,9 @@
       User did not confirm disk wiping or wipe_and_setup not true.
       Playbook execution stopped.
   when:
-    - disks_to_wipe | default([]) | length > 0  # Only run if there are disks to wipe
-    - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
-    - user_confirmation is defined              # Only run if the prompt was actually shown
+    - disks_to_wipe | default([]) | length > 0                    # Only run if there are disks to wipe
+    - wipe_and_setup | default(false)                             # Only run if wipe_and_setup is true
+    - user_confirmation is defined                                # Only run if the prompt was actually shown
     - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
 - name: Unmount disks_to_wipe
@@ -163,7 +165,7 @@
 
 - name: Wipe disk labels
   ansible.builtin.command: wipefs -a {{ item }}
-  with_items: "{{ disks_to_wipe | default([]) }}"
+  loop: "{{ disks_to_wipe | default([]) }}"
   when:
     - disks_to_wipe | default([]) | length > 0
     - wipe_and_setup | default(false)
@@ -174,7 +176,7 @@
   community.general.filesystem:
     fstype: btrfs
     dev: "{{ item }}"
-  with_items: "{{ non_btrfs_disks | default([]) }}"
+  loop: "{{ non_btrfs_disks | default([]) }}"
   when:
     - non_btrfs_disks | default([]) | length > 0
     - wipe_and_setup | default(false)
@@ -185,15 +187,15 @@
   community.general.filesystem:
     fstype: ext4
     dev: "{{ item }}"
-  with_items: "{{ non_ext4_disks | default([]) }}"
+  loop: "{{ non_ext4_disks | default([]) }}"
   when:
     - non_ext4_disks | default([]) | length > 0
     - wipe_and_setup | default(false)
     - user_confirmation is defined
     - user_confirmation.user_input | default('n') | lower == 'y'
 
-- name: Get filesystem type for all disks # noqa command-instead-of-shell
-  ansible.builtin.shell: lsblk -f {{ item }}
+- name: Get filesystem type for all disks
+  ansible.builtin.command: lsblk -f {{ item }}
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
   changed_when: false
