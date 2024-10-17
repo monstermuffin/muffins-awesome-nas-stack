@@ -1,4 +1,9 @@
 ---
+
+- name: Install snapper
+  ansible.builtin.include_tasks:
+    file: install.yml
+
 - name: SnapRAID base config
   ansible.builtin.include_tasks:
     file: configure_snapraid.yml
