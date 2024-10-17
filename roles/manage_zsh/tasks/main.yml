@@ -13,7 +13,7 @@
 
 - name: Install Oh My ZSH
   block:
-    - name: Download Oh My ZSH installer # noqa ignore-errors
+    - name: Download Oh My ZSH installer
       ansible.builtin.get_url:
         url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
         dest: /tmp/install-ohmyzsh.sh
