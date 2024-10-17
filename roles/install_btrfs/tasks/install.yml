@@ -4,6 +4,7 @@
     repo: git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
     dest: /tmp/btrfs-progs
     depth: 1
+  notify: Cleanup cloned repository
 
 - name: Install required packages for building btrfs-progs
   ansible.builtin.package:
@@ -47,13 +48,3 @@
   ansible.builtin.shell:
     cmd: make install
     chdir: /tmp/btrfs-progs
-
-- name: Cleanup cloned repository
-  ansible.builtin.file:
-    path: /tmp/btrfs-progs
-    state: absent
-
-- name: Cleanup cloned repository
-  ansible.builtin.file:
-    path: /tmp/btrfs-progs
-    state: absent
