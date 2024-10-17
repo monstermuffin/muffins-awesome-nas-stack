@@ -24,7 +24,7 @@
 
     - name: Display snapper_configs
       ansible.builtin.debug:
-        var: snapper_configs
+        var: snapper_configs.stdout_lines
 
     - name: Check if snapper config for each data disk is valid
       ansible.builtin.set_fact:
@@ -109,7 +109,7 @@
 
     - name: Display snapper_configs
       ansible.builtin.debug:
-        var: snapper_configs_new
+        var: snapper_configs_new.stdout_lines
 
     - name: Verify snapraid-btrfs can see Snapper configs
       ansible.builtin.command:
@@ -173,6 +173,8 @@
           ansible.builtin.command:
             cmd: "btrfs subvolume delete -C {{ item.1.path }}/snapshot"
           loop: "{{ snapshot_dirs.results | subelements('files') }}"
+          loop_control:
+            label: "{{ item.1.path }}/snapshot"
           when: snapshot_dirs.results is defined
           ignore_errors: true
 
@@ -221,7 +223,7 @@
           ansible.builtin.debug:
             var: snapraid_btrfs_output_reset.stdout_lines
 
-        - name: Check for persistent invalid btrfs subvolume
+        - name: Check for persistent invalid Btrfs subvolume
           ansible.builtin.set_fact:
             persistent_invalid_subvolume: "{{ 'is not a valid btrfs subvolume' in snapraid_btrfs_output_reset.stderr }}"
 

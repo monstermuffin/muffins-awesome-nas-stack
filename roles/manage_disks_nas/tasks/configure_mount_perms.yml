@@ -27,4 +27,6 @@
     group: root
     mode: "0770"
   loop: "{{ snapshot_directory_check.results }}"
+  loop_control:
+    label: "{{ item.stat.path }}"
   when: item.stat.exists
