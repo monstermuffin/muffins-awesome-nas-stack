@@ -96,7 +96,12 @@
 
 - name: Debug prompt condition
   ansible.builtin.debug:
-    msg: "Prompt condition: {{ ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)) and (wipe_and_setup | default(false)) }}"
+    msg: >-
+      Prompt condition:
+      {{
+        ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0))
+        and (wipe_and_setup | default(false))
+      }}
 
 - name: Prompt user for confirmation to wipe and reformat disks
   ansible.builtin.pause:
