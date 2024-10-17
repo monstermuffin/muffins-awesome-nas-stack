@@ -73,27 +73,21 @@
               snapshots.results | selectattr('matched', '>', 0) | map(attribute='files') | flatten | map(attribute='path')
               if snapshots is not skipped else []
             }}
-          when:
-            - not config_validity.results[item-1].ansible_facts.config_valid
-            - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
+          when: snapshots is not skipped
           ignore_errors: true
 
         - name: Remove .snapshots subvolume for failed configs  # noqa command-instead-of-module
           ansible.builtin.command:
             cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots
           loop: "{{ range(1, data_disks | length + 1) }}"
-          when:
-            - not config_validity.results[item-1].ansible_facts.config_valid
-            - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
+          when: snapshots is not skipped
           ignore_errors: true
 
         - name: Retry creating Snapper configuration for failed configs
           ansible.builtin.command:
             cmd: snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
           loop: "{{ range(1, data_disks | length + 1) }}"
-          when:
-            - not config_validity.results[item-1].ansible_facts.config_valid
-            - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
+          when: snapshots is not skipped
           register: create_config_result_retry
           changed_when: create_config_result_retry.rc == 0
           ignore_errors: true
