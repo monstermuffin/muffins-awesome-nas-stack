@@ -41,24 +41,25 @@
     - Restart mergerfs_media_cache and ensure enabled
   when: (cache_disks_only + cache_paths_only) | length == 1
 
-- name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
-  ansible.builtin.template:
-    src: mergerfs.mount.cache_disks.j2
-    dest: /etc/systemd/system/mergerfs-cache-disks.service
-    mode: "0644"
-    force: true
-  notify:
-    - Reload systemd daemon
-    - Restart mergerfs_cache_disks and ensure enabled
+- name: Deploy mergerfs services for multiple cache disks/paths
   when: cache_disks_count | int > 1
+  block:
+    - name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
+      ansible.builtin.template:
+        src: mergerfs.mount.cache_disks.j2
+        dest: /etc/systemd/system/mergerfs-cache-disks.service
+        mode: "0644"
+        force: true
+      notify:
+        - Reload systemd daemon
+        - Restart mergerfs_cache_disks and ensure enabled
 
-- name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
-  ansible.builtin.template:
-    src: mergerfs.mount.media_cached_multiple.j2
-    dest: /etc/systemd/system/mergerfs-media-cache.service
-    mode: "0644"
-    force: true
-  notify:
-    - Reload systemd daemon
-    - Restart mergerfs_media_cache and ensure enabled
-  when: cache_disks_count | int > 1
+    - name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
+      ansible.builtin.template:
+        src: mergerfs.mount.media_cached_multiple.j2
+        dest: /etc/systemd/system/mergerfs-media-cache.service
+        mode: "0644"
+        force: true
+      notify:
+        - Reload systemd daemon
+        - Restart mergerfs_media_cache and ensure enabled
