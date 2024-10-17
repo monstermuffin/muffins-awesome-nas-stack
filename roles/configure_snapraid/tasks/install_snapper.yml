@@ -1,5 +1,4 @@
 ---
-
 - name: Ensure openSUSE Snapper repository key
   ansible.builtin.get_url:
     url: https://download.opensuse.org/repositories/filesystems:snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/Release.key
@@ -17,7 +16,34 @@
     filename: opensuse_snapper
     state: present
 
-- name: Install Snapper
+- name: Pin openSUSE Snapper repository with higher priority
+  ansible.builtin.copy:
+    content: |
+      Package: snapper
+      Pin: origin download.opensuse.org
+      Pin-Priority: 1001
+    dest: /etc/apt/preferences.d/snapper
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Update apt cache
   ansible.builtin.apt:
-    name: snapper
+    update_cache: true
+
+- name: Install Snapper from openSUSE repository
+  ansible.builtin.apt:
+    name:
+      - snapper
+      - libsnapper
     state: present
+    force: true
+
+- name: Check Snapper version
+  ansible.builtin.command: snapper --version
+  register: snapper_version
+  changed_when: false
+
+- name: Display Snapper version
+  ansible.builtin.debug:
+    var: snapper_version.stdout
