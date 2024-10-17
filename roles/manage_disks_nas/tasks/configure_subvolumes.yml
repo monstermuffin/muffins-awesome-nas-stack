@@ -57,7 +57,7 @@
   loop: "{{ subvolume_check.results }}"
   when: "'data' not in item.stdout"
   loop_control:
-    label: "{{ item }}"
+    label: "{{ item.item }}"
   register: create_subvolume_result
   failed_when:
     - create_subvolume_result.rc != 0

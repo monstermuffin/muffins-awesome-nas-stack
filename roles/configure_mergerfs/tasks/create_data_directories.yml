@@ -11,6 +11,8 @@
     state: directory
     mode: "0770"
   loop: "{{ range(1, data_disks_count | int + 1) | product(data_directories) | list }}"
+  loop_control:
+    label: data{{ '%02d' % item.0 }}/{{ item.1 }}
 
 - name: Create root directories on cache disks
   ansible.builtin.file:
@@ -20,6 +22,8 @@
     state: directory
     mode: "0770"
   loop: "{{ range(1, cache_disks_only | length + 1) | product(data_directories) | list }}"
+  loop_control:
+    label: cache{{ '%02d' % item.0 }}/{{ item.1 }}
   when: cache_disks_only | length > 0
 
 - name: Create root directories on cache paths
@@ -30,4 +34,6 @@
     state: directory
     mode: "0770"
   loop: "{{ cache_paths_only | product(data_directories) | list }}"
+  loop_control:
+    label: "{{ item.0 | realpath }}/{{ item.1 }}"
   when: cache_paths_only | length > 0

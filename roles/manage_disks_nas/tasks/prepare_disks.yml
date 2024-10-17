@@ -47,6 +47,8 @@
   ansible.builtin.set_fact:
     non_btrfs_disks: "{{ non_btrfs_disks | default([]) + [item.item] }}"
   loop: "{{ data_disks_fs_check_results.results }}"
+  loop_control:
+    label: "{{ item.item }}"
   when: "'btrfs' not in item.stdout"
 
 - name: Check filesystem type for cache and parity disks
@@ -58,6 +60,8 @@
   ansible.builtin.set_fact:
     non_ext4_disks: "{{ non_ext4_disks | default([]) + [item.item] }}"
   loop: "{{ cache_parity_disks_fs_check_results.results }}"
+  loop_control:
+    label: "{{ item.item }}"
   when: "'ext4' not in item.stdout"
 
 - name: Set disks_to_wipe
@@ -196,4 +200,7 @@
 
 - name: Print filesystem types
   ansible.builtin.debug:
-    var: filesystem_types.results
+    msg: "{{ item.stdout_lines }}"
+  loop: "{{ filesystem_types.results }}"
+  loop_control:
+    label: "{{ item.item }}"
