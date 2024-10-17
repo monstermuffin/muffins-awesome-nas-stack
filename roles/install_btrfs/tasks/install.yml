@@ -8,7 +8,6 @@
 - name: Install required packages for building btrfs-progs
   ansible.builtin.package:
     name:
-      - asciidoc
       - autoconf
       - automake
       - e2fslibs-dev
@@ -20,14 +19,9 @@
       - libudev-dev
       - libzstd-dev
       - pkg-config
-      - python3-sphinx
       - uuid-dev
-      - xmlto
       - zlib1g-dev
     state: present
-
-- name: Install sphinx_rtd_theme using pip (risky) # noqa command-instead-of-shell
-  ansible.builtin.shell: pip install sphinx-rtd-theme --break-system-packages
 
 - name: Remove older version of btrfs-tools
   ansible.builtin.package:
@@ -41,7 +35,7 @@
 
 - name: Configure btrfs-progs for building # noqa command-instead-of-shell
   ansible.builtin.shell:
-    cmd: ./configure
+    cmd: ./configure --disable-documentation
     chdir: /tmp/btrfs-progs
 
 - name: Compile btrfs-progs # noqa command-instead-of-shell
