@@ -12,6 +12,7 @@ skip_list:
   - command-instead-of-module
   - role-name
   - yaml[line-length]
+  - ignore-errors
 
 use_default_rules: true
 

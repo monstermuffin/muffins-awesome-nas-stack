@@ -1,0 +1,23 @@
+---
+
+- name: Ensure openSUSE Snapper repository key
+  ansible.builtin.get_url:
+    url: https://download.opensuse.org/repositories/filesystems:snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/Release.key
+    dest: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+    owner: root
+    group: root
+    mode: "0644"
+  register: snapper_apt_key
+
+- name: Add openSUSE Snapper repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by={{ snapper_apt_key.dest }}]
+      http://download.opensuse.org/repositories/filesystems:/snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/ /
+    filename: opensuse_snapper
+    state: present
+
+- name: Install Snapper
+  ansible.builtin.apt:
+    name: snapper
+    state: present
