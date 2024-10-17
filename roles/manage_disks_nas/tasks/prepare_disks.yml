@@ -145,9 +145,11 @@
     - user_confirmation is defined              # Only run if the prompt was actually shown
     - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
-- name: Unmount disks_to_wipe # noqa ignore-errors
-  ansible.builtin.command: sudo umount {{ item }}
-  with_items: "{{ disks_to_wipe | default([]) }}"
+- name: Unmount disks_to_wipe
+  ansible.posix.mount:
+    src: "{{ item }}"
+    state: unmounted
+  loop: "{{ disks_to_wipe | default([]) }}"
   when:
     - disks_to_wipe | default([]) | length > 0
     - wipe_and_setup | default(false)
