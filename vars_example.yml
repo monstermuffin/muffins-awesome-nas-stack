@@ -109,8 +109,9 @@ parity_disks:
 cache_disks:
   - /dev/disk/by-id/nvme-xxxx
 
-# cache mover vars
+# cache mover vars - https://github.com/monstermuffin/mergerfs-cache-mover
 cache_mover_autoupdate: true
+cache_mover_update_branch: main #dev applicable here too but could break stuff, check the repo for more info.
 cache_mover_dir: /opt/mergerfs-cache-mover
 cache_mover_log_path: /var/log/cache-mover.log
 cache_mover_threshold_percentage: 70
@@ -118,10 +119,9 @@ cache_mover_target_percentage: 30
 cache_mover_max_workers: 8
 cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
-cache_mover_user: "{{ user }}" # user and group for the permissions of the moved files
-cache_mover_group: "{{ media_group }}" # user and group for the permissions of the moved files
-cache_file_chmod: "770"
-cache_folder_chmod: "770"
+cache_mover_excluded_dirs:
+  - snapraid
+  # - other_dirs_as_needed
 on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
 
 # scrutiny vars

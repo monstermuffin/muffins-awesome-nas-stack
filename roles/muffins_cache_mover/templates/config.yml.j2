@@ -3,15 +3,12 @@ Paths:
   CACHE_PATH: "{{ mover_cache_path }}"
   BACKING_PATH: "{{ media_cold }}"
   LOG_PATH: "{{ cache_mover_log_path }}"
-
 Settings:
   AUTO_UPDATE: {{ cache_mover_autoupdate }}
+  UPDATE_BRANCH: {{ cache_mover_update_branch }}
   THRESHOLD_PERCENTAGE: {{ cache_mover_threshold_percentage }}
   TARGET_PERCENTAGE: {{ cache_mover_target_percentage }}
   MAX_WORKERS: {{ cache_mover_max_workers }}
   MAX_LOG_SIZE_MB: {{ cache_mover_max_log_size_mb }}
   BACKUP_COUNT: {{ cache_mover_log_backup_count }}
-  USER: "{{ cache_mover_user }}"
-  GROUP: "{{ cache_mover_group }}"
-  FILE_CHMOD: "{{ cache_file_chmod }}"
-  DIR_CHMOD: "{{ cache_folder_chmod }}"
+  EXCLUDED_DIRS: {{ cache_mover_excluded_dirs }}

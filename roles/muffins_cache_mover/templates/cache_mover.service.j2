@@ -1,6 +1,11 @@
 [Unit]
 Description="Muffin's Cache Mover Script."
+After=network.target
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/python3 "{{ cache_mover_dir }}/cache-mover.py"
+WorkingDirectory={{ cache_mover_dir }}
+
+[Install]
+WantedBy=multi-user.target
