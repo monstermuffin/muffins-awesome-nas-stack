@@ -21,6 +21,7 @@
       register: snapper_configs
       changed_when: false
       ignore_errors: true
+      check_mode: false
 
     - name: Display snapper_configs
       ansible.builtin.debug:
@@ -106,6 +107,7 @@
         cmd: snapper list-configs
       register: snapper_configs_new
       changed_when: false
+      check_mode: false
 
     - name: Display snapper_configs
       ansible.builtin.debug:
@@ -117,6 +119,7 @@
       register: snapraid_btrfs_output
       changed_when: false
       ignore_errors: true
+      check_mode: false
 
     - name: Check for invalid btrfs subvolume and snapper config creation failure
       ansible.builtin.set_fact:
@@ -207,6 +210,7 @@
             cmd: snapper list-configs
           register: snapper_configs_reset
           changed_when: false
+          check_mode: false
 
         - name: Display final snapper_configs after reset
           ansible.builtin.debug:
@@ -217,6 +221,7 @@
             cmd: /usr/local/bin/snapraid-btrfs list
           register: snapraid_btrfs_output_reset
           changed_when: false
+          check_mode: false
 
         - name: Display snapraid-btrfs output after reset
           ansible.builtin.debug:
@@ -242,6 +247,7 @@
         cmd: snapper list-configs
       register: final_snapper_configs
       changed_when: false
+      check_mode: false
 
     - name: Display final Snapper configs
       ansible.builtin.debug:
@@ -253,6 +259,7 @@
       register: final_snapraid_btrfs_output
       changed_when: false
       ignore_errors: true
+      check_mode: false
 
     - name: Display final snapraid-btrfs output
       ansible.builtin.debug:

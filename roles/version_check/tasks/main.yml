@@ -15,6 +15,7 @@
         chdir: "{{ playbook_dir }}"
       register: current_version
       changed_when: false
+      check_mode: false
 
     - name: Compare versions
       ansible.builtin.set_fact:
