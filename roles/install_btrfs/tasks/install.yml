@@ -4,30 +4,25 @@
     repo: git://git.kernel.org/pub/scm/linux/kernel/git/kdave/btrfs-progs.git
     dest: /tmp/btrfs-progs
     depth: 1
+  notify: Cleanup cloned repository
 
 - name: Install required packages for building btrfs-progs
   ansible.builtin.package:
     name:
-      - git
-      - asciidoc
-      - xmlto
-      - uuid-dev
-      - libattr1-dev
-      - zlib1g-dev
-      - libacl1-dev
-      - e2fslibs-dev
-      - libblkid-dev
-      - liblzo2-dev
       - autoconf
       - automake
-      - pkg-config
-      - python3-sphinx
-      - libzstd-dev
+      - e2fslibs-dev
+      - git
+      - libacl1-dev
+      - libattr1-dev
+      - libblkid-dev
+      - liblzo2-dev
       - libudev-dev
+      - libzstd-dev
+      - pkg-config
+      - uuid-dev
+      - zlib1g-dev
     state: present
-
-- name: Install sphinx_rtd_theme using pip (risky) # noqa command-instead-of-shell
-  ansible.builtin.shell: pip install sphinx-rtd-theme --break-system-packages
 
 - name: Remove older version of btrfs-tools
   ansible.builtin.package:
@@ -41,7 +36,7 @@
 
 - name: Configure btrfs-progs for building # noqa command-instead-of-shell
   ansible.builtin.shell:
-    cmd: ./configure
+    cmd: ./configure --disable-documentation
     chdir: /tmp/btrfs-progs
 
 - name: Compile btrfs-progs # noqa command-instead-of-shell
@@ -53,13 +48,3 @@
   ansible.builtin.shell:
     cmd: make install
     chdir: /tmp/btrfs-progs
-
-- name: Cleanup cloned repository
-  ansible.builtin.file:
-    path: /tmp/btrfs-progs
-    state: absent
-
-- name: Cleanup cloned repository
-  ansible.builtin.file:
-    path: /tmp/btrfs-progs
-    state: absent
