@@ -23,6 +23,7 @@
   register: snapraid_btrfs_output
   changed_when: false
   failed_when: snapraid_btrfs_output.rc != 0 and "No snapper configs found" not in snapraid_btrfs_output.stderr
+  check_mode: false
 
 - name: Display snapraid-btrfs output
   ansible.builtin.debug:

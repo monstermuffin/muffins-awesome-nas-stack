@@ -15,6 +15,7 @@
   loop: "{{ block_devices }}"
   register: partition_info
   changed_when: false
+  check_mode: false
 
 - name: Set facts for partitioned and non-partitioned disks
   ansible.builtin.set_fact:
@@ -43,6 +44,7 @@
   loop: "{{ data_disks }}"
   register: data_disks_fs_check_results
   changed_when: false
+  check_mode: false
 
 - name: Identify non-BTRFS data disks
   ansible.builtin.set_fact:
@@ -57,6 +59,7 @@
   loop: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
   changed_when: false
+  check_mode: false
 
 - name: Identify non-EXT4 cache and parity disks
   ansible.builtin.set_fact:
@@ -199,6 +202,7 @@
   loop: "{{ data_disks + cache_disks_only + parity_disks }}"
   register: filesystem_types
   changed_when: false
+  check_mode: false
 
 - name: Print filesystem types
   ansible.builtin.debug:
