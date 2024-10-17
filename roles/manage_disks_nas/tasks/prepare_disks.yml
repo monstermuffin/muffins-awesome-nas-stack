@@ -159,7 +159,7 @@
 
 - name: Wipe disk labels
   ansible.builtin.command: wipefs -a {{ item }}
-  with_items: "{{ disks_to_wipe | default([]) }}"
+  loop: "{{ disks_to_wipe | default([]) }}"
   when:
     - disks_to_wipe | default([]) | length > 0
     - wipe_and_setup | default(false)
@@ -170,7 +170,7 @@
   community.general.filesystem:
     fstype: btrfs
     dev: "{{ item }}"
-  with_items: "{{ non_btrfs_disks | default([]) }}"
+  loop: "{{ non_btrfs_disks | default([]) }}"
   when:
     - non_btrfs_disks | default([]) | length > 0
     - wipe_and_setup | default(false)
@@ -181,7 +181,7 @@
   community.general.filesystem:
     fstype: ext4
     dev: "{{ item }}"
-  with_items: "{{ non_ext4_disks | default([]) }}"
+  loop: "{{ non_ext4_disks | default([]) }}"
   when:
     - non_ext4_disks | default([]) | length > 0
     - wipe_and_setup | default(false)
