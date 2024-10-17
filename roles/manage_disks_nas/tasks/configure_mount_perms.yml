@@ -11,7 +11,7 @@
     - "{{ cache_mount_path }}"
     - "{{ parity_mount_path }}"
 
-- name: Check if .snapshots directories exist
+- name: Discover .snapshots directories
   ansible.builtin.stat:
     path: "{{ data_mount_path }}/data{{ '%02d' | format(item) }}/.snapshots"
   loop: "{{ range(1, data_disks_count | int + 1) | list }}"
@@ -19,7 +19,7 @@
     loop_var: item
   register: snapshot_directory_check
 
-- name: Set ownership and permissions on .snapshots directories that exist
+- name: Set ownership and permissions on existing .snapshots directories
   ansible.builtin.file:
     path: "{{ item.stat.path }}"
     state: directory

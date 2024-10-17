@@ -96,7 +96,12 @@
 
 - name: Debug prompt condition
   ansible.builtin.debug:
-    msg: "Prompt condition: {{ ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0)) and (wipe_and_setup | default(false)) }}"
+    msg: >-
+      Prompt condition:
+      {{
+        ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0))
+        and (wipe_and_setup | default(false))
+      }}
 
 - name: Prompt user for confirmation to wipe and reformat disks
   ansible.builtin.pause:
@@ -136,13 +141,15 @@
       Playbook execution stopped.
   when:
     - disks_to_wipe | default([]) | length > 0  # Only run if there are disks to wipe
-    # - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
+    - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
     - user_confirmation is defined              # Only run if the prompt was actually shown
     - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
-- name: Unmount disks_to_wipe # noqa ignore-errors
-  ansible.builtin.command: sudo umount {{ item }}
-  with_items: "{{ disks_to_wipe | default([]) }}"
+- name: Unmount disks_to_wipe
+  ansible.posix.mount:
+    src: "{{ item }}"
+    state: unmounted
+  loop: "{{ disks_to_wipe | default([]) }}"
   when:
     - disks_to_wipe | default([]) | length > 0
     - wipe_and_setup | default(false)
@@ -151,7 +158,7 @@
   ignore_errors: true
 
 - name: Wipe disk labels
-  ansible.builtin.command: sudo wipefs -a {{ item }}
+  ansible.builtin.command: wipefs -a {{ item }}
   with_items: "{{ disks_to_wipe | default([]) }}"
   when:
     - disks_to_wipe | default([]) | length > 0
