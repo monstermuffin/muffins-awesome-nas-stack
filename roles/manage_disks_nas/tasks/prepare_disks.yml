@@ -42,6 +42,7 @@
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   loop: "{{ data_disks }}"
   register: data_disks_fs_check_results
+  changed_when: false
 
 - name: Identify non-BTRFS data disks
   ansible.builtin.set_fact:
@@ -53,6 +54,7 @@
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
   loop: "{{ cache_disks_only + parity_disks }}"
   register: cache_parity_disks_fs_check_results
+  changed_when: false
 
 - name: Identify non-EXT4 cache and parity disks
   ansible.builtin.set_fact:
