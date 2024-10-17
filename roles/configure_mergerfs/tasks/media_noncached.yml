@@ -14,17 +14,4 @@
     mode: "0644"
   notify:
     - Reload systemd daemon
-
-- name: Reload systemd daemon
-  ansible.builtin.systemd:
-    daemon_reload: true
-
-- name: Pause for 3 seconds
-  ansible.builtin.pause:
-    seconds: 3
-
-- name: Ensure mergerfs-media-noncached service is enabled and running
-  ansible.builtin.systemd:
-    name: mergerfs-media-noncached.service
-    enabled: true
-    state: started
+    - Restart mergerfs_media_noncached and ensure enabled

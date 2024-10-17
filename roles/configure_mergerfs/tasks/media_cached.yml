@@ -38,7 +38,7 @@
     force: true
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cache
+    - Restart mergerfs_media_cache and ensure enabled
   when: (cache_disks_only + cache_paths_only) | length == 1
 
 - name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
@@ -47,6 +47,9 @@
     dest: /etc/systemd/system/mergerfs-cache-disks.service
     mode: "0644"
     force: true
+  notify:
+    - Reload systemd daemon
+    - Restart mergerfs_cache_disks and ensure enabled
   when: cache_disks_count | int > 1
 
 - name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
@@ -57,5 +60,5 @@
     force: true
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cache
+    - Restart mergerfs_media_cache and ensure enabled
   when: cache_disks_count | int > 1
