@@ -1,3 +1,4 @@
+{{ ansible_managed | comment }}
 [Unit]
 Description=MergerFS mount for /mnt/media (multiple cache disks/paths)
 After=mergerfs-cache-disks.service mergerfs-media-cold.service
