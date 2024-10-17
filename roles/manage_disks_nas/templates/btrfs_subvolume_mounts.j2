@@ -1,3 +1,0 @@
-{% for disk in data_disks %}
-{{ disk }} /mnt/data-disks/data{{ '%02d' % loop.index }} btrfs {{ manage_disks_nas_btrfs_mount_opts }} 0 0
-{% endfor %}

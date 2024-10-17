@@ -1,3 +1,0 @@
-{% for disk in cache_disks %}
-{{ disk }} {{ cache_mount_path }}/cache{{ '%02d' % loop.index }} ext4 {{ manage_disks_nas_ext4_mount_opts }} 0 0
-{% endfor %}
