@@ -141,7 +141,7 @@
       Playbook execution stopped.
   when:
     - disks_to_wipe | default([]) | length > 0  # Only run if there are disks to wipe
-    # - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
+    - wipe_and_setup | default(false)           # Only run if wipe_and_setup is true
     - user_confirmation is defined              # Only run if the prompt was actually shown
     - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
