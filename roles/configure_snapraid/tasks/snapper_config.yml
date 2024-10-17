@@ -114,9 +114,15 @@
       changed_when: false
       ignore_errors: true
 
-    - name: Check for invalid btrfs subvolume
+    - name: Check for invalid btrfs subvolume and snapper config creation failure
       ansible.builtin.set_fact:
         invalid_subvolume: "{{ 'is not a valid btrfs subvolume' in snapraid_btrfs_output.stderr }}"
+        snapper_config_creation_failed: >-
+          {{
+            not ansible_check_mode
+            and ((create_config_result.rc != 0 if create_config_result is not skipped else false)
+            or (create_config_result_retry.rc != 0 if create_config_result_retry is not skipped else false))
+          }}
 
     - name: Display snapraid-btrfs output
       ansible.builtin.debug:
@@ -126,6 +132,11 @@
       ansible.builtin.fail:
         msg: "Invalid btrfs subvolume detected. Initiating reset process."
       when: invalid_subvolume | bool
+
+    - name: Fail if snapper config creation failed
+      ansible.builtin.fail:
+        msg: "Snapper config creation failed. Initiating reset process."
+      when: snapper_config_creation_failed | bool
 
   rescue:
     - name: Reset Snapper configurations
