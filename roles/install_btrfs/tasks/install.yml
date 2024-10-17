@@ -8,22 +8,22 @@
 - name: Install required packages for building btrfs-progs
   ansible.builtin.package:
     name:
-      - git
       - asciidoc
-      - xmlto
-      - uuid-dev
-      - libattr1-dev
-      - zlib1g-dev
-      - libacl1-dev
-      - e2fslibs-dev
-      - libblkid-dev
-      - liblzo2-dev
       - autoconf
       - automake
+      - e2fslibs-dev
+      - git
+      - libacl1-dev
+      - libattr1-dev
+      - libblkid-dev
+      - liblzo2-dev
+      - libudev-dev
+      - libzstd-dev
       - pkg-config
       - python3-sphinx
-      - libzstd-dev
-      - libudev-dev
+      - uuid-dev
+      - xmlto
+      - zlib1g-dev
     state: present
 
 - name: Install sphinx_rtd_theme using pip (risky) # noqa command-instead-of-shell
