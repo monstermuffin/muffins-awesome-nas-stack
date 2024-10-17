@@ -53,10 +53,26 @@
           loop: "{{ range(1, data_disks | length + 1) }}"
           when: not config_validity.results[item-1].ansible_facts.config_valid
 
+        - name: Discover snapshots
+          ansible.builtin.find:
+            path: "{{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots"
+            file_type: directory
+          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop_control:
+            label: "data{{ '%02d' % item }}"
+          when:
+            - not config_validity.results[item-1].ansible_facts.config_valid
+            - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
+          register: snapshots
+
         - name: Remove existing snapshots for failed configs  # noqa command-instead-of-module
           ansible.builtin.command:
-            cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots/*
-          loop: "{{ range(1, data_disks | length + 1) }}"
+            cmd: btrfs subvolume delete -C {{ item }}/snapshot
+          loop: >-
+            {{
+              snapshots.results | selectattr('matched', '>', 0) | map(attribute='files') | flatten | map(attribute='path')
+              if snapshots is not skipped else []
+            }}
           when:
             - not config_validity.results[item-1].ansible_facts.config_valid
             - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
