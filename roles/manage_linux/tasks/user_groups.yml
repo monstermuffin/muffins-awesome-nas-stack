@@ -5,11 +5,11 @@
     state: present
   loop: "{{ users | map(attribute='groups') | flatten | unique }}"
 
-- name: Create users and append to groups
+- name: Create users
   ansible.builtin.user:
     name: "{{ item.name }}"
     groups: "{{ item.groups }}"
-    append: true
-    create_home: "{{ item.create_home | default('no') }}"
+    append: "{{ item.append | default(true) }}"
+    create_home: "{{ item.create_home | default(false) }}"
     shell: "{{ item.shell | default('/bin/bash') }}"
   loop: "{{ users }}"

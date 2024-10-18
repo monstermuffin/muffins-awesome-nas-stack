@@ -3,6 +3,7 @@
   ansible.builtin.file:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
     state: directory
+    mode: "0770"
   loop: "{{ parity_disks }}"
   loop_control:
     index_var: index
@@ -21,7 +22,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
     create: true
 
-- name: Mount parity disks # noqa fqcn
+- name: Mount parity disks
   ansible.posix.mount:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
     src: "{{ item if item not in partitioned_disks else item + '-part1' }}"

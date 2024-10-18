@@ -2,6 +2,7 @@
 - name: Ensure Scrutiny directories exist
   ansible.builtin.file:
     path: "{{ item }}"
+    mode: '0755'
     state: directory
   loop:
     - "{{ scrutiny_config_path }}"

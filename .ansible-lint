@@ -3,15 +3,9 @@
 
 # This makes linter to fully ignore rules/tags listed below
 skip_list:
-  - "701" # Galaxy info
-  - name[casing]
-  - name[template]
   - var-naming[no-role-prefix]
   - no-changed-when
   - risky-file-permissions
-  - command-instead-of-module
-  - role-name
-  - yaml[line-length]
   - ignore-errors
 
 use_default_rules: true

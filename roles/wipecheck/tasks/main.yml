@@ -1,7 +1,9 @@
 ---
-- name: Confirm disk wiping # noqa key-order
+- name: Confirm disk wiping
+  when: wipe_and_setup
   block:
-    - ansible.builtin.pause: # noqa name
+    - name: Pause to confirm wipe and setup
+      ansible.builtin.pause:
         prompt: |
           You have set wipe_and_setup to true. This will wipe all non-compliant data/parity/cache disk vars.
           Are you sure you want to continue? (yes/no)
@@ -21,4 +23,3 @@
       ansible.builtin.fail:
         msg: Disk wiping not confirmed. Aborting playbook execution.
       when: wipe_confirmation.user_input != 'yes'
-  when: wipe_and_setup
