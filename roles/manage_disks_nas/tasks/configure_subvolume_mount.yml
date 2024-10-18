@@ -32,3 +32,5 @@
     opts: "{{ manage_disks_nas_btrfs_mount_opts }}"
     state: mounted
   loop: "{{ data_disks }}"
+  loop_control:
+    index_var: index

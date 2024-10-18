@@ -61,7 +61,7 @@
 
 - name: Unmount the fs
   ansible.posix.mount:
-    src: /mnt/btrfs-root/{{ item | basename }}
+    path: /mnt/btrfs-root/{{ item | basename }}
     state: unmounted
   loop: "{{ data_disks }}"
 
