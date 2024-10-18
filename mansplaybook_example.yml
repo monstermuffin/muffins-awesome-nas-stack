@@ -10,7 +10,7 @@
         name: version_check
 
 - name: Maintain MANS
-  hosts: mans-host
+  hosts: mans_host
   become: true
   gather_facts: true
   vars_files:

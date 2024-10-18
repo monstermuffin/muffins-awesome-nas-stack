@@ -1,5 +1,5 @@
 ---
-mans-host:
+mans_host:
   hosts:
     <nas hostname>:
       ansible_host: <some_ip>

@@ -94,7 +94,7 @@ It should look something like this:
 
 ```yml
 ---
-mans-host:
+mans_host:
   hosts:
     hht-fs01:
       ansible_host: hht-fs01.internal.muffn.io
@@ -174,8 +174,8 @@ To get notifications about your disk health, enable one or more of the notificat
 To install the requirements, in the proect dir run the following:
 
 ```bash
+pip install -r requirements.txt
 ansible-galaxy install -r requirements.yml
-ansible-galaxy collection install -r requirements.yml
 ```
 
 ## Deploying
