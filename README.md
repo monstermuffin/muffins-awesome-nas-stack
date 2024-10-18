@@ -94,7 +94,7 @@ It should look something like this:
 
 ```yml
 ---
-mans-host:
+mans_host:
   hosts:
     hht-fs01:
       ansible_host: hht-fs01.internal.muffn.io
