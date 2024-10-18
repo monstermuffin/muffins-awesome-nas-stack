@@ -3,22 +3,26 @@
   ansible.builtin.systemd:
     daemon_reload: true
 
-- name: Restart mergerfs_media_cache
+- name: Restart mergerfs_media_cache and ensure enabled
   ansible.builtin.systemd:
     name: mergerfs-media-cache.service
+    enabled: true
     state: restarted
 
-- name: Restart mergerfs_media_cold
+- name: Restart mergerfs_media_cold and ensure enabled
   ansible.builtin.systemd:
     name: mergerfs-media-cold.service
+    enabled: true
     state: restarted
 
-- name: Restart mergerfs_cache_disks
+- name: Restart mergerfs_cache_disks and ensure enabled
   ansible.builtin.systemd:
     name: mergerfs-cache-disks.service
+    enabled: true
     state: restarted
 
-- name: Restart mergerfs_media_noncached
+- name: Restart mergerfs_media_noncached and ensure enabled
   ansible.builtin.systemd:
     name: mergerfs-media-noncached.service
+    enabled: true
     state: restarted

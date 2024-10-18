@@ -17,13 +17,6 @@
     recurse: true
   when: (cache_disks_only + cache_paths_only) | length > 1
 
-- name: Generate data_mounts list
-  ansible.builtin.set_fact:
-    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
-  loop: "{{ data_disks }}"
-  loop_control:
-    index_var: index
-
 - name: Generate cache_mounts list for cache disks
   ansible.builtin.set_fact:
     cache_mounts: "{{ cache_mounts | default([]) + [cache_mount_path + '/cache%02d' % (index + 1)] }}"
@@ -45,24 +38,28 @@
     force: true
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cache
+    - Restart mergerfs_media_cache and ensure enabled
   when: (cache_disks_only + cache_paths_only) | length == 1
 
-- name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
-  ansible.builtin.template:
-    src: mergerfs.mount.cache_disks.j2
-    dest: /etc/systemd/system/mergerfs-cache-disks.service
-    mode: "0644"
-    force: true
+- name: Deploy mergerfs services for multiple cache disks/paths
   when: cache_disks_count | int > 1
+  block:
+    - name: Deploy mergerfs cache_disks systemd service (multiple cache disks/paths)
+      ansible.builtin.template:
+        src: mergerfs.mount.cache_disks.j2
+        dest: /etc/systemd/system/mergerfs-cache-disks.service
+        mode: "0644"
+        force: true
+      notify:
+        - Reload systemd daemon
+        - Restart mergerfs_cache_disks and ensure enabled
 
-- name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
-  ansible.builtin.template:
-    src: mergerfs.mount.media_cached_multiple.j2
-    dest: /etc/systemd/system/mergerfs-media-cache.service
-    mode: "0644"
-    force: true
-  notify:
-    - Reload systemd daemon
-    - Restart mergerfs_media_cache
-  when: cache_disks_count | int > 1
+    - name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
+      ansible.builtin.template:
+        src: mergerfs.mount.media_cached_multiple.j2
+        dest: /etc/systemd/system/mergerfs-media-cache.service
+        mode: "0644"
+        force: true
+      notify:
+        - Reload systemd daemon
+        - Restart mergerfs_media_cache and ensure enabled

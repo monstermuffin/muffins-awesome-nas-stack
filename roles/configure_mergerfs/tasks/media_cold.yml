@@ -7,17 +7,6 @@
     group: "{{ media_group }}"
     mode: "0770"
 
-- name: Count items in data_disks
-  ansible.builtin.set_fact:
-    data_disks_count: "{{ data_disks | length }}"
-
-- name: Generate data_mounts list
-  ansible.builtin.set_fact:
-    data_mounts: "{{ data_mounts | default([]) + ['/mnt/data-disks/data%02d' % (index + 1)] }}"
-  loop: "{{ data_disks }}"
-  loop_control:
-    index_var: index
-
 - name: Deploy mergerfs media_cold systemd service
   ansible.builtin.template:
     src: mergerfs.mount.media_cold.j2
@@ -25,10 +14,4 @@
     mode: "0644"
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cold
-
-- name: Ensure mergerfs-media-cold service is enabled and running
-  ansible.builtin.systemd:
-    name: mergerfs-media-cold.service
-    enabled: true
-    state: started
+    - Restart mergerfs_media_cold and ensure enabled
