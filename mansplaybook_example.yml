@@ -26,63 +26,72 @@
         - ansible_distribution != "Debian"
         - not skip_os_check|default(false)|bool
 
-  tasks:
-    - name: Run wipecheck
-      ansible.builtin.include_role:
-        name: wipecheck
+  roles:
+    - role: wipecheck
+      tags: wipecheck
 
-    - name: Run manage_linux
-      ansible.builtin.include_role:
-        name: manage_linux
+    - role: manage_linux
+      tags:
+        - manage_linux
+        - base_setup
 
-    - name: Run manage_zsh
-      ansible.builtin.include_role:
-        name: manage_zsh
+    - role: manage_zsh
       when: configure_zsh
+      tags:
+        - manage_zsh
+        - base_setup
 
-    - name: Run stefangweichinger.ansible_rclone
-      ansible.builtin.include_role:
-        name: stefangweichinger.ansible_rclone
+    - role: stefangweichinger.ansible_rclone
       when: install_rclone
+      tags:
+        - rclone
+        - base_setup
 
-    - name: Run geerlingguy.docker
-      ansible.builtin.include_role:
-        name: geerlingguy.docker
+    - role: geerlingguy.docker
       when: install_docker or configure_scrutiny
+      tags:
+        - docker
+        - base_setup
+        - scrutiny
 
-    - name: Run install_mergerfs
-      ansible.builtin.include_role:
-        name: install_mergerfs
+    - role: install_mergerfs
+      tags:
+        - install_mergerfs
+        - mergerfs
 
-    - name: Run install_snapraid
-      ansible.builtin.include_role:
-        name: install_snapraid
+    - role: install_snapraid
+      tags:
+        - install_snapraid
+        - snapraid
 
-    - name: Run install_btrfs
-      ansible.builtin.include_role:
-        name: install_btrfs
+    - role: install_btrfs
+      tags:
+        - install_btrfs
+        - btrfs
 
-    - name: Run manage_disks_nas
-      ansible.builtin.include_role:
-        name: manage_disks_nas
+    - role: manage_disks_nas
+      tags:
+        - manage_disks
+        - btrfs
 
-    - name: Run configure_mergerfs
-      ansible.builtin.include_role:
-        name: configure_mergerfs
+    - role: configure_mergerfs
+      tags:
+        - configure_mergerfs
+        - mergerfs
 
-    - name: Run configure_snapraid
-      ansible.builtin.include_role:
-        name: configure_snapraid
+    - role: configure_snapraid
+      tags:
+        - configure_snapraid
+        - snapraid
 
-    - name: Deploy & Configure Samba
-      ansible.builtin.include_role:
-        name: vladgh.samba.server
+    - role: vladgh.samba.server
+      tags: samba
 
-    - name: Run muffins_cache_mover
-      ansible.builtin.include_role:
-        name: muffins_cache_mover
+    - role: muffins_cache_mover
+      tags: cache_mover
 
-    - name: Run docker_scrutiny
-      ansible.builtin.include_role:
-        name: docker_scrutiny
+    - role: docker_scrutiny
       when: configure_scrutiny
+      tags:
+        - scrutiny
+        - docker

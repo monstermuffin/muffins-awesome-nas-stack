@@ -191,6 +191,40 @@ If you have opted to configure `passwordless_sudo`, `K` will not be required on 
 
 The playbook should execute all the required actions to set up & configure MANS. Subsequent runs will of course be much faster.
 
+You can target specific elements of the setup process with tags. For example:
+
+```bash
+# Only run mergerfs setup
+ansible-playbook playbook.yml --tags mergerfs
+# You can also use the shorthand version, `-t`
+ansible-playbook playbook.yml -t mergerfs
+```
+
+You can use this in reverse, excluding any step with a given tag:
+
+```bash
+ansible-playbook playbook.yml --skip-tags mergerfs
+```
+
+You can see all available tags:
+
+```bash
+ansible-playbook playbook.yml --list-tags
+```
+
+You can list all tasks and their tags:
+
+```bash
+ansible-playbook playbook.yml --list-tasks
+```
+
+You can show all tasks that would be included with a given tag:
+
+```bash
+ansible-playbook playbook.yml --tags install_btrfs --list-tasks
+```
+
+
 ## Usage
 After a successful deployment, you will have the following (dependent on config):
 
