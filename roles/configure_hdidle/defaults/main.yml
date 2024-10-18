@@ -1,0 +1,13 @@
+---
+
+# Valid git tag or 'latest'
+hdidle_version: 'v1.21'
+
+hdidle_architecture: >-
+  {{
+    'amd64' if ansible_architecture == 'x86_64' else
+    'arm64' if ansible_architecture == 'aarch64' else
+    'armhf' if ansible_architecture == 'armv7l' else
+    'i386' if ansible_architecture == 'x86' else
+    none
+  }}
