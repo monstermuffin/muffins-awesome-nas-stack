@@ -1,3 +1,0 @@
-{% for disk in data_disks %}
-{{ disk }} /mnt/btrfs-root/{{ disk | basename }} btrfs defaults,nofail 0 0
-{% endfor %}
