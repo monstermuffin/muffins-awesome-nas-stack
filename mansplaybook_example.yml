@@ -54,16 +54,6 @@
         - base_setup
         - scrutiny
 
-    - role: docker_scrutiny
-      when: configure_scrutiny
-      tags:
-        - scrutiny
-        - docker
-
-    - role: configure_hdidle
-      when: configure_hdidle
-      tags: hdidle
-
     - role: install_mergerfs
       tags:
         - install_mergerfs
@@ -99,3 +89,13 @@
 
     - role: muffins_cache_mover
       tags: cache_mover
+
+    - role: docker_scrutiny
+      when: configure_scrutiny
+      tags:
+        - scrutiny
+        - docker
+
+    - role: configure_hdidle
+      when: configure_hdidle
+      tags: hdidle
