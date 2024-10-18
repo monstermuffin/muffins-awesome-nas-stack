@@ -176,7 +176,6 @@ To install the requirements, in the proect dir run the following:
 ```bash
 pip install -r requirements.txt
 ansible-galaxy install -r requirements.yml
-ansible-galaxy collection install -r requirements.yml
 ```
 
 ## Deploying
