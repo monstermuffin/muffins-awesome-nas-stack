@@ -19,6 +19,7 @@ An Ansible role for setting up a Debian based NAS using mergerfs, SnapRaid & sna
 ___
 
 ## Tasks
+
 This role will do the following:
 
 * Check for updates and autoupdate if accepted
@@ -52,6 +53,7 @@ This role will do the following:
 * Deploys & Configures [Scrutiny](https://github.com/AnalogJ/scrutiny)
 
 ## More Info
+
 I have written in-depth blog posts about how I got here and detailing how this setup works.
 
 * [Part 3: Designing & Deploying MANS — A Hybrid NAS Approach with SnapRAID, MergerFS, and OpenZFS ](https://blog.muffn.io/posts/part-3-mini-100tb-nas/) attempts to explain my design approach.
@@ -63,6 +65,7 @@ I would ***highly recommend*** you read, at least, those two blog posts so you a
 <small>(If that link doesn't work it's not released yet, but it's coming soon!)</small>
 
 ## Prerequisites
+
 * You must be using Debian. You can a check in the vars that stops you from using anything else but I will not support any fixes that are required to make this work on another distro.
 * Understand how Snapraid works and its drawbacks.
 * Understand what this role does and how it configures all the bits of software it uses.
@@ -71,12 +74,14 @@ I would ***highly recommend*** you read, at least, those two blog posts so you a
   * Disk(s) for parity that is/are larger or as large as your largest data disk.
 
 ## Clone
+
 Clone the repo somewhere on your machine.
 
 ```bash
 https://github.com/monstermuffin/muffins-awesome-nas-stack.git
 ```
 ## Config
+
 This role will take your settings from a global vars file and apply those to the setup. If/when you need anything changed, including adding/removing disks, you should modify the vars file and rerun the playbook.
 
 Firstly, make a copy of the inventory file, example playbook and example vars file whilst in the root of the project.
@@ -102,6 +107,7 @@ mans_host:
 ```
 
 ## Vars
+
 Below is an explanation of the core variables needed to make the role function, as well as some things you may wish to change.
 
 This does not cover all the variables just what you should change to your preference at a minimum, and the core variables needed to configure the services.
@@ -171,6 +177,7 @@ If you left `configure_scrutiny` to `true` then you can setup `omnibus` or `coll
 To get notifications about your disk health, enable one or more of the notification options and enter the relevant variables for the service.
 
 ## Install Requirements
+
 To install the requirements, in the proect dir run the following:
 
 ```bash
@@ -179,6 +186,7 @@ ansible-galaxy install -r requirements.yml
 ```
 
 ## Deploying
+
 To run the playbook, simply run:
 
 ```bash
@@ -226,10 +234,11 @@ ansible-playbook playbook.yml --tags install_btrfs --list-tasks
 
 
 ## Usage
+
 After a successful deployment, you will have the following (dependent on config):
 
-
 ### Mounts
+
 * `/mnt/media` — This is the 'cached' share (if any cache device was specified). This is where writes will go and samba is configured to serve to/from.
 * `/mnt/media-cold` — 'Non-cached' share. This is the pool of backing data disks.
 * `/mnt/cache-pool` — If multiple cache devices were defined, this is the mount point for the pooled cache devices.
@@ -239,6 +248,7 @@ After a successful deployment, you will have the following (dependent on config)
 * `/mnt/cache-disks/cachexx` — Mount points for `cache_disks`.
 
 ### Logs
+
 * `/var/log/snapraid-btrfs-runner.log` — Logs for `snapraid-btrfs-runner` runs.
 * `/var/log/snapper.log` — Logs for `snapper`.
 * `/var/log/cache-mover.log` — Logs for `mergerfs-cache-mover` runs.
@@ -250,10 +260,53 @@ After a successful deployment, you will have the following (dependent on config)
 
 * `sudo snapper list-configs` — Lists all valid `snapper` configs.
 
+* `sudo snapraid-btrfs ls` - List snapshots.
+
+* `sudo btrfs subvolume list /mnt/data-disks/data0x` - Show Btrfs subvolumes for given data disk.
+
 ### Ports
+
 * `8080` - Scrutiny web-ui (omnibus).
 
 ## Issues & Requests
+
 Please report any issues with full logs (`-vvv`). If you have any requests or improvements, please feel free to raise this/submit a PR.
+
+### Snapper error "The config 'root' does not exist"
+
+This is expected and unfortunately just a symptom of the way this is configured vs. how Snapper expects to be used.
+
+The error presents itself like so:
+
+```bash
+$ sudo snapper list
+The config 'root' does not exist. Likely snapper is not configured.
+```
+
+Most things can be done instead with `snapraid-btrfs`, for example:
+
+```bash
+$ sudo snapraid-btrfs list
+data01 /mnt/data-disks/data01
+# │ Type   │ Pre # │ Date                         │ User │ Cleanup │ Description         │ Userdata
+──┼────────┼───────┼──────────────────────────────┼──────┼─────────┼─────────────────────┼──────────────────────
+0 │ single │       │                              │ root │         │ current             │
+2 │ single │       │ Thu 17 Oct 2024 03:52:31 BST │ root │         │ snapraid-btrfs sync │ snapraid-btrfs=synced
+
+data02 /mnt/data-disks/data02
+# │ Type   │ Pre # │ Date                         │ User │ Cleanup │ Description         │ Userdata
+──┼────────┼───────┼──────────────────────────────┼──────┼─────────┼─────────────────────┼──────────────────────
+0 │ single │       │                              │ root │         │ current             │
+2 │ single │       │ Thu 17 Oct 2024 03:52:31 BST │ root │         │ snapraid-btrfs sync │ snapraid-btrfs=synced
+
+data03 /mnt/data-disks/data03
+# │ Type   │ Pre # │ Date                         │ User │ Cleanup │ Description         │ Userdata
+──┼────────┼───────┼──────────────────────────────┼──────┼─────────┼─────────────────────┼──────────────────────
+0 │ single │       │                              │ root │         │ current             │
+2 │ single │       │ Thu 17 Oct 2024 03:52:32 BST │ root │         │ snapraid-btrfs sync │ snapraid-btrfs=synced
+```
+
+If necessary, you can run `snapper` commands via `snapraid-btrfs`, and this seems to work fine: `snapraid-btrfs snapper <command>`
+
 ___
 <a href="https://www.buymeacoffee.com/muffn" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
