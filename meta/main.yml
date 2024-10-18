@@ -1,8 +1,0 @@
----
-dependencies:
-  - name: python3
-  - name: pip
-    vars:
-      pip_packages:
-        - name: github3.py
-          version: ">=1.0.0a3"
