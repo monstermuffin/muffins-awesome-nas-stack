@@ -28,33 +28,70 @@
 
   roles:
     - role: wipecheck
+      tags: wipecheck
 
     - role: manage_linux
+      tags:
+        - manage_linux
+        - base_setup
 
     - role: manage_zsh
       when: configure_zsh
+      tags:
+        - manage_zsh
+        - base_setup
 
     - role: stefangweichinger.ansible_rclone
       when: install_rclone
+      tags:
+        - rclone
+        - base_setup
 
     - role: geerlingguy.docker
       when: install_docker or configure_scrutiny
+      tags:
+        - docker
+        - base_setup
+        - scrutiny
 
     - role: install_mergerfs
+      tags:
+        - install_mergerfs
+        - mergerfs
 
     - role: install_snapraid
+      tags:
+        - install_snapraid
+        - snapraid
 
     - role: install_btrfs
+      tags:
+        - install_btrfs
+        - btrfs
 
     - role: manage_disks_nas
+      tags:
+        - manage_disks
+        - btrfs
 
     - role: configure_mergerfs
+      tags:
+        - configure_mergerfs
+        - mergerfs
 
     - role: configure_snapraid
+      tags:
+        - configure_snapraid
+        - snapraid
 
     - role: vladgh.samba.server
+      tags: samba
 
     - role: muffins_cache_mover
+      tags: cache_mover
 
     - role: docker_scrutiny
       when: configure_scrutiny
+      tags:
+        - scrutiny
+        - docker
