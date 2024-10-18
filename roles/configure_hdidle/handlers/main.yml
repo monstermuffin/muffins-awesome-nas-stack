@@ -1,0 +1,7 @@
+---
+
+- name: Restart hd-idle and ensure enabled
+  ansible.builtin.systemd:
+    name: hd-idle
+    state: started
+    enabled: true

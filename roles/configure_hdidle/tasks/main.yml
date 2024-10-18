@@ -1,36 +1,37 @@
 ---
-- name: Get latest hd-idle release
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/adelolmo/hd-idle/releases/latest
-    method: GET
-    return_content: true
-    headers:
-      Accept: application/vnd.github.v3+json
-  register: latest_release
 
-- name: Extract download URL for hd-idle Debian package
+- name: Find latest release of hd-idle
+  community.general.github_release:
+    user: adelolmo
+    repo: hd-idle
+    action: latest_release
+  register: hdidle_latest_release
+  delegate_to: localhost
+  run_once: true
+  become: false
+  when: hdidle_version == 'latest'
+
+- name: Set hdidle latest version
   ansible.builtin.set_fact:
-    hd_idle_deb_url: "{{ item.browser_download_url }}"
-  loop: "{{ latest_release.json.assets }}"
-  when: item.name is match('hd-idle_.*_amd64.deb')
+    hdidle_version: "{{ hdidle_latest_release.tag if hdidle_version == 'latest' else hdidle_version }}"
 
-- name: Download hd-idle Debian package
-  ansible.builtin.get_url:
-    url: "{{ hd_idle_deb_url }}"
-    dest: /tmp/hd-idle.deb
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: apt
 
 - name: Install hd-idle Debian package
   ansible.builtin.apt:
-    deb: /tmp/hd-idle.deb
+    deb: >-
+      https://github.com/adelolmo/hd-idle/releases/download/{{ hdidle_version }}/hd-idle_{{
+      hdidle_version | replace('v', '') }}_{{ hdidle_architecture }}.deb
+  notify: Restart hd-idle and ensure enabled
+  when: >-
+    'hd-idle' not in ansible_facts.packages
+    or ansible_facts.packages['hd-idle'][0]['version'] != hdidle_version
 
 - name: Configure hd-idle
   ansible.builtin.lineinfile:
     path: /etc/default/hd-idle
     regexp: ^START_HD_IDLE=
     line: START_HD_IDLE=true
-
-- name: Start and enable hd-idle service
-  ansible.builtin.systemd:
-    name: hd-idle
-    state: started
-    enabled: true
+  notify: Restart hd-idle and ensure enabled
