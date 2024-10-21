@@ -33,6 +33,7 @@ ssh_key_file: /path/to/local/ssh_keys.txt
 user: "{{ ansible_user }}"
 media_group: media # Group for share perms.
 
+# Adds specified users to Docker group when install_docker is true
 docker_users:
   - "{{ user }}"
 
@@ -62,9 +63,7 @@ samba_shares:
     directory_mode: "0770"
     force_create_mode: "0770"
     force_directory_mode: "0770"
-    write_list:
-      - "{{ media_group }}"
-      - "{{ user }}"
+    write_list: "{{ media_group }}, {{ user }}"
     owner: "{{ media_group }}"
     group: "{{ media_group }}"
 
