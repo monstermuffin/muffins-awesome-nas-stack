@@ -1,12 +1,12 @@
 ---
 passwordless_sudo: true
-configure_zsh: true
-configure_powerlevel10k: true
-install_rclone: true
+configure_zsh: true # https://github.com/ohmyzsh/ohmyzsh
+configure_powerlevel10k: true 
+install_rclone: true # https://github.com/rclone/rclone
 install_docker: true
-install_fastfetch: true
+install_fastfetch: true # https://github.com/fastfetch-cli/fastfetch
 fastfetch_motd: true
-configure_scrutiny: true
+configure_scrutiny: true # https://github.com/AnalogJ/scrutiny
 configure_hdidle: true # https://github.com/adelolmo/hd-idle
 skip_os_check: false
 
@@ -119,7 +119,7 @@ cache_mover_max_workers: 8
 cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
 cache_mover_excluded_dirs:
-  - snapraid
+  - snapraid # Don't remove this
   # - other_dirs_as_needed
 on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
 
@@ -129,7 +129,7 @@ scrutiny_master_url: "http://scrutiny-master:8080"  # Used only in collector mod
 scrutiny_webui_port: 8080 # Used only in omnibus mode
 
 # Scrutiny notificattion vars
-# https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml∂
+# https://containrrr.dev/shoutrrr/v0.8/services/discord/ && https://github.com/AnalogJ/scrutiny/blob/master/example.scrutiny.yaml
 
 # Discord
 scrutiny_discord_enabled: false
