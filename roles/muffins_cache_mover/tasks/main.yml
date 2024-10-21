@@ -27,13 +27,22 @@
         mover_cache_path: "{{ cache_pool }}"
       when: (cache_disks_only | length > 1) or (cache_paths_only | length > 1)
 
-    - name: Clone the mergerfs-cache-mover repository # noqa latest
+    - name: Clone the mergerfs-cache-mover repository
       ansible.builtin.git:
         repo: https://github.com/MonsterMuffin/mergerfs-cache-mover.git
         dest: "{{ cache_mover_dir }}"
+        version: "{{ cache_mover_update_branch }}"
         clone: true
         update: true
         force: true
+
+    - name: Set permissions on cache mover directory
+      ansible.builtin.file:
+        path: "{{ cache_mover_dir }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        mode: "0755"
+        recurse: true
 
     - name: Ensure requirements are installed
       ansible.builtin.pip:
