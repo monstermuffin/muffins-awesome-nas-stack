@@ -17,18 +17,6 @@
     path: /usr/local/bin/snapraid-btrfs
     mode: "0755"
 
-- name: Verify snapraid-btrfs can see Snapper configs
-  ansible.builtin.command:
-    cmd: "{{ configure_snapraid_snapraid_btrfs_executable }} list"
-  register: snapraid_btrfs_output
-  changed_when: false
-  failed_when: snapraid_btrfs_output.rc != 0 and "No snapper configs found" not in snapraid_btrfs_output.stderr
-  check_mode: false
-
-- name: Display snapraid-btrfs output
-  ansible.builtin.debug:
-    var: snapraid_btrfs_output.stdout_lines
-
 # TODO: Remove this once the following PR is merged https://github.com/automorphism88/snapraid-btrfs/pull/34
 - name: Patch snapraid-btrfs
   ansible.builtin.lineinfile:
