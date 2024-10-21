@@ -28,5 +28,5 @@
     mode: "0770"
   loop: "{{ snapshot_directory_check.results }}"
   loop_control:
-    label: "{{ item.stat.path }}"
+    label: "{{ item.invocation.module_args.path }}"
   when: item.stat.exists
