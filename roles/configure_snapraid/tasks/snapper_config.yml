@@ -24,7 +24,7 @@
 
     - name: Display snapper_configs
       ansible.builtin.debug:
-        var: snapper_configs_reset.stdout_lines
+        var: snapper_configs.stdout_lines
 
     - name: Check if snapper config for each data disk is valid
       ansible.builtin.set_fact:
