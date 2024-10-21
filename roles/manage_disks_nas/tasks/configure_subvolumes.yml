@@ -3,11 +3,13 @@
   ansible.builtin.file:
     path: /mnt/btrfs-root
     state: directory
+    mode: '0770'
 
 - name: Ensure mount point directories exist
   ansible.builtin.file:
     path: "/mnt/btrfs-root/{{ item | basename }}"
     state: directory
+    mode: '0770'
   loop: "{{ data_disks }}"
   loop_control:
     label: "{{ item }}"
@@ -26,19 +28,13 @@
   failed_when: false
 
 - name: Mount the main Btrfs filesystem partition
-  ansible.builtin.command:
-    cmd: >
-      mount -t btrfs
-      {{ item if item not in partitioned_disks else item + '-part1' }}
-      /mnt/btrfs-root/{{ item | basename }}
+  ansible.posix.mount:
+    path: /mnt/btrfs-root/{{ item | basename }}
+    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
+    fstype: btrfs
+    state: ephemeral
   loop: "{{ data_disks }}"
-  loop_control:
-    label: "{{ item }}"
   when: mount_check.results | selectattr('rc', 'equalto', 1) | list | length > 0
-  register: mount_result
-  failed_when:
-    - mount_result.rc != 0
-    - "'already mounted' not in mount_result.stderr"
 
 - name: List subvolumes
   ansible.builtin.shell: |
@@ -64,14 +60,10 @@
     - "'already exists' not in create_subvolume_result.stderr"
 
 - name: Unmount the fs
-  ansible.builtin.command: umount /mnt/btrfs-root/{{ item | basename }}
+  ansible.posix.mount:
+    path: /mnt/btrfs-root/{{ item | basename }}
+    state: unmounted
   loop: "{{ data_disks }}"
-  loop_control:
-    label: "{{ item }}"
-  register: unmount_result
-  failed_when:
-    - unmount_result.rc != 0
-    - "'not mounted' not in unmount_result.stderr"
 
 - name: Remove individual mount points
   ansible.builtin.file:
