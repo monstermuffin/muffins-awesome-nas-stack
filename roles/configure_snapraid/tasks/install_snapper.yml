@@ -40,6 +40,7 @@
   ansible.builtin.command: snapper --version
   register: snapper_version
   changed_when: false
+  check_mode: false
 
 - name: Display Snapper version
   ansible.builtin.debug:
