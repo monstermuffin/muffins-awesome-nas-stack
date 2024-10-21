@@ -1,7 +1,6 @@
 ---
 timezone: ''
 users: []
-groups: [] # noqa var-naming
 
 fastfetch_version: latest
 # wy tf am I supporting risc? lmao
@@ -13,3 +12,36 @@ fastfetch_architecture: >-
     'riscv64' if ansible_architecture == 'riscv64' else
     'unknown'
   }}
+
+default_apps:
+  - apparmor
+  - apparmor-utils
+  - autofs
+  - build-essential
+  - ca-certificates
+  - cifs-utils
+  - curl
+  - dnsutils
+  - fdisk
+  - fuse
+  - gcc
+  - gdisk
+  - git
+  - hdparm
+  - htop
+  - iftop
+  - iotop
+  - mlocate
+  - ncdu
+  - net-tools
+  - nfs-common
+  - nfs-kernel-server
+  - parted
+  - python3-pip
+  - rsync
+  - samba
+  - software-properties-common
+  - tmux
+  - tree
+  - vim
+  - zip

@@ -7,36 +7,3 @@
   register: apt_defaults
   retries: 3
   until: apt_defaults is success
-  vars:
-    default_apps:
-      - apparmor
-      - apparmor-utils
-      - autofs
-      - build-essential
-      - ca-certificates
-      - cifs-utils
-      - curl
-      - dnsutils
-      - fdisk
-      - fuse
-      - gcc
-      - gdisk
-      - git
-      - hdparm
-      - htop
-      - iftop
-      - iotop
-      - mlocate
-      - ncdu
-      - net-tools
-      - nfs-common
-      - nfs-kernel-server
-      - parted
-      - python3-pip
-      - rsync
-      - samba
-      - software-properties-common
-      - tmux
-      - tree
-      - vim
-      - zip
