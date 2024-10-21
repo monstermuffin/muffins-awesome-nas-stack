@@ -1,7 +1,7 @@
 ---
 passwordless_sudo: true
 configure_zsh: true # https://github.com/ohmyzsh/ohmyzsh
-configure_powerlevel10k: true 
+configure_powerlevel10k: true
 install_rclone: true # https://github.com/rclone/rclone
 install_docker: true
 install_fastfetch: true # https://github.com/fastfetch-cli/fastfetch
