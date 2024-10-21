@@ -155,7 +155,7 @@
     - user_confirmation.user_input | default('n') | lower != 'y'  # Fail if user didn't confirm
 
 # Changing this to ansible.posix.mount causes the wipe task to fail because it doesn't unmount properly/intime. ¯\_(ツ)_/¯
-- name: Unmount disks_to_wipe 
+- name: Unmount disks_to_wipe
   ansible.builtin.command: sudo umount {{ item }}
   with_items: "{{ disks_to_wipe | default([]) }}"
   when:
