@@ -1,58 +1,64 @@
 ---
-- name: Clone the mergerfs-cache-mover repository into the specified directory # noqa latest
-  ansible.builtin.git:
-    repo: https://github.com/MonsterMuffin/mergerfs-cache-mover.git
-    dest: "{{ cache_mover_dir }}"
-    clone: true
-    update: true
-    force: true
-  when: cache_disks_exist
 
-- name: Set correct permissions for the script
-  ansible.builtin.file:
-    path: "{{ cache_mover_dir }}/cache-mover.py"
-    owner: "{{ user }}"
-    group: "{{ user }}"
-    mode: "0755"
-  when: cache_disks_exist
-
-- name: Set cache_path variable for single cache disk
+- name: Set cache disk facts
   ansible.builtin.set_fact:
-    mover_cache_path: /mnt/cache-disks/cache01
-  when: cache_disks_only | length == 1
+    cache_disks_only: "{{ cache_disks | select('match', '^/dev/') | list }}"
+    cache_paths_only: "{{ cache_disks | reject('match', '^/dev/') | list }}"
 
-- name: Set cache_path variable for single cache path
+- name: Set cache_disks_exist fact
   ansible.builtin.set_fact:
-    mover_cache_path: "{{ cache_paths_only[0] }}"
-  when: cache_disks_only | length == 0 and cache_paths_only | length == 1
+    cache_disks_exist: "{{ (cache_disks_only + cache_paths_only) | length > 0 }}"
 
-- name: Set cache_path variable for multiple cache disks or paths
-  ansible.builtin.set_fact:
-    mover_cache_path: "{{ cache_pool }}"
-  when: (cache_disks_only | length > 1) or (cache_paths_only | length > 1)
+- name: Setup cache_mover if cache_disks_exist
+  when: cache_disks | default([])
+  block:
+    - name: Set cache_path variable for single cache disk
+      ansible.builtin.set_fact:
+        mover_cache_path: /mnt/cache-disks/cache01
+      when: cache_disks_only | length == 1
 
-- name: Deploy the cache mover configuration
-  ansible.builtin.template:
-    src: config.yml.j2
-    dest: "{{ cache_mover_dir }}/config.yml"
-  when: cache_disks_exist
+    - name: Set cache_path variable for single cache path
+      ansible.builtin.set_fact:
+        mover_cache_path: "{{ cache_paths_only[0] }}"
+      when: cache_disks_only | length == 0 and cache_paths_only | length == 1
 
-- name: Set up the systemd service unit
-  ansible.builtin.template:
-    src: cache_mover.service.j2
-    dest: /etc/systemd/system/cache_mover.service
-    owner: root
-    group: root
-    mode: "0644"
-  notify: reload systemd
-  when: cache_disks_exist
+    - name: Set cache_path variable for multiple cache disks or paths
+      ansible.builtin.set_fact:
+        mover_cache_path: "{{ cache_pool }}"
+      when: (cache_disks_only | length > 1) or (cache_paths_only | length > 1)
 
-- name: Set up the systemd timer unit
-  ansible.builtin.template:
-    src: cache_mover.timer.j2
-    dest: /etc/systemd/system/cache_mover.timer
-    owner: root
-    group: root
-    mode: "0644"
-  notify: start and enable cache mover timer
-  when: cache_disks_exist
+    - name: Clone the mergerfs-cache-mover repository # noqa latest
+      ansible.builtin.git:
+        repo: https://github.com/MonsterMuffin/mergerfs-cache-mover.git
+        dest: "{{ cache_mover_dir }}"
+        clone: true
+        update: true
+        force: true
+
+    - name: Ensure requirements are installed
+      ansible.builtin.pip:
+        requirements: "{{ cache_mover_dir }}/requirements.txt"
+        extra_args: --break-system-packages
+
+    - name: Deploy the cache mover configuration
+      ansible.builtin.template:
+        src: config.yml.j2
+        dest: "{{ cache_mover_dir }}/config.yml"
+
+    - name: Set up the systemd service unit
+      ansible.builtin.template:
+        src: cache_mover.service.j2
+        dest: /etc/systemd/system/cache_mover.service
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd
+
+    - name: Set up the systemd timer unit
+      ansible.builtin.template:
+        src: cache_mover.timer.j2
+        dest: /etc/systemd/system/cache_mover.timer
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Start and enable cache mover timer
