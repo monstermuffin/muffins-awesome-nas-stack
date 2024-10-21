@@ -38,7 +38,7 @@
     force: true
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cache and ensure enabled
+    - Restart mergerfs_media_cache
   when: (cache_disks_only + cache_paths_only) | length == 1
 
 - name: Deploy mergerfs services for multiple cache disks/paths
@@ -52,7 +52,7 @@
         force: true
       notify:
         - Reload systemd daemon
-        - Restart mergerfs_cache_disks and ensure enabled
+        - Restart mergerfs_cache_disks
 
     - name: Deploy mergerfs media_cached systemd service (multiple cache disks/paths)
       ansible.builtin.template:
@@ -62,4 +62,4 @@
         force: true
       notify:
         - Reload systemd daemon
-        - Restart mergerfs_media_cache and ensure enabled
+        - Restart mergerfs_media_cache

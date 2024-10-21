@@ -14,4 +14,10 @@
     mode: "0644"
   notify:
     - Reload systemd daemon
-    - Restart mergerfs_media_cold and ensure enabled
+    - Restart mergerfs_media_cold
+
+- name: Ensure mergerfs-media-cold service is enabled and running
+  ansible.builtin.systemd:
+    name: mergerfs-media-cold.service
+    enabled: true
+    state: started
