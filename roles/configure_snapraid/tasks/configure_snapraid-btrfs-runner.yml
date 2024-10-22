@@ -18,7 +18,7 @@
     dest: /etc/systemd/system/snapraid-btrfs-runner.service
     content: |
       [Unit]
-      Description=Run snapraid-btrfs-runner every Sunday
+      Description=Executor for snapraid-btrfs-runner
 
       [Service]
       Type=oneshot
@@ -32,7 +32,7 @@
     dest: /etc/systemd/system/snapraid-btrfs-runner.timer
     content: |
       [Unit]
-      Description=Run snapraid-btrfs-runner every Sunday
+      Description=Run snapraid-btrfs-runner every Sunday at 03:00
 
       [Timer]
       OnCalendar=Sun 03:00:00
