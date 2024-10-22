@@ -100,7 +100,7 @@
 
     - name: Display snapper_configs
       ansible.builtin.debug:
-        var: snapper_configs_new
+        var: snapper_configs_new.stdout_lines
 
     - name: Verify snapraid-btrfs can see Snapper configs
       ansible.builtin.command:
