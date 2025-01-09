@@ -2,15 +2,40 @@
 
 ## Changelog
 
-* [v0.90 - Tag Release](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.90)
+* [v0.91](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.91) - Feature and Improvement Release
+
+  * TL;DR - Improved/streamlined a bunch. Thanks @tigattack ❤️ 
+  * Replaced cmd with POSIX mount (in most cases).
+  * Implemented SnapRAID configuration and improvements.
+  * Enhanced disk management.
+  * Added tags to playbook.
+  * Improved `ansible_managed` strings.
+  * Improved output formatting and debugging information.
+  * Streamlined role usage in playbooks.
+  * Improved MergerFS configuration and service management.
+  * Enhanced SnapRAID installation and configuration process.
+  * Optimized Linux management tasks.
+  * Simplified conditionals and eliminated silent failures in various roles.
+  * Fixed HD-idle role.
+  * Corrected default group name usage.
+  * Resolved issues with Ansible check mode compatibility.
+  * Fixed mount path templating in MergerFS configuration.
+  * Addressed various minor bugs across different roles.
+  * Updated documentation with new commands and error information.
+  * Removed unused files and configurations.
+  * Updated .gitignore and ansible-lint exclude rules.
+  * Installed Ansible dependencies to .dependencies directory.
+  * Implemented Ansible linting in CI pipeline.
+
+* [v0.90](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.90)
   * Add 0.89.1 changes into release.
   * Fix Scrutiny mappings - Scrutiny is now running as a privileged container which is the easiest way to achieve that is required. Not doing so requires some annoying Ansible voodoo to get the mappings correct, especially with SSDs/NVMEs. If this is an issue for you, simply turn off auto-deployment of Scrutiny in vars and deploy it yourself as required. 
 
-* v0.89.1 - No release
+* v0.89.1
   * Modified mergerfs `minfreespace` from 1G to 10G.
   * Added `cache_pool_policy` var to allow users to select a different mergerfs policy if required for multiple cache devices.
 
-* [v0.89 - Beta Release](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.89)
+* [v0.89 - Beta](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.89)
   * Released role in a state that is ready to be deployed/tested by others.
 
 ## Intro

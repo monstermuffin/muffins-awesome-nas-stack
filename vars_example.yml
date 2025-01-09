@@ -75,7 +75,9 @@ data_mount_path: /mnt/data-disks
 parity_mount_path: /mnt/parity-disks
 cache_mount_path: /mnt/cache-disks
 cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
+
 cache_pool_policy: epmfs # The policy for the cache pool. Leave if using 2+ cache disks and unsure.
+
 # content files
 content_files:
   - /var/snapraid/snapraid.content
