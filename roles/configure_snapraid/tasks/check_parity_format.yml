@@ -11,20 +11,22 @@
 
 - name: Record warning message for single parity
   ansible.builtin.set_fact:
-    snapraid_warning_message: |
-      WARNING: Single file parity configuration detected.
-      - This format has a 16TB file size limitation
-      - Future versions of MANS may deprecate this format
-      - Set split_parity_migrate: true to convert to split parity format
-      - Migration requires manual snapraid sync with --force flags
+    snapraid_warning_message:
+      - "WARNING: Single file parity configuration detected."
+      - ""
+      - "• This format has a 16TB file size limitation"
+      - "• Future versions of MANS may deprecate this format"
+      - "• Set split_parity_migrate: true to convert to split parity format"
+      - "• Migration requires manual snapraid sync with --force flags"
   when: single_parity_detected and not split_parity_migrate
 
 - name: Record migration notice
   ansible.builtin.set_fact:
-    snapraid_warning_message: |
-      NOTICE: Migration to split parity configuration initiated
-      - After role completion, check README for required snapraid sync commands
-      - Migration requires manual snapraid sync with --force flags
+    snapraid_warning_message:
+      - "NOTICE: Migration to split parity configuration initiated"
+      - ""
+      - "• After role completion, check README for required snapraid sync commands"
+      - "• Migration requires manual snapraid sync with --force flags"
   when: single_parity_detected and split_parity_migrate
 
 - name: Warning - Single parity configuration detected
