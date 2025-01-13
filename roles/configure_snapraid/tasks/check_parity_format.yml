@@ -1,13 +1,26 @@
 ---
+- name: Verify parity paths exist
+  ansible.builtin.stat:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}"
+  register: parity_paths
+  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  ignore_errors: true
+
 - name: Check for single parity files across all parity disks
   ansible.builtin.stat:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}/snapraid.parity"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
   register: parity_checks
   loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  when: 
+    - parity_paths.results[item - 1].stat.exists | default(false)
+  ignore_errors: true
 
 - name: Set single parity detection fact
   ansible.builtin.set_fact:
-    single_parity_detected: "{{ parity_checks.results | selectattr('stat.exists', 'true') | list | length > 0 }}"
+    single_parity_detected: "{{ (parity_checks.results | default([]) | selectattr('stat.exists', 'true') | list | length > 0) | default(false) }}"
 
 - name: Record warning message for single parity
   ansible.builtin.set_fact:
@@ -18,6 +31,7 @@
       - "• Future versions of MANS may deprecate this format"
       - "• Set split_parity_migrate: true to convert to split parity format"
       - "• Migration requires manual snapraid sync with --force flags"
+      - "• Read more: https://github.com/monstermuffin/muffins-awesome-nas-stack?tab=readme-ov-file#split-parity-migration"
   when: single_parity_detected and not split_parity_migrate
 
 - name: Record migration notice
@@ -27,6 +41,7 @@
       - ""
       - "• After role completion, check README for required snapraid sync commands"
       - "• Migration requires manual snapraid sync with --force flags"
+      - "• Read more: https://github.com/monstermuffin/muffins-awesome-nas-stack?tab=readme-ov-file#split-parity-migration"
   when: single_parity_detected and split_parity_migrate
 
 - name: Warning - Single parity configuration detected
