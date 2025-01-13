@@ -176,6 +176,8 @@ ___
 ___
 `data_directories` — Top level directories that will be created on every `data_disks` and `parity_disks`.
 ___
+
+### Disk Config
 You ***must*** have your disks formatted in the format that is pre-filled. You can of course add or remove any entries as necessary, but `/dev/disk/by-id/your-disk` must be how the vars are entered.
 
 Any of the disks can be added/removed at any time, simply make your changes and rerun, that's the point of this.
@@ -190,7 +192,6 @@ lsblk -do NAME,SIZE,MODEL | while read -r name size model; do
 done
 ```
 
-### Disk Config
 `data_disks` — Your data disks.
 
 `parity_disks` — Your parity disk(s). Must be at least 1 disk here.
@@ -271,6 +272,9 @@ parity_disks:
     mode: dedicated
     level: 2
 ```
+
+> [!IMPORTANT]  
+> MANS will attempt to warn about incorrect parity var config at the start of the run, but this cannot be guaranteed.
 
 `cache_disks` — Any fast disk you want to send writes to, ideally this should be an NVME. This variable can be:
 
