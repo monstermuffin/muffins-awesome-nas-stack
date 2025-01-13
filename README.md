@@ -1,6 +1,9 @@
 # ✨ MANS ✨ — Muffin's Awesome NAS Stack
 
 ## Changelog
+* [v0.92](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.92) - SnapRAID Improvement/Fix
+
+  * This focuses on [16TB+ issues.](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/24) More about this can be found below in this README.
 
 * [v0.91](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.91) - Feature and Improvement Release
 
@@ -332,6 +335,52 @@ data03 /mnt/data-disks/data03
 ```
 
 If necessary, you can run `snapper` commands via `snapraid-btrfs`, and this seems to work fine: `snapraid-btrfs snapper <command>`
+
+## Split Parity Migration
+MANS now supports split parity files to overcome ext4's 16TB file size limitation. This allows using data disks larger than 16TB with ext4-formatted parity disks by splitting parity data across multiple files.
+Migration is only required if:
+
+* You have an existing single-file setup **AND**
+* You plan to use data disks larger than 16TB
+
+Note: Whilst there is no real need to enable migration if the above in your situation is true, there may come a time when this option is deprecated completely. New deployments are split, so this can technically stay here forever, but I can't see the future. 
+It would be best to migrate when you can.
+
+To migrate:
+
+### Set MANS to migrate
+
+In your vars.yml, set:
+
+```yaml
+split_parity_migrate: true
+```
+You will need to add this variable most likely if you have an existing MANS setup, please see `vars_example.yml` for any new vars you may be missing from updates.
+
+### Run the MANS playbook
+
+```bash
+ansible-playbook playbook.yml
+```
+
+After playbook completion:
+
+#### Delete existing parity file
+```bash
+sudo rm /mnt/parity-disks/parity01/snapraid.parity
+```
+Note: You may have more parity files to delete on other disks.
+
+#### Rebuild parity in split files
+```bash
+sudo snapraid-btrfs sync --force-full
+```
+Note:
+
+* The sync process can take significant time depending on array size. Do not interrupt the process.
+* Each parity disk will have its own set of split files (e.g., snapraid-1.parity, snapraid-2.parity, snapraid-3.parity)
+* Files are filled sequentially - when one file is full, SnapRAID moves to the next
+
 
 ___
 <a href="https://www.buymeacoffee.com/muffn" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>

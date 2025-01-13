@@ -22,6 +22,8 @@ smb_media_share_name: media-share
 
 # snapraid/snapper
 configure_snapraid_snapraid_deletethreshold: 150
+split_parity_files: 3 # Number of files per parity disk, do not change if unsure.
+split_parity_migrate: true # See README/v0.92 changelog
 
 # sshkeys
 ssh_key_option: none # Options: github, url, file, none

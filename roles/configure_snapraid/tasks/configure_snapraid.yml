@@ -8,10 +8,28 @@
     mode: "0755"
   loop: "{{ content_files }}"
 
-- name: Generate SnapRAID configuration
+- name: Backup existing snapraid config
+  ansible.builtin.copy:
+    src: "{{ configure_snapraid_snapraid_config }}"
+    dest: "{{ configure_snapraid_snapraid_config }}.pre-splitfile.bak"
+    remote_src: true
+    mode: preserve
+  when: single_parity_detected and split_parity_migrate
+
+- name: Generate SnapRAID configuration (Legacy Mode)
   ansible.builtin.template:
-    src: snapraid.j2
+    src: snapraid_legacy.j2
     dest: "{{ configure_snapraid_snapraid_config }}"
     owner: "{{ user }}"
     group: root
     mode: "0644"
+  when: single_parity_detected and not split_parity_migrate
+
+- name: Generate SnapRAID configuration (Split Mode)
+  ansible.builtin.template:
+    src: snapraid_split.j2
+    dest: "{{ configure_snapraid_snapraid_config }}"
+    owner: "{{ user }}"
+    group: root
+    mode: "0644"
+  when: not single_parity_detected or split_parity_migrate

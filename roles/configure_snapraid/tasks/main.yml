@@ -1,5 +1,4 @@
 ---
-
 - name: Install snapper
   ansible.builtin.include_tasks:
     file: install_snapper.yml
@@ -7,6 +6,10 @@
 - name: Snapraid-btrfs install
   ansible.builtin.include_tasks:
     file: install_snapraid-btrfs.yml
+
+- name: Check parity configuration format
+  ansible.builtin.include_tasks:
+    file: check_parity_format.yml
 
 - name: SnapRAID base config
   ansible.builtin.include_tasks:

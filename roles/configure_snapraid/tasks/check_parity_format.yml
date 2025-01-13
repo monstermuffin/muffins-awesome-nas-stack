@@ -1,0 +1,33 @@
+---
+- name: Check for single parity files across all parity disks
+  ansible.builtin.stat:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}/snapraid.parity"
+  register: parity_checks
+  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+
+- name: Set single parity detection fact
+  ansible.builtin.set_fact:
+    single_parity_detected: "{{ parity_checks.results | selectattr('stat.exists', 'true') | list | length > 0 }}"
+
+- name: Record warning message for single parity
+  ansible.builtin.set_fact:
+    snapraid_warning_message: |
+      WARNING: Single file parity configuration detected.
+      - This format has a 16TB file size limitation
+      - Future versions of MANS may deprecate this format
+      - Set split_parity_migrate: true to convert to split parity format
+      - Migration requires manual snapraid sync with --force flags
+  when: single_parity_detected and not split_parity_migrate
+
+- name: Record migration notice
+  ansible.builtin.set_fact:
+    snapraid_warning_message: |
+      NOTICE: Migration to split parity configuration initiated
+      - After role completion, check README for required snapraid sync commands
+      - Migration requires manual snapraid sync with --force flags
+  when: single_parity_detected and split_parity_migrate
+
+- name: Warning - Single parity configuration detected
+  ansible.builtin.debug:
+    msg: "{{ snapraid_warning_message }}"
+  when: snapraid_warning_message is defined

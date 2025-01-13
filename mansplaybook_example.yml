@@ -99,3 +99,12 @@
     - role: configure_hdidle
       when: configure_hdidle
       tags: hdidle
+
+  post_tasks:
+    - name: Display SnapRAID Configuration Notices
+      ansible.builtin.debug:
+        msg: "{{ snapraid_warning_message }}"
+      when: snapraid_warning_message is defined
+      tags:
+        - configure_snapraid
+        - snapraid
