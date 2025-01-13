@@ -18,3 +18,7 @@
 - name: Set mount permissions
   ansible.builtin.include_tasks:
     file: configure_mount_perms.yml
+
+- name: Cleanup orphaned mount points
+  ansible.builtin.include_tasks:
+    file: cleanup_orphaned_mounts.yml

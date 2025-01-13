@@ -108,3 +108,11 @@
       tags:
         - configure_snapraid
         - snapraid
+
+    - name: Display Mount Cleanup Notices
+      ansible.builtin.debug:
+        msg: "{{ mount_cleanup_message }}"
+      when: mount_cleanup_message is defined
+      tags:
+        - manage_disks
+        - btrfs
