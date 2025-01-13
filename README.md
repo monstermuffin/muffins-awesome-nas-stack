@@ -100,7 +100,10 @@ I would ***highly recommend*** you read, at least, those two blog posts so you a
 * Understand what this role does and how it configures all the bits of software it uses.
 * A device (ideally running MacOS/Linux) with Ansible.
 * A machine that you will be using as a NAS with multiple drives (minimum 3).
-  * Disk(s) for parity that is/are larger or as large as your largest data disk.
+  * Disk(s) for parity that is/are larger or as large as your largest data disk, for most setups, see note below.
+
+> [!NOTE]
+>As of v0.92 multiple smaller parity disks can be used. This works by having multiple parity files on the smaller disks. So you may use 2x 8TB parity disks when using 16TB data disks, for example. Be aware that this means your parity/'backup' is now dependent on multiple disks being available. This **is not** the same as having 2 parity disks configured.
 
 ## Clone
 
@@ -189,7 +192,7 @@ done
 
 `data_disks` — Your data disks.
 
-`parity_disks` — Your parity disk(s). As previous, these must be larger or as large as the largest data disk. Must be at least 1 disk here.
+`parity_disks` — Your parity disk(s). Must be at least 1 disk here.
 
 `cache_disks` — Any fast disk you want to send writes to, ideally this should be an NVME. This variable can be:
 
@@ -373,7 +376,8 @@ After playbook completion:
 ```bash
 sudo rm /mnt/parity-disks/parity01/snapraid.parity
 ```
-Note: You may have more parity files to delete on other disks.
+> [!NOTE] 
+> You may have more parity files to delete on other disks.
 
 #### Rebuild parity in split files
 
