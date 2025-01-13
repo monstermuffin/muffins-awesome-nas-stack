@@ -4,6 +4,7 @@
 * [v0.92](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.92) - SnapRAID Improvement/Fix
 
   * This focuses on [16TB+ issues.](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/24) More about this can be found below in this README.
+  * Added cleanup task for orphaned mount points when disks are shuffled around. This is unlikely to happen with prod usage but was getting annoying in my testing. 
 
 * [v0.91](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.91) - Feature and Improvement Release
 
