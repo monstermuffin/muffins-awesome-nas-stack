@@ -11,21 +11,22 @@
 - name: Ensure parity mounts are present in fstab
   ansible.builtin.blockinfile:
     path: /etc/fstab
-    block: |
-      {% for disk in parity_disks %}
-      {% if disk in partitioned_disks %}
-      {{ disk }}-part1  {{ parity_mount_path }}/parity{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-      {% else %}
-      {{ disk }}  {{ parity_mount_path }}/parity{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-      {% endif %}
-      {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK - PARITY DISK MOUNTS"
     create: true
+    state: present
+    block: |
+      {% for disk in parity_disks %}
+      {% if disk.device in partitioned_disks %}
+      {{ disk.device }}-part1  {{ parity_mount_path }}/parity{{ '%02d' % loop.index }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% else %}
+      {{ disk.device }}  {{ parity_mount_path }}/parity{{ '%02d' % loop.index }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+      {% endif %}
+      {% endfor %}
 
 - name: Mount parity disks
   ansible.posix.mount:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
-    src: "{{ item if item not in partitioned_disks else item + '-part1' }}"
+    src: "{{ item.device if item.device not in partitioned_disks else item.device + '-part1' }}"
     fstype: ext4
     opts: "{{ manage_disks_nas_ext4_mount_opts }}"
     state: mounted
@@ -37,27 +38,20 @@
 - name: Cache disks block
   when: cache_disks_only | length > 0
   block:
-    - name: Ensure cache disk mounts are present in fstab
+    - name: Ensure cache mounts are present in fstab
       ansible.builtin.blockinfile:
         path: /etc/fstab
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
+        create: true
+        state: present
         block: |
           {% for disk in cache_disks_only %}
           {% if disk in partitioned_disks %}
-          {{ disk }}-part1  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+          {{ disk }}-part1  {{ cache_mount_path }}/cache{{ '%02d' % loop.index }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
           {% else %}
-          {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
+          {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % loop.index }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
           {% endif %}
           {% endfor %}
-        marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
-
-    - name: Ensure cache disk mounts are present in fstab
-      ansible.builtin.blockinfile:
-        path: /etc/fstab
-        block: |
-          {% for disk in cache_disks_only %}
-          {{ disk }}  {{ cache_mount_path }}/cache{{ '%02d' % (loop.index) }}  ext4  {{ manage_disks_nas_ext4_mount_opts }}  0  0
-          {% endfor %}
-        marker: "# {mark} ANSIBLE MANAGED BLOCK - CACHE DISK MOUNTS"
 
     - name: Mount cache disks
       ansible.posix.mount:
