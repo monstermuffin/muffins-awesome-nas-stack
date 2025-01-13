@@ -190,9 +190,87 @@ lsblk -do NAME,SIZE,MODEL | while read -r name size model; do
 done
 ```
 
+### Disk Config
 `data_disks` — Your data disks.
 
 `parity_disks` — Your parity disk(s). Must be at least 1 disk here.
+
+> [!IMPORTANT]
+> As of MANS v0.92 parity disk configuration has changed significantly due to https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/24 and https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/25. 
+>
+> The role will fail if you have an older version of the variables but a newer version of the role. Simply change the format as below.
+
+There are two 'modes' to put a parity disk into, dedicated and split.
+
+* Dedicated parity disks are single parity disk(s). This means the disk(s) are **larger or as large as your largest data disk.**
+* Split parity disks are **smaller then your largest data disk but larger or as large when combined together.** This allows you to use multiple smaller parity disks when using larger data disks.
+
+Example parity config:
+```yml
+parity_disks:
+  # Level 1 split across two disks
+  - device: /dev/disk/by-id/disk1
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk2
+    mode: split
+    level: 1
+  # Level 2 is a single dedicated disk
+  - device: /dev/disk/by-id/disk3
+    mode: dedicated
+    level: 2
+```
+
+'Levels' are defined as an entire parity level. So you can only ever have one level per dedicated disk, as this is a dedicated parity level. The only time a level should be spread across disks is when using split mode. This is done because of the complexities of deploying such a config accurately. 
+
+Example A: You want one parity level and your parity disk is larger than any of your data disks:
+```yml
+parity_disks:
+  - device: /dev/disk/by-id/disk1
+    mode: dedicated
+    level: 1
+```
+> [!TIP]
+> In most cases this is the setup you will be using.
+
+Example B: You want two parity levels and your parity disks are larger than any of your data disks:
+```yml
+parity_disks:
+  - device: /dev/disk/by-id/disk1
+    mode: dedicated
+    level: 1
+  - device: /dev/disk/by-id/disk2
+    mode: dedicated
+    level: 2
+```
+> [!TIP]
+> In most cases this is the setup you will be using if you want multiple parity.
+
+Example C: You want to split a parity across two smaller disks. Your largest data disk is 16TB. Both your parity disks are 8TB:
+```yml
+parity_disks:
+  # Level 1 split across two disks
+  - device: /dev/disk/by-id/disk1
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk2
+    mode: split
+    level: 1
+```
+
+Example D: You want to mix a dedicated parity disk as well as add a split parity across two other disks:
+```yml
+parity_disks:
+  - device: /dev/disk/by-id/disk1
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk2
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk3
+    mode: dedicated
+    level: 2
+```
 
 `cache_disks` — Any fast disk you want to send writes to, ideally this should be an NVME. This variable can be:
 
