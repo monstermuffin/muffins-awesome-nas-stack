@@ -3,7 +3,7 @@ name: Lint MANS
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:
