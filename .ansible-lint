@@ -7,6 +7,7 @@ skip_list:
   - no-changed-when
   - risky-file-permissions
   - ignore-errors
+  - yaml[line-length]
 
 use_default_rules: true
 
