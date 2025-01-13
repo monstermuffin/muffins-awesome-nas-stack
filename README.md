@@ -344,8 +344,10 @@ Migration is only required if:
 * You have an existing single-file setup **AND**
 * You plan to use data disks larger than 16TB
 
-Note: Whilst there is no real need to enable migration if the above in your situation is true, there may come a time when this option is deprecated completely. New deployments are split, so this can technically stay here forever, but I can't see the future. 
-It would be best to migrate when you can.
+> [!NOTE]  
+> Whilst there is no real need to enable migration if the above in your situation is true, there may come a time when this option is deprecated completely. New deployments are split, so this can technically stay here forever, but I can't see the future. 
+>
+> It would be best to migrate when you can.
 
 To migrate:
 
@@ -356,7 +358,8 @@ In your vars.yml, set:
 ```yaml
 split_parity_migrate: true
 ```
-You will need to add this variable most likely if you have an existing MANS setup, please see `vars_example.yml` for any new vars you may be missing from updates.
+> [!NOTE]
+> You will need to add this variable most likely if you have an existing MANS setup, please see `vars_example.yml` for any new vars you may be missing from updates.
 
 ### Run the MANS playbook
 
@@ -373,14 +376,19 @@ sudo rm /mnt/parity-disks/parity01/snapraid.parity
 Note: You may have more parity files to delete on other disks.
 
 #### Rebuild parity in split files
+
+> [!IMPORTANT] 
+> If you have a lot of data this can take a significant amount of time. I highly recommend running the command below in a [tmux](https://www.howtogeek.com/671422/how-to-use-tmux-on-linux-and-why-its-better-than-screen/) window to run unattended. If you spawn sync in a normal SSH window and that connection is broken, it will break the sync.
+
 ```bash
 sudo snapraid-btrfs sync --force-full
 ```
-Note:
-
-* The sync process can take significant time depending on array size. Do not interrupt the process.
-* Each parity disk will have its own set of split files (e.g., snapraid-1.parity, snapraid-2.parity, snapraid-3.parity)
-* Files are filled sequentially - when one file is full, SnapRAID moves to the next
+> [!NOTE]
+>The sync process can take significant time depending on array size. Do not interrupt the process, as above.
+>
+>Each parity disk will have its own set of split files (e.g., snapraid-1.parity, snapraid-2.parity, snapraid-3.parity)
+>
+>Files are filled sequentially - when one file is full, SnapRAID moves to the next
 
 
 ___
