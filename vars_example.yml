@@ -107,10 +107,12 @@ data_disks:
   - /dev/disk/by-id/ata-xxxx
   - /dev/disk/by-id/ata-xxxx
   - /dev/disk/by-id/ata-xxxx
-parity_disks:
-  - /dev/disk/by-id/ata-xxxx
 cache_disks:
   - /dev/disk/by-id/nvme-xxxx
+parity_disks: # https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/dev#disk-config
+  - device: /dev/disk/by-id/ata-xxxx
+    mode: dedicated
+    level: 1
 
 # cache mover vars - https://github.com/monstermuffin/mergerfs-cache-mover
 cache_mover_autoupdate: true

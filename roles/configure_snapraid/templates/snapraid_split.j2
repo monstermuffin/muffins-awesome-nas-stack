@@ -3,12 +3,20 @@
 # DO NOT EDIT MANUALLY
 
 # Parity Disks - Split File Configuration
-parity {% for i in range(1, split_parity_files + 1) %}{{ parity_mount_path }}/parity01/snapraid-{{ i }}.parity{% if not loop.last %},{% endif %}{% endfor %}
-
-{% for i in range(2, 7) %}
-{% if i <= parity_disks|length %}
-{{ i }}-parity {% for j in range(1, split_parity_files + 1) %}{{ parity_mount_path }}/parity{{ '%02d' % i }}/snapraid-{{ j }}.parity{% if not loop.last %},{% endif %}{% endfor %}
+{% for entry in parity_config %}
+{%- if entry.level == 1 -%}
+{% if entry.disks[0].mode == 'dedicated' %}
+parity {{ parity_mount_path }}/parity01/snapraid-1.parity,{{ parity_mount_path }}/parity01/snapraid-2.parity,{{ parity_mount_path }}/parity01/snapraid-3.parity
+{% else %}
+parity {% for disk in entry.disks %}{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-1.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-2.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-3.parity{% if not loop.last %},{% endif %}{% endfor %}
 {% endif %}
+{%- else -%}
+{% if entry.disks[0].mode == 'dedicated' %}
+{{ entry.level }}-parity {{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-1.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-2.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-3.parity
+{% else %}
+{{ entry.level }}-parity {% for disk in entry.disks %}{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-1.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-2.parity,{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid-3.parity{% if not loop.last %},{% endif %}{% endfor %}
+{% endif %}
+{%- endif -%}
 {% endfor %}
 
 # Content Files

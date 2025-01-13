@@ -1,7 +1,11 @@
 ---
+- name: Extract parity disk devices
+  ansible.builtin.set_fact:
+    parity_disk_devices: "{{ parity_disks | map(attribute='device') | list }}"
+
 - name: Separate block devices and directory paths
   ansible.builtin.set_fact:
-    block_devices: "{{ data_disks + parity_disks + cache_disks | select('match', '^/dev/') | list }}"
+    block_devices: "{{ data_disks + parity_disk_devices + cache_disks | select('match', '^/dev/') | list }}"
     directory_paths: "{{ cache_disks | reject('match', '^/dev/') | list }}"
 
 - name: Debug block devices and directory paths
@@ -56,7 +60,7 @@
 
 - name: Check filesystem type for cache and parity disks
   ansible.builtin.command: lsblk -f {{ item }} -n -o FSTYPE
-  loop: "{{ cache_disks_only + parity_disks }}"
+  loop: "{{ cache_disks_only + parity_disk_devices }}"
   register: cache_parity_disks_fs_check_results
   changed_when: false
   check_mode: false
@@ -198,7 +202,7 @@
 
 - name: Get filesystem type for all disks
   ansible.builtin.command: lsblk -f {{ item }}
-  loop: "{{ data_disks + cache_disks_only + parity_disks }}"
+  loop: "{{ data_disks + cache_disks_only + parity_disk_devices }}"
   register: filesystem_types
   changed_when: false
   check_mode: false

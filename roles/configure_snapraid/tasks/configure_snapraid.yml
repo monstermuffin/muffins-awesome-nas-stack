@@ -16,6 +16,11 @@
     mode: preserve
   when: single_parity_detected and split_parity_migrate
 
+- name: Build parity configuration arrays
+  ansible.builtin.set_fact:
+    parity_config: "{{ parity_config | default([]) + [{'level': item, 'disks': parity_disks | selectattr('level', 'equalto', item) | list}] }}"
+  loop: "{{ parity_disks | map(attribute='level') | unique | sort | list }}"
+
 - name: Generate SnapRAID configuration (Legacy Mode)
   ansible.builtin.template:
     src: snapraid_legacy.j2

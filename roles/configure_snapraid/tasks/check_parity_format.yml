@@ -14,7 +14,7 @@
     get_mime: false
   register: parity_checks
   loop: "{{ range(1, parity_disks|length + 1)|list }}"
-  when: 
+  when:
     - parity_paths.results[item - 1].stat.exists | default(false)
   ignore_errors: true
 

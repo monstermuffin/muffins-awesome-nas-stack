@@ -10,7 +10,7 @@
 
 - name: Find all existing mount point directories
   ansible.builtin.find:
-    paths: 
+    paths:
       - /mnt/parity-disks
       - /mnt/cache-disks
       - /mnt/data-disks
@@ -20,7 +20,7 @@
 
 - name: Debug mount information
   ansible.builtin.debug:
-    msg: 
+    msg:
       - "Valid mounts from fstab: {{ valid_mounts }}"
       - "Existing mount points: {{ existing_mounts.files | map(attribute='path') | list }}"
       - "Currently mounted: {{ ansible_mounts | map(attribute='mount') | list }}"

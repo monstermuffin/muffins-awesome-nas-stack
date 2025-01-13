@@ -2,13 +2,21 @@
 {{ ansible_managed | comment }}
 # DO NOT EDIT MANUALLY
 
-# Parity Disks - Legacy Single File Configuration
+# Parity Disks - Legacy Mode (Single File Per Disk)
+{% for entry in parity_config %}
+{%- if entry.level == 1 -%}
+{% if entry.disks[0].mode == 'dedicated' %}
 parity {{ parity_mount_path }}/parity01/snapraid.parity
-
-{% for i in range(2, 7) %}
-{% if i <= parity_disks|length %}
-{{ i }}-parity {{ parity_mount_path }}/parity{{ '%02d' % i }}/snapraid.{{ i }}-parity
+{% else %}
+parity {% for disk in entry.disks %}{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid.parity{% if not loop.last %},{% endif %}{% endfor %}
 {% endif %}
+{%- else -%}
+{% if entry.disks[0].mode == 'dedicated' %}
+{{ entry.level }}-parity {{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid.{{ entry.level }}-parity
+{% else %}
+{{ entry.level }}-parity {% for disk in entry.disks %}{{ parity_mount_path }}/parity{{ '%02d' % loop.index }}/snapraid.{{ entry.level }}-parity{% if not loop.last %},{% endif %}{% endfor %}
+{% endif %}
+{%- endif -%}
 {% endfor %}
 
 # Content Files

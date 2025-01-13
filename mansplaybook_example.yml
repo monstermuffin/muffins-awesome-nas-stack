@@ -27,6 +27,12 @@
         - not skip_os_check|default(false)|bool
 
   roles:
+    - role: validate_parity_config
+      tags:
+        - validate
+        - parity
+        - config
+
     - role: wipecheck
       tags: wipecheck
 

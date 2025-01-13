@@ -1,0 +1,96 @@
+---
+- name: Check if parity disks variable exists
+  ansible.builtin.fail:
+    msg: "ERROR: parity_disks variable is not defined in vars file"
+  when: parity_disks is not defined
+
+- name: Check parity disk configuration format
+  ansible.builtin.fail:
+    msg:
+      - "• ERROR: Old parity disk configuration format detected."
+      - "• Please update your vars.yml to use the new format."
+      - "• Read more: https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/dev#disk-config"
+  when: parity_disks[0] is string
+
+- name: Verify parity paths exist
+  ansible.builtin.stat:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}"
+  register: parity_paths
+  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  ignore_errors: true
+
+- name: Check for single parity files across all parity disks
+  ansible.builtin.stat:
+    path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}/snapraid.parity"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  register: parity_checks
+  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  when:
+    - parity_paths.results[item - 1].stat.exists | default(false)
+  ignore_errors: true
+
+- name: Set single parity detection fact
+  ansible.builtin.set_fact:
+    single_parity_detected: "{{ (parity_checks.results | default([]) | selectattr('stat.exists', 'true') | list | length > 0) | default(false) }}"
+
+- name: Check for split mode with legacy setup
+  ansible.builtin.fail:
+    msg:
+      - "ERROR: Split mode parity detected with legacy parity files"
+      - "• Your parity files are currently in legacy single-file format"
+      - "• To use split mode, enable split_parity_migrate in your vars"
+      - "• Or use only dedicated mode parity"
+      - "• Read more: https://github.com/monstermuffin/muffins-awesome-nas-stack?tab=readme-ov-file#split-parity-migration"
+  when:
+    - single_parity_detected
+    - not split_parity_migrate
+    - parity_disks | selectattr('mode', 'equalto', 'split') | list | length > 0
+
+- name: Validate required fields
+  ansible.builtin.fail:
+    msg: "ERROR: Missing required field '{{ field }}' for parity disk: {{ disk | to_yaml }}"
+  loop: "{{ parity_disks | product(['device', 'mode', 'level']) | list }}"
+  vars:
+    disk: "{{ item.0 }}"
+    field: "{{ item.1 }}"
+  when: field not in disk or not disk[field]
+
+- name: Validate mode values
+  ansible.builtin.fail:
+    msg: "ERROR: Invalid mode '{{ disk.mode }}' for parity disk: {{ disk.device }}. Mode must be either 'dedicated' or 'split'"
+  loop: "{{ parity_disks }}"
+  loop_control:
+    loop_var: disk
+  when: disk.mode not in ['dedicated', 'split']
+
+- name: Check for valid level numbers
+  ansible.builtin.fail:
+    msg: "ERROR: Parity levels must be sequential starting from 1"
+  when: parity_levels | sort | first != 1 or (parity_levels | sort | list != range(1, parity_levels | length + 1) | list)
+  vars:
+    parity_levels: "{{ parity_disks | map(attribute='level') | unique | list }}"
+
+- name: Check for mixed modes within same level
+  ansible.builtin.fail:
+    msg: "ERROR: Cannot mix 'dedicated' and 'split' modes within parity level {{ level }}"
+  loop: "{{ parity_levels }}"
+  loop_control:
+    loop_var: level
+  vars:
+    parity_levels: "{{ parity_disks | map(attribute='level') | unique | list }}"
+    level_disks: "{{ parity_disks | selectattr('level', 'equalto', level) | list }}"
+    modes_in_level: "{{ level_disks | map(attribute='mode') | unique | list }}"
+  when: modes_in_level | length > 1
+
+- name: Check for duplicate dedicated parity levels
+  ansible.builtin.fail:
+    msg: "ERROR: Cannot have multiple dedicated parity disks for level {{ level }}. For multiple disks at the same level, use 'split' mode."
+  loop: "{{ parity_levels }}"
+  loop_control:
+    loop_var: level
+  vars:
+    parity_levels: "{{ parity_disks | map(attribute='level') | unique | list }}"
+    dedicated_disks_at_level: "{{ parity_disks | selectattr('level', 'equalto', level) | selectattr('mode', 'equalto', 'dedicated') | list }}"
+  when: dedicated_disks_at_level | length > 1

@@ -222,7 +222,9 @@ parity_disks:
     level: 2
 ```
 
-'Levels' are defined as an entire parity level. So you can only ever have one level per dedicated disk, as this is a dedicated parity level. The only time a level should be spread across disks is when using split mode. This is done because of the complexities of deploying such a config accurately. 
+`Levels` are defined as an entire parity level. So you can only ever have one level per dedicated disk, as this is a dedicated parity `level`. The only time a `level` should be spread across disks is when using split mode. This is done because of the complexities of deploying such a config accurately. 
+
+A split config can have as many disks as required to be larger or as large as your largest data disk, as long as they are in the same `level`.
 
 Example A: You want one parity level and your parity disk is larger than any of your data disks:
 ```yml
@@ -250,7 +252,6 @@ parity_disks:
 Example C: You want to split a parity across two smaller disks. Your largest data disk is 16TB. Both your parity disks are 8TB:
 ```yml
 parity_disks:
-  # Level 1 split across two disks
   - device: /dev/disk/by-id/disk1
     mode: split
     level: 1
@@ -273,6 +274,23 @@ parity_disks:
     level: 2
 ```
 
+Example E: You want two levels of parity, both using split disks:
+```yml
+parity_disks:
+  - device: /dev/disk/by-id/disk1
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk2
+    mode: split
+    level: 1
+  - device: /dev/disk/by-id/disk3
+    mode: split
+    level: 2
+  - device: /dev/disk/by-id/disk4
+    mode: split
+    level: 2
+```
+
 > [!IMPORTANT]  
 > MANS will attempt to warn about incorrect parity var config at the start of the run, but this cannot be guaranteed.
 
@@ -291,7 +309,6 @@ If you left `configure_scrutiny` to `true` then you can setup `omnibus` or `coll
 To get notifications about your disk health, enable one or more of the notification options and enter the relevant variables for the service.
 
 ## Install Requirements
-
 To install the requirements, in the proect dir run the following:
 
 ```bash
@@ -300,7 +317,6 @@ ansible-galaxy install -r requirements.yml
 ```
 
 ## Deploying
-
 To run the playbook, simply run:
 
 ```bash
@@ -348,11 +364,9 @@ ansible-playbook playbook.yml --tags install_btrfs --list-tasks
 
 
 ## Usage
-
 After a successful deployment, you will have the following (dependent on config):
 
 ### Mounts
-
 * `/mnt/media` — This is the 'cached' share (if any cache device was specified). This is where writes will go and samba is configured to serve to/from.
 * `/mnt/media-cold` — 'Non-cached' share. This is the pool of backing data disks.
 * `/mnt/cache-pool` — If multiple cache devices were defined, this is the mount point for the pooled cache devices.
