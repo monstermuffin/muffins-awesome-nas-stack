@@ -16,7 +16,7 @@
     mode: preserve
   when: single_parity_detected and split_parity_migrate
 
-- name: Build parity configuration arrays
+- name: Build parity configuration arrays # This is here because I am too stupid to do it all in Jinja lmao
   ansible.builtin.set_fact:
     parity_config: "{{ parity_config | default([]) + [{'level': item, 'disks': parity_disks | selectattr('level', 'equalto', item) | list}] }}"
   loop: "{{ parity_disks | map(attribute='level') | unique | sort | list }}"
