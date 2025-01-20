@@ -125,9 +125,15 @@ cache_mover_max_workers: 8
 cache_mover_max_log_size_mb: 100
 cache_mover_log_backup_count: 5
 cache_mover_excluded_dirs:
-  - snapraid # Don't remove this
+  # - exmample dir
   # - other_dirs_as_needed
 on_calendar_schedule: "*-*-* 03:00:00" # 3AM daily https://silentlad.com/systemd-timers-oncalendar-(cron)-format-explained
+cache_mover_notif_enabled: true # https://github.com/monstermuffin/mergerfs-cache-mover/tree/main#notifications
+cache_mover_notif_urls: # https://github.com/caronc/apprise#productivity-based-notifications
+  - 'discord://webhook_id/webhook_token'
+  - 'slack://hooks/tokenA/tokenB/tokenC'
+cache_mover_notif_threshold: true
+
 
 # scrutiny vars
 scrutiny_mode: "omnibus"  # Can be 'omnibus' or 'collector'. Leave as-is if unsure.
