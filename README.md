@@ -427,6 +427,10 @@ After playbook completion:
 ```bash
 sudo rm /mnt/parity-disks/parity01/snapraid.parity
 ```
+
+> [!WARNING]  
+> This may take significant time and look like it's hung, it's not. Do this in a tmux window and in another session you can see free/used space slowly changing with `df -h`. For my 12Tb parity file the delete action took  14m 40s.
+
 > [!NOTE] 
 > You may have more parity files to delete on other disks.
 
