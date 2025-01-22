@@ -449,6 +449,28 @@ sudo snapraid-btrfs sync --force-full
 >
 >Files are filled sequentially - when one file is full, SnapRAID moves to the next
 
+> [!NOTE]
+> As below, this took me about 26h to do 72Tb.
+
+```bash
+100% completed, 72481609 MB accessed in 26:10     0:00 ETA
+
+     d1 20% | ************
+     d2 22% | *************
+     d3  9% | *****
+     d4  5% | ***
+     d5 10% | ******
+     d6 10% | ******
+     d7  0% |
+ parity  7% | ****
+   raid  3% | **
+   hash 11% | ******
+  sched  0% |
+   misc  0% |
+            |______________________________________________________________
+                           wait time (total, less is better)
+```
+
 ## Changelog
 See the full changelog [here](./CHANGELOG.md).
 ___
