@@ -46,8 +46,6 @@ I have written in-depth blog posts about how I got here and detailing how this s
 
 I would ***highly recommend*** you read, at least, those two blog posts so you are familiar with how this works. I understand the yolo mentality, but please do not run this blindly.
 
-<small>(If that link doesn't work it's not released yet, but it's coming soon!)</small>
-
 ## Prerequisites
 
 * You must be using Debian. You can a check in the vars that stops you from using anything else but I will not support any fixes that are required to make this work on another distro.
