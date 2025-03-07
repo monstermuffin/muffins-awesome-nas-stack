@@ -14,5 +14,6 @@ mansplaybook.yml
 *_old
 test.yml
 test_vars.yml
+.lock
 
 !inventories/inventory.example.yml

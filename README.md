@@ -33,7 +33,7 @@ This role will do the following:
 * Configures mergerfs with `systemd` service files dependent on the config in `vars.yml`
 * Configures SnapRaid/snapper
   * Snapper configs verified and failsafe config re0-create initiated if issued are detected
-* Configures Samba (vladgh.samba.server)
+* Configures Samba (vladgh.samba.server) w/ custom performance tuning
 * Configures [mergerfs-cache-mover](https://github.com/MonsterMuffin/mergerfs-cache-mover)
 * Deploys & Configures [Scrutiny](https://github.com/AnalogJ/scrutiny)
 
@@ -42,7 +42,7 @@ I have written in-depth blog posts about how I got here and detailing how this s
 
 * [Part 3: Designing & Deploying MANS — A Hybrid NAS Approach with SnapRAID, MergerFS, and OpenZFS ](https://blog.muffn.io/posts/part-3-mini-100tb-nas/) attempts to explain my design approach.
 
-* [Part 4: MANS (Muffin's Awesome NAS Stack), An Overview And Guide](https://blog.muffn.io/posts/part-4-100tb-mini-nas/) goes through how this role works and fits together, as well as a much more concise explanation of all the variables.
+* [Part 4: MANS (Muffin's Awesome NAS Stack), An Overview And Guide](https://blog.muffn.io/posts/muffins-awesome-nas-stack) is my definitive guide to this role.
 
 I would ***highly recommend*** you read, at least, those two blog posts so you are familiar with how this works. I understand the yolo mentality, but please do not run this blindly.
 

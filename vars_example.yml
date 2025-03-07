@@ -55,6 +55,28 @@ samba_users:
   - name: media
     password: qwerty
 
+samba_global_config_extras: |
+  # Performance optimizations for high-speed networks and modern storage
+  # These settings significantly improve transfer speeds on 10Gb+ networks and fast storage (Cache layer)
+  
+  # Network buffer tuning
+  socket options = TCP_NODELAY IPTOS_LOWDELAY SO_RCVBUF=262144 SO_SNDBUF=262144
+  read raw = yes
+  write raw = yes
+  max xmit = 65536
+  dead time = 15
+  getwd cache = yes
+  
+  # I/O optimizations for better throughput
+  strict allocate = yes
+  allocation roundup size = 4096
+  aio read size = 65536
+  aio write size = 65536
+  use sendfile = yes
+  
+  # Enable multi-channel for SMB3 (uses multiple network connections when available)
+  server multi channel support = yes
+
 samba_shares:
   - name: "{{ smb_media_share_name }}"
     path: "{{ media_cached }}"

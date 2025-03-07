@@ -1,3 +1,19 @@
+* [v0.93](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.93) - Samba Improvements
+
+  * Added network buffer tuning optimizations for high-speed networks (10Gb+)
+  * Configured SMB socket options for improved latency and throughput
+  * Set optimal read/write raw parameters for better data transfer
+  * Increased maximum transmission unit size to 65KB
+  * Added session timeout management (15 minutes dead time)
+  * Enabled path caching for faster directory operations
+  * Implemented strict allocation with 4KB roundup for better storage efficiency
+  * Optimized asynchronous I/O with 64KB read/write sizes
+  * Enabled sendfile for faster file transfers
+  * Added multi-channel support for SMB3 to utilize multiple network connections
+  * Disabled strict locking for better compatibility
+  * Enabled opportunistic locks (oplocks) and level2 oplocks for improved caching
+  * Added fileid VFS object for consistent file identification
+
 * [v0.92](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.92) - SnapRAID Improvement/Fix
 
   * This focuses on [16TB+ issues.](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/24) More about this can be found below in this README.
