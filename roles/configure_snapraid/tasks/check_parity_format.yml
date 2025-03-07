@@ -3,7 +3,7 @@
   ansible.builtin.stat:
     path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}"
   register: parity_paths
-  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  loop: "{{ range(1, parity_disks | length + 1) | list }}"
   ignore_errors: true
 
 - name: Check for single parity files across all parity disks
@@ -13,7 +13,7 @@
     get_checksum: false
     get_mime: false
   register: parity_checks
-  loop: "{{ range(1, parity_disks|length + 1)|list }}"
+  loop: "{{ range(1, parity_disks | length + 1) | list }}"
   when:
     - parity_paths.results[item - 1].stat.exists | default(false)
   ignore_errors: true
