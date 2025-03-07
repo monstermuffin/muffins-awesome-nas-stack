@@ -15,4 +15,4 @@ jobs:
         uses: ansible/ansible-lint@v24.9.2
         with:
           requirements_file: requirements.yml
-          args: "--exclude=.dependencies/"
+          args: "--exclude=.dependencies/ --exclude=.ansible/ --exclude=roles/geerlingguy.* --exclude=roles/stefangweichinger.*"
