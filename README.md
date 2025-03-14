@@ -75,7 +75,6 @@ Firstly, make a copy of the inventory file, example playbook and example vars fi
 cd muffins-awesome-nas-stack
 cp inventories/inventory.example.yml inventories/inventory.yml
 cp vars_example.yml vars.yml
-cp mansplaybook_example.yml playbook.yml
 ```
 
 Edit your new `inventory.yml` file to include the IP/hostname of your Debian server/machine, along with the user you want to run Ansible as that has root access.
