@@ -44,7 +44,7 @@
     path: "{{ item }}"
     state: absent
   loop: "{{ orphaned_mounts }}"
-  when: 
+  when:
     - orphaned_mounts | length > 0
     - item not in mounted_paths
   register: mount_removal
