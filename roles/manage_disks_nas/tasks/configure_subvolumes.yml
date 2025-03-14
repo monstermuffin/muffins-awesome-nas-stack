@@ -14,18 +14,12 @@
   loop_control:
     label: "{{ item }}"
 
-- name: Check if the filesystem is already mounted
-  ansible.builtin.shell: |
-    set -o pipefail
-    mount | grep "/mnt/btrfs-root/{{ item | basename }}"
-  args:
-    executable: /bin/bash
-  register: mount_check
+- name: Unmount any existing mounts
+  ansible.posix.mount:
+    path: "/mnt/btrfs-root/{{ item | basename }}"
+    state: unmounted
   loop: "{{ data_disks }}"
-  loop_control:
-    label: "{{ item }}"
-  changed_when: false
-  failed_when: false
+  ignore_errors: true
 
 - name: Mount the main Btrfs filesystem partition
   ansible.posix.mount:
@@ -34,7 +28,6 @@
     fstype: btrfs
     state: ephemeral
   loop: "{{ data_disks }}"
-  when: mount_check.results | selectattr('rc', 'equalto', 1) | list | length > 0
 
 - name: List subvolumes
   ansible.builtin.shell: |
