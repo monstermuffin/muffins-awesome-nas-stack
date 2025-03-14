@@ -26,9 +26,13 @@
       - "Currently mounted: {{ ansible_mounts | map(attribute='mount') | list }}"
     verbosity: 1
 
+- name: Get currently mounted paths
+  ansible.builtin.set_fact:
+    mounted_paths: "{{ ansible_mounts | map(attribute='mount') | list }}"
+
 - name: Identify orphaned mount points
   ansible.builtin.set_fact:
-    orphaned_mounts: "{{ existing_mounts.files | map(attribute='path') | select('match', '.*/(?:parity|cache|data)\\d+$') | difference(valid_mounts) | difference(ansible_mounts | map(attribute='mount') | list) | list }}"
+    orphaned_mounts: "{{ existing_mounts.files | map(attribute='path') | select('match', '.*/(?:parity|cache|data)\\d+$') | difference(valid_mounts) | difference(mounted_paths) | list }}"
 
 - name: Debug orphaned mounts
   ansible.builtin.debug:
@@ -40,7 +44,9 @@
     path: "{{ item }}"
     state: absent
   loop: "{{ orphaned_mounts }}"
-  when: orphaned_mounts | length > 0
+  when: 
+    - orphaned_mounts | length > 0
+    - item not in mounted_paths
   register: mount_removal
 
 - name: Set mount cleanup message fact
