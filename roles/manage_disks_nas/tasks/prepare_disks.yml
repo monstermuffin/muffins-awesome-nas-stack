@@ -102,14 +102,22 @@
     msg: "Disks to wipe: {{ disks_to_wipe | default([]) }}"
   when: disks_to_wipe is defined
 
-- name: Debug disks_to_wipe (undefined)
-  ansible.builtin.debug:
-    msg: "Disks to wipe is undefined"
-  when: disks_to_wipe is not defined
+- name: Fail if disks need wiping but wipe_and_setup is false
+  ansible.builtin.fail:
+    msg: >
+      ERROR: Disks require wiping but wipe_and_setup is set to false.
+      The following disks need to be wiped:
+      {% for disk in disks_to_wipe %}
+      - {{ disk }}
+      {% endfor %}
+      To proceed, set wipe_and_setup: true in your vars file and run the playbook again.
+  when:
+    - disks_to_wipe | default([]) | length > 0
+    - not wipe_and_setup | default(false)
 
 - name: Debug prompt condition
   ansible.builtin.debug:
-    msg: >-
+    msg: >
       Prompt condition:
       {{
         ((disks_to_wipe | default([]) | length > 0) or (non_btrfs_disks | default([]) | length > 0) or (non_ext4_disks | default([]) | length > 0))
