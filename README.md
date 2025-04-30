@@ -75,7 +75,6 @@ Firstly, make a copy of the inventory file, example playbook and example vars fi
 cd muffins-awesome-nas-stack
 cp inventories/inventory.example.yml inventories/inventory.yml
 cp vars_example.yml vars.yml
-cp mansplaybook_example.yml playbook.yml
 ```
 
 Edit your new `inventory.yml` file to include the IP/hostname of your Debian server/machine, along with the user you want to run Ansible as that has root access.
@@ -127,7 +126,33 @@ ___
 
 `content_files` — If you are not planning on using a cache disk you must remove the third path and possibly replace it. Depending on how many parity disks you have, you may need more content files and these _must_ be on separate disks. You cannot place them on the data disks as it is not supported to have these in a subvolume.
 ___
-`data_directories` — Top level directories that will be created on every `data_disks` and `parity_disks`.
+
+`data_directories` — Top level directories that will be created on every `data_disks` and `parity_disks`. This can be a list of strings or a list of dictionaries (or both; mixing the two is fine), as demonstrated below:
+
+```yml
+# Option 1 - With default ownership and permissions.
+# This will create the directories with:
+#   Owner: `user` (set in vars)
+#   Group: `media_group` (set in vars)
+#   Mode: 0770
+data_directories:
+  - movies
+  - tv
+  - music
+  - youtube
+
+# Option 2 - With custom ownership and permissions:
+data_directories:
+  - name: movies
+    owner: joe
+    group: users
+    mode: '0775'
+  - name: tv
+    owner: lisa
+    group: "{{ media_group }}"
+    mode: '0770'
+```
+
 ___
 
 ### Disk Config
@@ -335,6 +360,7 @@ After a successful deployment, you will have the following (dependent on config)
 * `/var/log/cache-mover.log` — Logs for `mergerfs-cache-mover` runs.
 
 ### Commands
+
 * `sudo python3 /var/snapraid-btrfs-runner/snapraid-btrfs-runner.py -c /var/snapraid-btrfs-runner/snapraid-btrfs-runner.conf` — Runs `snapraid-btrfs-runner` manually.
 
 * `sudo python3 /opt/mergerfs-cache-mover/cache-mover.py --console-log` — Runs `mergerfs-cache-mover` manually.

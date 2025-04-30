@@ -5,35 +5,35 @@
 
 - name: Create root directories on data disks
   ansible.builtin.file:
-    path: "{{ data_mount_path }}/data{{ '%02d' % item.0 }}/{{ item.1 }}"
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
+    path: "{{ data_mount_path }}/data{{ '%02d' % item.0 }}/{{ item.1.name if item.1.name is defined else item.1 }}"
+    owner: "{{ item.1.owner if item.1.owner is defined else user }}"
+    group: "{{ item.1.group if item.1.group is defined else media_group }}"
     state: directory
-    mode: "0770"
+    mode: "{{ item.1.mode if item.1.mode is defined else '0770' }}"
   loop: "{{ range(1, data_disks_count | int + 1) | product(data_directories) | list }}"
   loop_control:
-    label: data{{ '%02d' % item.0 }}/{{ item.1 }}
+    label: data{{ '%02d' % item.0 }}/{{ item.1.name if item.1.name is defined else item.1 }}
 
 - name: Create root directories on cache disks
   ansible.builtin.file:
-    path: "{{ cache_mount_path }}/cache{{ '%02d' % item.0 }}/{{ item.1 }}"
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
+    path: "{{ cache_mount_path }}/cache{{ '%02d' % item.0 }}/{{ item.1.name if item.1.name is defined else item.1 }}"
+    owner: "{{ item.1.owner if item.1.owner is defined else user }}"
+    group: "{{ item.1.group if item.1.group is defined else media_group }}"
     state: directory
-    mode: "0770"
+    mode: "{{ item.1.mode if item.1.mode is defined else '0770' }}"
   loop: "{{ range(1, cache_disks_only | length + 1) | product(data_directories) | list }}"
   loop_control:
-    label: cache{{ '%02d' % item.0 }}/{{ item.1 }}
+    label: cache{{ '%02d' % item.0 }}/{{ item.1.name if item.1.name is defined else item.1 }}
   when: cache_disks_only | length > 0
 
 - name: Create root directories on cache paths
   ansible.builtin.file:
-    path: "{{ item.0 | realpath }}/{{ item.1 }}"
-    owner: "{{ user }}"
-    group: "{{ media_group }}"
+    path: "{{ item.0 | realpath }}/{{ item.1.name if item.1.name is defined else item.1 }}"
+    owner: "{{ item.1.owner if item.1.owner is defined else user }}"
+    group: "{{ item.1.group if item.1.group is defined else media_group }}"
     state: directory
-    mode: "0770"
+    mode: "{{ item.1.mode if item.1.mode is defined else '0770' }}"
   loop: "{{ cache_paths_only | product(data_directories) | list }}"
   loop_control:
-    label: "{{ item.0 | realpath }}/{{ item.1 }}"
+    label: "{{ item.0 | realpath }}/{{ item.1.name if item.1.name is defined else item.1 }}"
   when: cache_paths_only | length > 0

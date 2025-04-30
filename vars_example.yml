@@ -120,6 +120,25 @@ data_directories:
   - music
   - youtube
 
+## Or with custom ownership and permissions:
+# data_directories:
+#   - name: movies
+#     owner: john
+#     group: media
+#     mode: '0775'
+#   - name: tv
+#     owner: lisa
+#     group: media
+#     mode: '0775'
+#   - name: music
+#     owner: tom
+#     group: media
+#     mode: '0775'
+#   - name: youtube
+#     owner: ellen
+#     group: media
+#     mode: '0775'
+
 # disks
 data_disks:
   - /dev/disk/by-id/ata-xxxx
