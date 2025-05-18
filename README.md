@@ -1,5 +1,14 @@
 # ✨ MANS ✨ — Muffin's Awesome NAS Stack
 
+```
+◢◤◢◤◢◤ ███╗░░░███╗░█████╗░███╗░░██╗░██████╗ ◢◤◢◤◢◤
+◢◤◢◤◢◤ ████╗░████║██╔══██╗████╗░██║██╔════╝ ◢◤◢◤◢◤
+◢◤◢◤◢◤ ██╔████╔██║███████║██╔██╗██║╚█████╗░ ◢◤◢◤◢◤
+◢◤◢◤◢◤ ██║╚██╔╝██║██╔══██║██║╚████║░╚═══██╗ ◢◤◢◤◢◤
+◢◤◢◤◢◤ ██║░╚═╝░██║██║░░██║██║░╚███║██████╔╝ ◢◤◢◤◢◤
+◢◤◢◤◢◤ ╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░ ◢◤◢◤◢◤
+```
+
 ## Intro
 An Ansible role for setting up a Debian based NAS using mergerfs, SnapRaid & snapraid-btrfs, utilising caching with automatic cache 'moving' to a backing pool.
 ___
