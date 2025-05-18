@@ -1,3 +1,10 @@
+* [v0.93.5](https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/main) - Minor Enhancements
+  * Minor changes to `README.md`.
+  * Enhanced `data_directories` to support custom ownership and permissions: - thanks @tigattack
+    * Updated documentation in `README.md`.
+    * Updated example in `vars_example.yml`.
+    * Modified `roles/configure_mergerfs/tasks/create_data_directories.yml` to implement the changes.
+
 * [v0.93](https://github.com/monstermuffin/muffins-awesome-nas-stack/releases/tag/v0.93) - Samba Improvements
 
   * Added network buffer tuning optimizations for high-speed networks (10Gb+)
