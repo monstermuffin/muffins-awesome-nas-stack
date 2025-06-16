@@ -9,7 +9,7 @@ collections:
   - name: ansible.posix
     version: 2.0.0
   - name: community.general
-    version: 10.7.0
+    version: 11.0.0
   - name: community.docker
     version: 4.6.1
   - name: vladgh.samba
