@@ -1,40 +1,137 @@
 ---
-- name: Ensure openSUSE Snapper repository key
-  ansible.builtin.get_url:
-    url: https://download.opensuse.org/repositories/filesystems:snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/Release.key
-    dest: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
-    owner: root
-    group: root
-    mode: "0644"
-  register: snapper_apt_key
-
-- name: Add openSUSE Snapper repository
-  ansible.builtin.apt_repository:
-    repo: >-
-      deb [signed-by={{ snapper_apt_key.dest }}]
-      http://download.opensuse.org/repositories/filesystems:/snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/ /
-    filename: opensuse_snapper
-    state: present
-
-- name: Pin openSUSE Snapper repository with higher priority
-  ansible.builtin.copy:
-    content: |
-      Package: snapper
-      Pin: origin download.opensuse.org
-      Pin-Priority: 1001
-    dest: /etc/apt/preferences.d/snapper
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Install Snapper from openSUSE repository
+- name: Check if snapper repo is valid
   ansible.builtin.apt:
-    name:
-      - snapper
-      - libsnapper
-    state: present
-    force: true
     update_cache: true
+    cache_valid_time: 0
+  register: initial_apt_check
+  failed_when: false
+
+- name: Set repository health status
+  ansible.builtin.set_fact:
+    snapper_repo_healthy: "{{ not (initial_apt_check.failed | default(false)) }}"
+
+- name: Check if snapper is installed and working
+  ansible.builtin.command: snapper --version
+  register: existing_snapper_check
+  changed_when: false
+  failed_when: false
+
+- name: Skip snapper installation if working
+  ansible.builtin.debug:
+    msg: "Snapper is already installed and working. Skipping installation."
+  when: 
+    - snapper_repo_healthy | bool
+    - existing_snapper_check.rc == 0
+
+- name: Install/fix snapper repository and package
+  when: not snapper_repo_healthy | bool or existing_snapper_check.rc != 0
+  block:
+    - name: Display repository issue detected
+      ansible.builtin.debug:
+        msg: |
+          Repository issues detected or snapper not installed. 
+          Error details: {{ initial_apt_check.stderr | default('Snapper not found') }}
+          Proceeding with snapper repository setup...
+
+    - name: Clean up any existing duplicate snapper repository entries
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/opensuse_snapper.list
+        state: absent
+
+    - name: Remove any existing snapper GPG key (for clean reinstall)
+      ansible.builtin.file:
+        path: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+        state: absent
+
+    - name: Download openSUSE Snapper repository key
+      ansible.builtin.get_url:
+        url: https://download.opensuse.org/repositories/filesystems:snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/Release.key
+        dest: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+        owner: root
+        group: root
+        mode: "0644"
+        force: true
+        timeout: 30
+      register: snapper_apt_key
+      retries: 3
+      delay: 5
+
+    - name: Add openSUSE Snapper repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [signed-by={{ snapper_apt_key.dest }}]
+          https://download.opensuse.org/repositories/filesystems:/snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/ /
+        filename: opensuse_snapper
+        state: present
+
+    - name: apt update to verify
+      ansible.builtin.apt:
+        update_cache: true
+      register: apt_update_test
+      failed_when: false
+      retries: 2
+      delay: 5
+
+    - name: Handle persistent GPG key issues
+      when: apt_update_test.failed | default(false) and ('EXPKEYSIG' in apt_update_test.stderr or 'invalid' in apt_update_test.stderr)
+      block:
+        - name: Display GPG key issue detected
+          ansible.builtin.debug:
+            msg: "Detected expired or invalid GPG key for snapper repository. Attempting to refresh..."
+
+        - name: Remove problematic GPG key
+          ansible.builtin.file:
+            path: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+            state: absent
+
+        - name: Remove problematic repository
+          ansible.builtin.file:
+            path: /etc/apt/sources.list.d/opensuse_snapper.list
+            state: absent
+
+        - name: Re-download fresh GPG key
+          ansible.builtin.get_url:
+            url: https://download.opensuse.org/repositories/filesystems:snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/Release.key
+            dest: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+            owner: root
+            group: root
+            mode: "0644"
+            force: true
+            timeout: 30
+          register: snapper_apt_key_retry
+
+        - name: Re-add openSUSE Snapper repository
+          ansible.builtin.apt_repository:
+            repo: >-
+              deb [signed-by={{ snapper_apt_key_retry.dest }}]
+              https://download.opensuse.org/repositories/filesystems:/snapper/{{ ansible_distribution }}_{{ ansible_distribution_major_version }}/ /
+            filename: opensuse_snapper
+            state: present
+
+        - name: Verify repository is now working
+          ansible.builtin.apt:
+            update_cache: true
+          register: apt_update_retry
+
+    - name: Pin openSUSE Snapper repository with higher priority
+      ansible.builtin.copy:
+        content: |
+          Package: snapper
+          Pin: origin download.opensuse.org
+          Pin-Priority: 1001
+        dest: /etc/apt/preferences.d/snapper
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Snapper from openSUSE repository
+      ansible.builtin.apt:
+        name:
+          - snapper
+          - libsnapper
+        state: present
+        force: true
+        update_cache: true
 
 - name: Check Snapper version
   ansible.builtin.command: snapper --version
