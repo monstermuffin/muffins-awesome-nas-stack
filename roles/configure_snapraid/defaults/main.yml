@@ -1,5 +1,6 @@
 ---
 # snapraid-btrfs-runner default variables
+snapraid_btrfs_runner_repo: https://github.com/fmoledina/snapraid-btrfs-runner.git
 
 # Paths to executables
 configure_snapraid_snapraid_btrfs_executable: /usr/local/bin/snapraid-btrfs
