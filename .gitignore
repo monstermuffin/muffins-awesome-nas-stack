@@ -2,11 +2,6 @@
 .dependencies/
 .venv/
 .vscode/
-
-*.pyc
-__pycache__/
-*.py[cod]
-
 inventories/
 vars.yml
 mansplaybook.yml
@@ -17,3 +12,5 @@ test_vars.yml
 .lock
 
 !inventories/inventory.example.yml
+*.md
+!README.md
