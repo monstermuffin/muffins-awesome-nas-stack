@@ -8,18 +8,18 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
       - name: Generate changelog
         id: changelog
-        uses: metcalfc/changelog-generator@v4.3.1
+        uses: metcalfc/changelog-generator@v4.6.2
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body: ${{ steps.changelog.outputs.changelog }}
         env:
