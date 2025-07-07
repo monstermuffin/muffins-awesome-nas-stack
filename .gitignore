@@ -10,7 +10,7 @@ mansplaybook.yml
 test.yml
 test_vars.yml
 .lock
-
+*au*/
 !inventories/inventory.example.yml
 *.md
 !README.md
