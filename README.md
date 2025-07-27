@@ -506,5 +506,8 @@ sudo snapraid-btrfs sync --force-full
 
 ## Changelog
 See the full changelog [here](./CHANGELOG.md).
+
+## Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=monstermuffin/muffins-awesome-nas-stack&type=Date)](https://www.star-history.com/#monstermuffin/muffins-awesome-nas-stack&Date)
 ___
 <a href="https://www.buymeacoffee.com/muffn" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
