@@ -1,4 +1,15 @@
 ---
+- name: Ensure snapper pinning is configured
+  ansible.builtin.copy:
+    content: |
+      Package: snapper libsnapper
+      Pin: origin download.opensuse.org
+      Pin-Priority: 1001
+    dest: /etc/apt/preferences.d/snapper
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Check if snapper repo is valid
   ansible.builtin.apt:
     update_cache: true
@@ -118,17 +129,6 @@
           ansible.builtin.apt:
             update_cache: true
           register: apt_update_retry
-
-    - name: Pin openSUSE Snapper repository with higher priority
-      ansible.builtin.copy:
-        content: |
-          Package: snapper
-          Pin: origin download.opensuse.org
-          Pin-Priority: 1001
-        dest: /etc/apt/preferences.d/snapper
-        owner: root
-        group: root
-        mode: '0644'
 
     - name: Install Snapper from openSUSE repository
       ansible.builtin.apt:
