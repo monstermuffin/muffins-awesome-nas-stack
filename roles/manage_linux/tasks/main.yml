@@ -13,6 +13,10 @@
   ansible.builtin.include_tasks:
     file: user_groups.yml
 
+- name: Apt maintenance
+  ansible.builtin.include_tasks:
+    file: apt_maintain.yml
+
 - name: Install packages
   ansible.builtin.include_tasks:
     file: apps.yml
@@ -26,7 +30,3 @@
   ansible.builtin.include_tasks:
     file: keys.yml
   when: ssh_key_option != 'none'
-
-- name: Apt maintenance
-  ansible.builtin.include_tasks:
-    file: apt_maintain.yml
