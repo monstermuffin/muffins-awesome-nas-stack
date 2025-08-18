@@ -103,7 +103,6 @@
         - docker
 
     - role: configure_hdidle
-      when: configure_hdidle
       tags: hdidle
 
   post_tasks:

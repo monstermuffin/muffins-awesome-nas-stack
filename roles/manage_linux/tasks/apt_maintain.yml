@@ -1,5 +1,76 @@
 ---
 
+# Shell instead of apt module to capture stderr output containing GPG error
+- name: Check for repository GPG key issues # noqa command-instead-of-module
+  ansible.builtin.shell: apt-get update 2>&1 || true
+  register: apt_check_result
+  changed_when: false
+
+- name: Handle repository issues if detected
+  when: "'EXPKEYSIG' in apt_check_result.stdout or 'invalid' in apt_check_result.stdout or 'Conflicting values' in apt_check_result.stdout"
+  block:
+    - name: Display repository issues detected
+      ansible.builtin.debug:
+        msg: |
+          Repository issues detected during apt update check.
+          Error details: {{ apt_check_result.stdout }}
+          Checking for MANS-managed repositories with issues...
+
+    - name: Remove problematic MANS-managed repositories (snapper)
+      when: "'filesystems:snapper' in apt_check_result.stdout or 'opensuse' in apt_check_result.stdout"
+      block:
+        - name: Remove snapper repository temporarily
+          ansible.builtin.file:
+            path: /etc/apt/sources.list.d/opensuse_snapper.list
+            state: absent
+
+        - name: Remove snapper GPG key temporarily
+          ansible.builtin.file:
+            path: /etc/apt/trusted.gpg.d/opensuse_snapper.asc
+            state: absent
+
+        - name: Display snapper repository cleanup
+          ansible.builtin.debug:
+            msg: "Temporarily removed problematic snapper repository."
+
+    - name: Fix Docker GPG key conflicts
+      when: "'docker' in apt_check_result.stdout and 'Conflicting values' in apt_check_result.stdout"
+      block:
+        - name: Remove conflicting Docker repository temporarily
+          ansible.builtin.file:
+            path: /etc/apt/sources.list.d/docker.list
+            state: absent
+
+        - name: Remove duplicate Docker GPG key from trusted.gpg.d
+          ansible.builtin.file:
+            path: /etc/apt/trusted.gpg.d/docker.asc
+            state: absent
+
+        - name: Remove duplicate Docker GPG key from keyrings (if exists)
+          ansible.builtin.file:
+            path: /etc/apt/keyrings/docker.asc
+            state: absent
+
+        - name: Display Docker repository cleanup
+          ansible.builtin.debug:
+            msg: "Temporarily removed conflicting Docker repository and GPG keys."
+
+    - name: Clean apt cache after repository cleanup
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Fail if non-MANS repositories have issues
+      ansible.builtin.fail:
+        msg: |
+          Repository issues detected that are not managed by MANS:
+          {{ apt_check_result.stdout }}
+          Please resolve these repository issues manually before proceeding.
+      when:
+        - "'filesystems:snapper' not in apt_check_result.stdout"
+        - "'opensuse' not in apt_check_result.stdout"
+        - "'docker' not in apt_check_result.stdout"
+        - ("'EXPKEYSIG' in apt_check_result.stdout or 'invalid' in apt_check_result.stdout or 'Conflicting values' in apt_check_result.stdout")
+
 - name: Upgrade all packages
   ansible.builtin.apt:
     update_cache: true

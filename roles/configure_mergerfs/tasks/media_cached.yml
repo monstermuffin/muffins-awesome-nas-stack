@@ -27,8 +27,8 @@
 
 - name: Add cache paths to cache_mounts list
   ansible.builtin.set_fact:
-    cache_mounts: "{{ cache_mounts | default([]) + cache_paths_only }}"
-  when: cache_paths_only | length > 0
+    cache_mounts: "{{ cache_mounts | default([]) + cache_paths_only | default([]) }}"
+  when: cache_paths_only | default([]) | length > 0
 
 - name: Deploy mergerfs media_cached systemd service (single cache disk/path)
   ansible.builtin.template:

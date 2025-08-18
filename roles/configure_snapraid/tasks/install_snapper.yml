@@ -1,4 +1,15 @@
 ---
+- name: Ensure snapper pinning is configured
+  ansible.builtin.copy:
+    content: |
+      Package: snapper libsnapper
+      Pin: origin download.opensuse.org
+      Pin-Priority: 1001
+    dest: /etc/apt/preferences.d/snapper
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Check if snapper repo is valid
   ansible.builtin.apt:
     update_cache: true
@@ -16,15 +27,21 @@
   changed_when: false
   failed_when: false
 
+- name: Check if snapper repository exists
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/opensuse_snapper.list
+  register: snapper_repo_exists
+
 - name: Skip snapper installation if working
   ansible.builtin.debug:
     msg: "Snapper is already installed and working. Skipping installation."
   when:
     - snapper_repo_healthy | bool
     - existing_snapper_check.rc == 0
+    - snapper_repo_exists.stat.exists | bool
 
 - name: Install/fix snapper repository and package
-  when: not snapper_repo_healthy | bool or existing_snapper_check.rc != 0
+  when: not snapper_repo_healthy | bool or existing_snapper_check.rc != 0 or not snapper_repo_exists.stat.exists | bool
   block:
     - name: Display repository issue detected
       ansible.builtin.debug:
@@ -112,17 +129,6 @@
           ansible.builtin.apt:
             update_cache: true
           register: apt_update_retry
-
-    - name: Pin openSUSE Snapper repository with higher priority
-      ansible.builtin.copy:
-        content: |
-          Package: snapper
-          Pin: origin download.opensuse.org
-          Pin-Priority: 1001
-        dest: /etc/apt/preferences.d/snapper
-        owner: root
-        group: root
-        mode: '0644'
 
     - name: Install Snapper from openSUSE repository
       ansible.builtin.apt:

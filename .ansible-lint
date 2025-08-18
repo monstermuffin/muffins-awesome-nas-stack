@@ -71,6 +71,17 @@ exclude_paths:
 
 # # Define required Ansible's variables to satisfy syntax check
 extra_vars:
+  cache_disks: []
+  data_disks: []
+  parity_disks: []
+  extra_apps: []
+  cache_disks_only: []
+  cache_paths_only: []
+  cache_disks_exist: false
+  cache_disks_count: 0
+  data_disks_count: 0
+  data_mounts: []
+  cache_mounts: []
   hostvars:
     localhost:
       inventory_name: localhost

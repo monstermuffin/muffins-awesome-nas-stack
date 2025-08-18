@@ -5,3 +5,9 @@
     name: hd-idle
     state: started
     enabled: true
+
+- name: Stop and disable hd-idle
+  ansible.builtin.systemd:
+    name: hd-idle
+    state: stopped
+    enabled: false

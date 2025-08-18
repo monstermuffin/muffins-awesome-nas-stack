@@ -120,13 +120,16 @@ ___
 
 `configure_scrutiny: true` — Installs and configures [Scrutiny](https://github.com/AnalogJ/scrutiny) in Docker for your disks.
 
-`configure_hdidle: true` — Installs and configures [hdidle.](https://github.com/adelolmo/hd-idle)
+`configure_hdidle: true` — Installs and configures [hdidle.](https://github.com/adelolmo/hd-idle) No longer recommended, see note below.
 
 `skip_os_check: false` — Skips the OS check for Debian. Unsupported.
 
 `wipe_and_setup: true` — If disks need to be setup, this needs to be set to true else the playbook will immediately fail. You will still be required to accept a prompt before changes are made.
 
 `extra_apps:` — List any extra applications from apt that you would like to install. Follow the example layout and uncomment.
+
+> [!IMPORTANT]  
+> Whilst hdidle worked well for me initially, I have had issues with some disks going into read only mode as BTRFS does not like waiting for the disk to be ready. This behaviour has been reported by 2 others, and disabling hdidle has fixed the issue, so I no longer recommend enabling it. If you had previously enabled it and wish to disable, you can do so by setting `configure_hdidle: false` in your vars.yml.
 
 ___
 
@@ -506,5 +509,16 @@ sudo snapraid-btrfs sync --force-full
 
 ## Changelog
 See the full changelog [here](./CHANGELOG.md).
+
+## Star History
+
+<a href="https://www.star-history.com/#monstermuffin/muffins-awesome-nas-stack&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=monstermuffin/muffins-awesome-nas-stack&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=monstermuffin/muffins-awesome-nas-stack&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=monstermuffin/muffins-awesome-nas-stack&type=Date" />
+ </picture>
+</a>
+
 ___
 <a href="https://www.buymeacoffee.com/muffn" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>

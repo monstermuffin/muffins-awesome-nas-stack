@@ -9,11 +9,14 @@
   delegate_to: localhost
   run_once: true
   become: false
-  when: hdidle_version == 'latest'
+  when:
+    - hdidle_version == 'latest'
+    - configure_hdidle
 
 - name: Set hdidle latest version
   ansible.builtin.set_fact:
     hdidle_version: "{{ hdidle_latest_release.tag if hdidle_version == 'latest' else hdidle_version }}"
+  when: configure_hdidle
 
 - name: Gather package facts
   ansible.builtin.package_facts:
@@ -26,12 +29,36 @@
       hdidle_version | replace('v', '') }}_{{ hdidle_architecture }}.deb
   notify: Restart hd-idle and ensure enabled
   when: >-
+    configure_hdidle and (
     'hd-idle' not in ansible_facts.packages
     or ansible_facts.packages['hd-idle'][0]['version'] != hdidle_version
+    )
 
-- name: Configure hd-idle
+- name: Configure hd-idle to start
   ansible.builtin.lineinfile:
     path: /etc/default/hd-idle
     regexp: ^START_HD_IDLE=
     line: START_HD_IDLE=true
   notify: Restart hd-idle and ensure enabled
+  when:
+    - configure_hdidle
+    - "'hd-idle' in ansible_facts.packages"
+
+- name: Configure hd-idle to not start
+  ansible.builtin.lineinfile:
+    path: /etc/default/hd-idle
+    regexp: ^START_HD_IDLE=
+    line: START_HD_IDLE=false
+  when:
+    - not configure_hdidle
+    - "'hd-idle' in ansible_facts.packages"
+
+- name: Stop and disable hd-idle service
+  ansible.builtin.systemd:
+    name: hd-idle
+    state: stopped
+    enabled: false
+  failed_when: false
+  when:
+    - not configure_hdidle
+    - "'hd-idle' in ansible_facts.packages"
