@@ -33,7 +33,7 @@
 
 - name: Set single parity detection fact
   ansible.builtin.set_fact:
-    single_parity_detected: "{{ (parity_checks.results | default([]) | selectattr('stat.exists', 'true') | list | length > 0) | default(false) }}"
+    single_parity_detected: "{{ (parity_checks.results | default([]) | rejectattr('skipped', 'defined') | selectattr('stat.exists', 'true') | list | length > 0) | default(false) }}"
 
 - name: Check for split mode with legacy setup
   ansible.builtin.fail:
