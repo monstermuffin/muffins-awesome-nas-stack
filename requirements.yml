@@ -11,6 +11,6 @@ collections:
   - name: community.general
     version: 11.4.0
   - name: community.docker
-    version: 4.8.1
+    version: 4.8.2
   - name: vladgh.samba
     version: 3.5.4
