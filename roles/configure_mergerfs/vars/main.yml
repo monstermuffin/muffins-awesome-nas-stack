@@ -1,2 +1,3 @@
 ---
-configure_mergerfs_minfreespace: 10G
+configure_mergerfs_minfreespace: 100G
+configure_mergerfs_cache_minfreespace: 50G

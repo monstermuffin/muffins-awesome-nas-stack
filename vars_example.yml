@@ -102,6 +102,10 @@ cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
 
 cache_pool_policy: epmfs # The policy for the cache pool. Leave if using 2+ cache disks and unsure.
 
+# MergerFS minfreespace settings
+# configure_mergerfs_cache_minfreespace: 50G # Minimum free space for cache disks (default: 50G)
+# configure_mergerfs_minfreespace: 100G # Minimum free space for data disks (default: 100G)
+
 # content files
 content_files:
   - /var/snapraid/snapraid.content

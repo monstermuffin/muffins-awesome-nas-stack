@@ -13,9 +13,8 @@ ExecStart=/usr/bin/mergerfs \
   -o dropcacheonclose=true \
   -o category.create=ff \
   -o allow_other \
-  -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_cached \
-  {{ cache_pool }}:{{ media_cold }} \
+  {{ cache_pool }}=RW,minfreespace={{ configure_mergerfs_cache_minfreespace }}:{{ media_cold }}=RW,minfreespace={{ configure_mergerfs_minfreespace }} \
   {{ media_cached }}
 ExecStop=/bin/fusermount -uz {{ media_cached }}
 Restart=on-failure

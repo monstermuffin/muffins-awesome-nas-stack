@@ -1,3 +1,9 @@
+* [v0.93.6](https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/main) - MergerFS Improvements
+  * Added separate minfreespace settings for cache and data disks - [#92](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/92)
+    * Added `configure_mergerfs_cache_minfreespace` (default: `50G`)
+    * Changed `configure_mergerfs_minfreespace` default from `10G` to `100G`
+    * Fixes cache bypass issues when cache disks are smaller than data disk minfreespace threshold
+
 * [v0.93.5](https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/main) - Minor Enhancements
   * Minor changes to `README.md`.
   * Enhanced `data_directories` to support custom ownership and permissions: - thanks @tigattack

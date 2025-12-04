@@ -290,6 +290,10 @@ parity_disks:
 * Multiple disks in the form of `/dev/disk/by-id/your-disk`. When multiple disks are used, this ***is not adding redundancy***, just more cache.
 * An existing path on your operating system. If you already have space on your OS drive for example, you could use something like `/opt/mergerfs-cache` or something. To ensure this doesn't fill up, adjust the `mergerfs-cache-mover` vars as needed (below.)
 * A path ***and*** a disk in the format of `/dev/disk/by-id/your-disk`. I don't know why but it's supported.
+
+`configure_mergerfs_cache_minfreespace` — Minimum free space for cache disks (default: `50G`). See [issue #92](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/92).
+
+`configure_mergerfs_minfreespace` — Minimum free space for data disks (default: `100G`, previously `10G`).
 ___
 Cache mover things:
 https://github.com/MonsterMuffin/mergerfs-cache-mover
