@@ -29,7 +29,7 @@
   block:
     - name: Fail if architecture is not supported
       ansible.builtin.fail:
-        msg: "Unsupported architecture: {{ ansible_architecture }}"
+        msg: "Unsupported architecture: {{ ansible_facts.architecture }}"
       when: fastfetch_architecture == "unknown"
 
     - name: Install Fastfetch
