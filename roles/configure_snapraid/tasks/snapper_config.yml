@@ -29,7 +29,7 @@
     - name: Check if snapper config for each data disk is valid
       ansible.builtin.set_fact:
         config_valid: "{{ 'data%02d' % item in snapper_configs.stdout }}"
-      loop: "{{ range(1, data_disks | length + 1) }}"
+      loop: "{{ range(1, data_disks | length + 1) | list }}"
       register: config_validity
 
     - name: Conditionally rebuild snapper configs if data_disks exist
@@ -40,7 +40,7 @@
         - name: Destroy invalid snapper configurations
           ansible.builtin.command:
             cmd: snapper -c data{{ '%02d' % item }} delete-config
-          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop: "{{ range(1, data_disks | length + 1) | list }}"
           when: not config_validity.results[item-1].ansible_facts.config_valid
           ignore_errors: true
 
@@ -50,13 +50,13 @@
           register: create_config_result
           changed_when: create_config_result.rc == 0
           ignore_errors: true
-          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop: "{{ range(1, data_disks | length + 1) | list }}"
           when: not config_validity.results[item-1].ansible_facts.config_valid
 
         - name: Remove existing snapshots for failed configs  # noqa command-instead-of-module
           ansible.builtin.command:
             cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots/*
-          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop: "{{ range(1, data_disks | length + 1) | list }}"
           when:
             - not config_validity.results[item-1].ansible_facts.config_valid
             - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
@@ -65,7 +65,7 @@
         - name: Remove .snapshots subvolume for failed configs  # noqa command-instead-of-module
           ansible.builtin.command:
             cmd: btrfs subvolume delete -C {{ data_mount_path }}/data{{ '%02d' % item }}/.snapshots
-          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop: "{{ range(1, data_disks | length + 1) | list }}"
           when:
             - not config_validity.results[item-1].ansible_facts.config_valid
             - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
@@ -74,7 +74,7 @@
         - name: Retry creating Snapper configuration for failed configs
           ansible.builtin.command:
             cmd: snapper -c data{{ '%02d' % item }} create-config -t default {{ data_mount_path }}/data{{ '%02d' % item }}
-          loop: "{{ range(1, data_disks | length + 1) }}"
+          loop: "{{ range(1, data_disks | length + 1) | list }}"
           when:
             - not config_validity.results[item-1].ansible_facts.config_valid
             - "'creating btrfs subvolume .snapshots failed since it already exists' in create_config_result.results[item-1].stderr"
@@ -87,7 +87,7 @@
         path: /etc/snapper/configs/data{{ '%02d' % item }}
         regexp: ^TIMELINE_CREATE=
         line: TIMELINE_CREATE="no"
-      loop: "{{ range(1, data_disks | length + 1) }}"
+      loop: "{{ range(1, data_disks | length + 1) | list }}"
       when: data_disks is defined and data_disks|length > 0
       ignore_errors: true
 
