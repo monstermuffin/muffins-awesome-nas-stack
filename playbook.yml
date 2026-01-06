@@ -23,7 +23,7 @@
           This playbook is only supported on Debian.
           Disable this check by setting 'skip_os_check: true' in vars.yml.
       when:
-        - ansible_distribution != "Debian"
+        - ansible_facts.distribution != "Debian"
         - not skip_os_check|default(false)|bool
 
   roles:

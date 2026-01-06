@@ -8,7 +8,7 @@
     path: "{{ data_mount_path }}/data{{ '%02d' % item }}"
     state: directory
     mode: "0755"
-  loop: "{{ range(1, data_disks | length + 1) }}"
+  loop: "{{ range(1, data_disks | length + 1) | list }}"
 
 - name: Ensure Btrfs subvolume mounts are present in fstab
   ansible.builtin.blockinfile:

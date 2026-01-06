@@ -10,7 +10,7 @@
     cache_disks_exist: "{{ (cache_disks_only + cache_paths_only) | length > 0 }}"
 
 - name: Setup cache_mover if cache_disks_exist
-  when: cache_disks | default([])
+  when: cache_disks | default([]) | length > 0
   block:
     - name: Set cache_path variable for single cache disk
       ansible.builtin.set_fact:
