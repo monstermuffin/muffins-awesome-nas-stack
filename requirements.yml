@@ -1,7 +1,7 @@
 ---
 roles:
   - name: stefangweichinger.ansible_rclone
-    version: 0.2.4
+    version: 0.2.5
   - name: geerlingguy.docker
     version: 7.9.0
 
