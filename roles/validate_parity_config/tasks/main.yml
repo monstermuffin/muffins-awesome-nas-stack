@@ -17,6 +17,8 @@
     path: "{{ parity_mount_path }}/parity{{ '%02d' % item }}"
   register: parity_paths
   loop: "{{ range(1, parity_disks | length + 1) | list }}"
+  loop_control:
+    label: "parity{{ '%02d' % item }}"
   ignore_errors: true
 
 - name: Check for single parity files across all parity disks
@@ -27,6 +29,8 @@
     get_mime: false
   register: parity_checks
   loop: "{{ range(1, parity_disks | length + 1) | list }}"
+  loop_control:
+    label: "parity{{ '%02d' % item }}"
   when:
     - parity_paths.results[item - 1].stat.exists | default(false)
   ignore_errors: true
@@ -52,6 +56,8 @@
   ansible.builtin.fail:
     msg: "ERROR: Missing required field '{{ field }}' for parity disk: {{ disk | to_yaml }}"
   loop: "{{ parity_disks | product(['device', 'mode', 'level']) | list }}"
+  loop_control:
+    label: "{{ disk.device }} - {{ field }}"
   vars:
     disk: "{{ item.0 }}"
     field: "{{ item.1 }}"
@@ -63,6 +69,7 @@
   loop: "{{ parity_disks }}"
   loop_control:
     loop_var: disk
+    label: "{{ disk.device }}"
   when: disk.mode not in ['dedicated', 'split']
 
 - name: Check for valid level numbers
@@ -78,6 +85,7 @@
   loop: "{{ parity_levels }}"
   loop_control:
     loop_var: level
+    label: "Level {{ level }}"
   vars:
     parity_levels: "{{ parity_disks | map(attribute='level') | unique | list }}"
     level_disks: "{{ parity_disks | selectattr('level', 'equalto', level) | list }}"
@@ -90,6 +98,7 @@
   loop: "{{ parity_levels }}"
   loop_control:
     loop_var: level
+    label: "Level {{ level }}"
   vars:
     parity_levels: "{{ parity_disks | map(attribute='level') | unique | list }}"
     dedicated_disks_at_level: "{{ parity_disks | selectattr('level', 'equalto', level) | selectattr('mode', 'equalto', 'dedicated') | list }}"
