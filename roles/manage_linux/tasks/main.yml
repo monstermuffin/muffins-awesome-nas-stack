@@ -2,7 +2,9 @@
 - name: Set timezone
   community.general.timezone:
     name: "{{ timezone }}"
-  when: timezone
+  when:
+    - timezone is defined
+    - timezone | length > 0
 
 - name: Set up passwordless sudo
   ansible.builtin.include_tasks:
