@@ -73,7 +73,6 @@
         owner: "{{ user }}"
         group: "{{ media_group }}"
         mode: "0770"
-        recurse: true
       loop: "{{ cache_disks_only }}"
       loop_control:
         index_var: index
