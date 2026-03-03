@@ -10,9 +10,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Run ansible-lint
-        uses: ansible/ansible-lint@v25.12.0
+        uses: ansible/ansible-lint@v26.2.0
         with:
           requirements_file: requirements.yml
           args: "--exclude=.dependencies/ --exclude=.ansible/ --exclude=roles/geerlingguy.* --exclude=roles/stefangweichinger.*"

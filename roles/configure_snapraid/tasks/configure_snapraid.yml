@@ -7,6 +7,8 @@
     group: root
     mode: "0755"
   loop: "{{ content_files }}"
+  loop_control:
+    label: "{{ item | dirname }}"
 
 - name: Backup existing snapraid config
   ansible.builtin.copy:
@@ -20,6 +22,8 @@
   ansible.builtin.set_fact:
     parity_config: "{{ parity_config | default([]) + [{'level': item, 'disks': parity_disks | selectattr('level', 'equalto', item) | list}] }}"
   loop: "{{ parity_disks | map(attribute='level') | unique | sort | list }}"
+  loop_control:
+    label: "Level {{ item }}"
 
 - name: Generate SnapRAID configuration (Legacy Mode)
   ansible.builtin.template:

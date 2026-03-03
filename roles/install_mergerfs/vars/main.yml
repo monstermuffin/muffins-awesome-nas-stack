@@ -1,10 +1,10 @@
 ---
-mergerfs_dist: "{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}"
+mergerfs_dist: "{{ ansible_facts.distribution | lower }}-{{ ansible_facts.distribution_release }}"
 mergerfs_arch_map:
   x86_64: amd64
   i386: i386
   aarch64: arm64
   armv7l: armhf
-mergerfs_arch: "{{ mergerfs_arch_map[ansible_userspace_architecture | default(ansible_architecture)] }}"
+mergerfs_arch: "{{ mergerfs_arch_map[ansible_facts.userspace_architecture | default(ansible_facts.architecture)] }}"
 mergerfs_pkg_prefix: mergerfs_
 mergerfs_pkg_suffix: .{{ mergerfs_dist }}_{{ mergerfs_arch }}.deb

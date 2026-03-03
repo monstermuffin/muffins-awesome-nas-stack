@@ -45,7 +45,7 @@
 
 - name: Install/update mergerfs
   when:
-    - ansible_pkg_mgr == 'apt'
+    - ansible_facts.pkg_mgr == 'apt'
     - update_needed
   block:
     - name: Install xz-utils package for .deb package installation
