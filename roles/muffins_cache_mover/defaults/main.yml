@@ -1,2 +1,3 @@
 ---
 cache_mover_update_branch: main
+cache_mover_log_level: info
