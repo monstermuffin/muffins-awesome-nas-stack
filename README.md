@@ -44,7 +44,7 @@ This role will do the following:
   * Snapper configs verified and failsafe config re0-create initiated if issued are detected
 * Configures Samba (vladgh.samba.server) w/ custom performance tuning
 * Configures [mergerfs-cache-mover](https://github.com/MonsterMuffin/mergerfs-cache-mover)
-* Deploys & Configures [Scrutiny](https://github.com/AnalogJ/scrutiny)
+* Deploys & Configures [Scrutiny](https://github.com/Starosdev/scrutiny) (MANS deploys an active fork of Scrutiny, not the original project)
 
 ## More Info
 I have written in-depth blog posts about how I got here and detailing how this setup works.
@@ -118,7 +118,9 @@ ___
 
 `install_docker: true` — Installs and configures docker. Setting this or `configure_scrutiny` to true will run docker.
 
-`configure_scrutiny: true` — Installs and configures [Scrutiny](https://github.com/AnalogJ/scrutiny) in Docker for your disks.
+`configure_scrutiny: true` — Installs and configures [Scrutiny](https://github.com/Starosdev/scrutiny) in Docker for your disks.
+> [!NOTE]
+> MANS deploys an active fork of Scrutiny, not the original project which is largely unmaintained.
 
 `configure_hdidle: true` — Installs and configures [hdidle.](https://github.com/adelolmo/hd-idle) No longer recommended, see note below.
 
