@@ -1,6 +1,6 @@
 ---
 # scrutiny vars
-scrutiny_image: "{% if scrutiny_mode == 'collector' %}ghcr.io/analogj/scrutiny:master-collector{% else %}ghcr.io/analogj/scrutiny:master-omnibus{% endif %}"
+scrutiny_image: "{% if scrutiny_mode == 'collector' %}ghcr.io/starosdev/scrutiny:master-collector{% else %}ghcr.io/starosdev/scrutiny:master-omnibus{% endif %}"
 
 scrutiny_ports:
   - "{{ scrutiny_webui_port }}:8080"
