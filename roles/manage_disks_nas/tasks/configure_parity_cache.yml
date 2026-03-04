@@ -1,13 +1,4 @@
 ---
-- name: Ensure parity mount points exist
-  ansible.builtin.file:
-    path: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
-    state: directory
-    mode: "0770"
-  loop: "{{ parity_disks }}"
-  loop_control:
-    index_var: index
-    label: "{{ parity_mount_path }}/parity{{ '%02d' % (index + 1) }}"
 
 - name: Ensure parity mounts are present in fstab
   ansible.builtin.blockinfile:

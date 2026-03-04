@@ -5,15 +5,6 @@
     state: directory
     mode: '0770'
 
-- name: Ensure mount point directories exist
-  ansible.builtin.file:
-    path: "/mnt/btrfs-root/{{ item | basename }}"
-    state: directory
-    mode: '0770'
-  loop: "{{ data_disks }}"
-  loop_control:
-    label: "{{ item }}"
-
 - name: Unmount any existing mounts
   ansible.posix.mount:
     path: "/mnt/btrfs-root/{{ item | basename }}"
