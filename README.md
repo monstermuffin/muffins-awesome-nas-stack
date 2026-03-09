@@ -393,6 +393,248 @@ After a successful deployment, you will have the following (dependent on config)
 
 * `8080` - Scrutiny web-ui (omnibus).
 
+# Data Recovery
+
+MANS provides two layers of data protection:
+
+- **Btrfs snapshots** (managed by Snapper): for recovering accidentally deleted or corrupted files on healthy disks.
+- **SnapRAID parity**: for recovering data from failed/dead disks using parity reconstruction.
+
+## File & Data Recovery (Btrfs Snapshots)
+
+Use this when files have been accidentally deleted, corrupted, or gone missing but the underlying disk is still healthy and mounted.
+
+### Identifying the Problem
+
+Check the `snapraid-btrfs-runner` log for warnings:
+
+```bash
+sudo tail -50 /var/log/snapraid-btrfs-runner.log
+```
+
+Common signs that files need recovering:
+- `WARNING! All the files previously present in disk 'dX' ... are now missing or have been rewritten!`
+- `Deleted files exceed delete threshold` (the runner aborted because too many files disappeared)
+- Files missing from your media applications (Plex, Jellyfin, etc.)
+
+### Finding the Right Snapshot
+
+List snapshots across all disks:
+
+```bash
+sudo snapraid-btrfs ls
+```
+
+Each disk shows its snapshots. Look for the one marked `snapraid-btrfs=synced` (this is the last known-good state). Note the **snapshot number** (the `#` column).
+
+Browse a snapshot's contents to confirm the data you need is there:
+
+```bash
+# List available snapshots for a disk
+sudo ls /mnt/data-disks/<disk>/.snapshots/
+
+# Browse the snapshot contents (replace <disk>, <snap_num>, <category>)
+sudo ls /mnt/data-disks/<disk>/.snapshots/<snap_num>/snapshot/<category>/
+
+# Verify data is intact (not empty stubs)
+sudo du -sh /mnt/data-disks/<disk>/.snapshots/<snap_num>/snapshot/<category>/
+```
+
+### Comparing Snapshot vs Live Data
+
+Quick comparison for a single disk:
+
+```bash
+# Compare item counts between snapshot and live
+sudo ls /mnt/data-disks/<disk>/.snapshots/<snap_num>/snapshot/<category>/ | wc -l
+sudo ls /mnt/data-disks/<disk>/<category>/ | wc -l
+```
+
+Or check all disks at once (adjust the `category` as needed):
+
+```bash
+category=movies  # change to tv, youtube, etc.
+for d in /mnt/data-disks/data*/; do
+  disk=$(basename "$d")
+  synced=$(sudo snapper -c "$disk" list 2>/dev/null | grep synced | awk '{print $1}')
+  [ -z "$synced" ] && continue
+  snap_count=$(sudo ls "$d/.snapshots/$synced/snapshot/$category/" 2>/dev/null | wc -l)
+  live_count=$(sudo ls "$d/$category/" 2>/dev/null | wc -l)
+  diff=$((live_count - snap_count))
+  [ "$diff" -ne 0 ] && echo "$disk: snapshot #$synced ($snap_count) -> live ($live_count)  diff=$diff"
+done
+```
+
+### Recovering Files from Snapshots
+
+Btrfs snapshots use Copy-on-Write, so recovering with `--reflink=auto` is near-instant and uses no additional disk space. Data blocks are shared between the snapshot and the restored copy.
+
+**Step 1: Always test with a single item first:**
+
+```bash
+# Pick something small from the snapshot
+sudo du -sh '/mnt/data-disks/<disk>/.snapshots/<snap_num>/snapshot/<category>/<item>/'
+
+# Copy it to the live filesystem
+sudo cp -a --reflink=auto \
+  '/mnt/data-disks/<disk>/.snapshots/<snap_num>/snapshot/<category>/<item>' \
+  '/mnt/data-disks/<disk>/<category>/'
+
+# Verify it's visible on mergerfs and permissions are correct
+ls -la '/mnt/media/<category>/<item>/'
+```
+
+**Step 2: Bulk recover all missing items (skips anything that already exists):**
+
+```bash
+# Set these variables for your situation
+DISK="data01"        # the affected disk
+SNAP_NUM="5"         # the synced snapshot number
+CATEGORY="movies"    # movies, tv, youtube, etc.
+
+sudo bash -c "
+count=0; failed=0
+for dir in \"/mnt/data-disks/$DISK/.snapshots/$SNAP_NUM/snapshot/$CATEGORY/\"*/; do
+  name=\$(basename \"\$dir\")
+  if [ ! -d \"/mnt/data-disks/$DISK/$CATEGORY/\$name\" ]; then
+    if cp -a --reflink=auto \"\$dir\" \"/mnt/data-disks/$DISK/$CATEGORY/\"; then
+      count=\$((count+1))
+      echo \"OK [\$count]: \$name\"
+    else
+      failed=\$((failed+1))
+      echo \"FAILED: \$name\"
+    fi
+  fi
+done
+echo \"Done: \$count copied, \$failed failed\"
+"
+```
+
+**Step 3: Verify and resync parity:**
+
+```bash
+# Confirm files are visible on mergerfs
+ls /mnt/media/<category>/ | wc -l
+
+# Resync snapraid parity
+# Use --ignore-deletethreshold if there are still legitimate changes from before recovery
+sudo snapraid-btrfs sync
+```
+
+### Important Notes
+
+- **This only works while the disk is healthy.** If a disk has physically failed, see the Disk Failure Recovery section below.
+- **`cp -a --reflink=auto`** preserves permissions, ownership, and timestamps. The reflink means no extra disk space is used as long as the underlying data blocks haven't been overwritten.
+- **Snapshots are read-only:** you cannot accidentally damage them during recovery.
+- **Existing files are skipped:** the `[ ! -d ... ]` check prevents overwriting files that may have been placed by the cache mover or other processes since the snapshot was taken.
+- **Recover before the next sync.** Snapshots are cleaned up when a new `snapraid-btrfs sync` completes successfully. If the runner's delete threshold prevented a sync, your snapshots are safe, but don't manually force a sync until you've recovered what you need.
+
+## Disk Failure Recovery (SnapRAID Parity)
+
+Use this when a data disk has physically failed, is producing I/O errors, or is no longer mountable. SnapRAID can reconstruct the contents of one failed disk (single parity) or two failed disks (dual parity) using parity data.
+
+> [!IMPORTANT]
+> Parity must have been synced before the disk failed. SnapRAID can only recover data that was included in the last successful `snapraid-btrfs sync`. Any files added after the last sync are not protected.
+
+### Before You Begin
+
+1. **Do not run `snapraid-btrfs sync`.** Syncing after a disk failure will update parity to reflect the missing data (an empty/new disk), destroying your ability to recover.
+2. **Check Scrutiny / SMART data** to confirm which disk has failed and whether it's a total failure or just errors.
+3. **Identify the failed disk's SnapRAID label** (e.g. `d1`, `d2`, etc.) from `/etc/snapraid.conf`.
+
+### Assessing the Damage
+
+```bash
+# Check which disks are mounted
+mount | grep /mnt/data-disks
+
+# Check disk health (smart/status are snapraid commands, not snapraid-btrfs)
+sudo snapraid smart
+
+# See the current state of the array
+sudo snapraid status
+```
+
+### Understanding the Sync Risk
+
+SnapRAID parity is your only way to recover a failed disk's data. If a sync runs against the new empty disk **before** you've recovered, the parity will be updated to reflect the empty state and the data will be **permanently lost**.
+
+The `snapraid-btrfs-runner` has a `deletethreshold` (default: 150) which will abort a sync if too many files are detected as deleted, this should catch an entire empty disk. However, you should **not rely on this as your only protection**.
+
+MANS will **re-enable the snapraid-btrfs-runner timer** when it runs (it ensures the timer is `enabled` and `started`). This means after running MANS with the new disk, the automated weekly sync (Sunday 03:00) will be active. You must either:
+- **Complete the recovery before the next scheduled sync**, or
+- **Disable the timer after MANS completes** until recovery is done:
+  ```bash
+  sudo systemctl stop snapraid-btrfs-runner.timer
+  sudo systemctl disable snapraid-btrfs-runner.timer
+  ```
+
+### Recovery Process
+
+**Step 1: Update MANS config and re-run the playbook.**
+
+Replace the failed disk physically, then update the disk ID in your vars file (e.g. `vars.yml`) under `data_disks`. Then run MANS with `wipe_and_setup: true`:
+
+```bash
+ansible-playbook playbook.yml
+```
+
+MANS will handle all the setup for the new disk automatically:
+- Format the disk with Btrfs and create the `data` subvolume
+- Mount it and update `/etc/fstab`
+- Create the snapper config
+- Create `data_directories` (movies, tv, etc.)
+- Reconfigure mergerfs and snapraid to include it
+
+MANS does **not** run `snapraid sync` or touch parity data, so your recovery data is safe. However, it **will re-enable the sync timer** (see above).
+
+**Step 2: Disable the sync timer (if you need more time to recover):**
+
+```bash
+sudo systemctl stop snapraid-btrfs-runner.timer
+sudo systemctl disable snapraid-btrfs-runner.timer
+```
+
+**Step 3: Recover data using SnapRAID parity:**
+
+```bash
+# Verify parity integrity for the failed disk first
+sudo snapraid-btrfs check -d <label>
+
+# Recover all missing files (replace <label> with the disk label, e.g. d1)
+sudo snapraid-btrfs fix -d <label> -m
+
+# Or recover all files on the disk (missing + errored)
+sudo snapraid-btrfs fix -d <label>
+```
+
+The `-m` flag targets only missing/deleted files. Without it, `fix` will also rewrite any files with errors. This reconstructs files using parity data and will take a long time depending on how much data needs to be rebuilt.
+
+**Step 4: Resync parity and re-enable the timer:**
+
+Once recovery is complete, sync parity to include the recovered data and re-enable automated syncs:
+
+```bash
+sudo snapraid-btrfs sync
+sudo systemctl enable snapraid-btrfs-runner.timer
+sudo systemctl start snapraid-btrfs-runner.timer
+```
+
+### Parity Disk Failure
+
+If a **parity** disk fails rather than a data disk, no data is lost, but you have no protection until it's replaced. Replace the disk, update the disk ID in your vars file, re-run MANS, and then rebuild parity:
+
+```bash
+sudo snapraid-btrfs sync --force-full
+```
+
+### Limitations
+
+- SnapRAID can recover up to as many simultaneous disk failures as you have parity disks (1 parity disk = 1 disk failure, 2 parity disks = 2 disk failures).
+- Only files included in the last successful sync are recoverable. Unsynced changes are lost.
+- SnapRAID is not a real-time RAID. There is always a window between syncs where new data is unprotected.
+- Content files (`snapraid.content`) must be intact for recovery. MANS stores these on separate disks for redundancy.
+
 ## Issues & Requests
 
 Please report any issues with full logs (`-vvv`). If you have any requests or improvements, please feel free to raise this/submit a PR.
