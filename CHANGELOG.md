@@ -1,3 +1,9 @@
+* [v0.93.8](https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/main) - Misc Improvements
+  * Scrutiny fork by [Starosdev](https://github.com/Starosdev/scrutiny) now deployed instead of original project as the original project is largely unmaintained.
+  * Added `cache_mover_log_level` var to allow users to set the log level for `mergerfs-cache-mover`. Defaults to `info` as previous.
+  * Added data recovery documentation to `README.md`.
+  * Miscellaneous fixes/improvements merged from various PRs.
+
 * [v0.93.7](https://github.com/monstermuffin/muffins-awesome-nas-stack/tree/main) - MergerFS Improvements
   * Added separate minfreespace settings for cache and data disks - [#92](https://github.com/monstermuffin/muffins-awesome-nas-stack/issues/92)
     * Added `configure_mergerfs_cache_minfreespace` (default: `50G`)
