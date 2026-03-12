@@ -758,6 +758,9 @@ sudo snapraid-btrfs sync --force-full
 ## Changelog
 See the full changelog [here](./CHANGELOG.md).
 
+### Ko-fi
+[![Tip me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/muffn_)
+
 ## Star History
 
 <a href="https://www.star-history.com/#monstermuffin/muffins-awesome-nas-stack&Date">
