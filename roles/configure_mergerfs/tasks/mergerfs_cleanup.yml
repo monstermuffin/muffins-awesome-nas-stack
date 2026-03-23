@@ -42,6 +42,7 @@
     - mergerfs-cache-disks.service
     - mergerfs-media-cache.service
   when: (cache_disks_only + cache_paths_only) | length > 1
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Ensure mergerfs-media-cache systemd service is enabled and started (single cache disk or path)
   ansible.builtin.systemd:
@@ -49,6 +50,7 @@
     enabled: true
     state: restarted
   when: (cache_disks_only + cache_paths_only) | length == 1
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Ensure mergerfs-media-cold systemd service is enabled and started (cache disks or paths exist)
   ansible.builtin.systemd:
@@ -56,6 +58,7 @@
     enabled: true
     state: restarted
   when: cache_disks_exist is defined and cache_disks_exist
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Ensure mergerfs-media-noncached systemd service is enabled and started (no cache disks or paths)
   ansible.builtin.systemd:
@@ -63,3 +66,4 @@
     enabled: true
     state: restarted
   when: cache_disks_exist is defined and not cache_disks_exist
+  ignore_errors: "{{ ansible_check_mode }}"
