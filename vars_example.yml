@@ -49,6 +49,15 @@ users:
       - media
     create_home: false
     shell: /sbin/nologin
+  # The example below demonstrates all available options for users:
+  # - name: some_user    # Required
+  #   groups:            # Required
+  #     - media
+  #     - docker
+  #   append: true       # Optional - Set to false to not append groups and only use the specified groups
+  #   create_home: false # Optional - Defaults to false
+  #   shell: /bin/bash   # Optional - Defaults to system default shell if not specified
+  #   uid: 1001          # Optional - Specify if you want to set a specific UID for the user
 
 # samba config
 samba_users:

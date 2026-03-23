@@ -12,4 +12,6 @@
     append: "{{ item.append | default(true) }}"
     create_home: "{{ item.create_home | default(false) }}"
     shell: "{{ item.shell | default(omit) }}"
+    uid: "{{ item.uid | default(omit) }}"
+    state: present
   loop: "{{ users }}"
