@@ -11,5 +11,5 @@
     groups: "{{ item.groups }}"
     append: "{{ item.append | default(true) }}"
     create_home: "{{ item.create_home | default(false) }}"
-    shell: "{{ item.shell | default('/bin/bash') }}"
+    shell: "{{ item.shell | default(omit) }}"
   loop: "{{ users }}"
