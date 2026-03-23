@@ -39,6 +39,10 @@ media_group: media # Group for share perms.
 docker_users:
   - "{{ user }}"
 
+# user_groups: # Optional - Define groups independently of users, use this to set specific GIDs
+#   - name: media
+#     gid: 1234
+
 users:
   - name: "{{ user }}"
     groups:
