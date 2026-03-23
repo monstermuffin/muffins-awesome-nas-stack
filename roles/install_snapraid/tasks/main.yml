@@ -7,3 +7,7 @@
 - name: Install snapper
   ansible.builtin.include_tasks:
     file: install_snapper.yml
+
+- name: Install snapraid-btrfs
+  ansible.builtin.include_tasks:
+    file: install_snapraid-btrfs.yml
