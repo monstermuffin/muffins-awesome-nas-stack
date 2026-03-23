@@ -10,8 +10,8 @@
 
 - name: Install snapraid-btrfs
   ansible.builtin.include_tasks:
-    file: install_snapraid-btrfs.yml
+    file: install_snapraid_btrfs.yml
 
 - name: Install snapraid-btrfs-runner
   ansible.builtin.include_tasks:
-    file: install_snapraid-btrfs-runner.yml
+    file: install_snapraid_btrfs_runner.yml
