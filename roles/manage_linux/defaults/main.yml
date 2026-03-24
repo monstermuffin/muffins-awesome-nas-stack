@@ -40,7 +40,6 @@ default_apps:
   - python3-pip
   - rsync
   - samba
-  - software-properties-common
   - tmux
   - tree
   - vim
