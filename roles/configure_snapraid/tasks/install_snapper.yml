@@ -10,7 +10,7 @@
     group: root
     mode: '0644'
 
-- name: Check if snapper repo is valid
+- name: Update apt cache to check if snapper repo is valid
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 0

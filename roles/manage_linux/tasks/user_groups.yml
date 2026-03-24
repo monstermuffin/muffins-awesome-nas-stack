@@ -13,3 +13,5 @@
     create_home: "{{ item.create_home | default(false) }}"
     shell: "{{ item.shell | default('/bin/bash') }}"
   loop: "{{ users }}"
+  loop_control:
+    label: "{{ item.name }}"
