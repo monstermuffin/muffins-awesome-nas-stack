@@ -1,9 +1,22 @@
 ---
+
+- name: Parse groups
+  ansible.builtin.set_fact:
+    create_groups: >-
+      {%- set from_users = users | map(attribute='groups') | flatten | unique
+                          | map('community.general.dict_kv', 'name') | list -%}
+      {%- set explicit = user_groups | default([]) -%}
+      {%- set explicit_names = explicit | map(attribute='name') | list -%}
+      {{ explicit + (from_users | rejectattr('name', 'in', explicit_names) | list) }}
+
 - name: Create groups
   ansible.builtin.group:
-    name: "{{ item }}"
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
     state: present
-  loop: "{{ users | map(attribute='groups') | flatten | unique }}"
+  loop: "{{ create_groups }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Create users
   ansible.builtin.user:
@@ -11,7 +24,9 @@
     groups: "{{ item.groups }}"
     append: "{{ item.append | default(true) }}"
     create_home: "{{ item.create_home | default(false) }}"
-    shell: "{{ item.shell | default('/bin/bash') }}"
+    shell: "{{ item.shell | default(omit) }}"
+    uid: "{{ item.uid | default(omit) }}"
+    state: present
   loop: "{{ users }}"
   loop_control:
     label: "{{ item.name }}"
