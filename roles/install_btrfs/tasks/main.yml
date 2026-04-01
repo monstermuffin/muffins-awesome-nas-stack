@@ -7,7 +7,7 @@
   ansible.builtin.command: btrfs --version
   register: installed_version
   changed_when: false
-  ignore_errors: true
+  failed_when: false
   check_mode: false
 
 - name: Set update_needed to true if btrfs is not installed
