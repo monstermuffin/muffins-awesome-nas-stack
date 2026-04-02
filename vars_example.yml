@@ -9,6 +9,7 @@ fastfetch_motd: true
 configure_scrutiny: true # https://github.com/AnalogJ/scrutiny
 configure_hdidle: false  # No longer recommended - See README https://github.com/adelolmo/hd-idle
 skip_os_check: false
+# manage_linux_apt_maintenance: true # Set to false to skip APT upgrade and maintenance entirely. (default: true)
 
 wipe_and_setup: true # Set this to true to enable wiping of disks. If any disks need to be wiped you will be prompted again.
 
