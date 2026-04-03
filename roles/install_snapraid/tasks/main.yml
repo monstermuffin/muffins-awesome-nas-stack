@@ -28,7 +28,7 @@
 
 - name: Extract version number from installed snapraid version
   ansible.builtin.set_fact:
-    installed_snapraid_version_number: "{{ installed_snapraid_version.stdout.split()[1] | regex_replace('^v', '') }}"
+    installed_snapraid_version_number: "{{ installed_snapraid_version.stdout | regex_search('v?(\\d[\\d.]*)', '\\1') | first }}"
   when: installed_snapraid_version.rc == 0
 
 - name: Compare installed snapraid version with the latest version
