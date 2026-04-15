@@ -120,6 +120,7 @@ cache_mount_path: /mnt/cache-disks
 cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
 
 cache_pool_policy: epmfs # The policy for the cache pool. Leave if using 2+ cache disks and unsure.
+pool_policy: epmfs # The default MergerFS create policy for the main pool. (default: epmfs)
 
 # MergerFS minfreespace settings
 # configure_mergerfs_cache_minfreespace: 50G # Minimum free space for cache disks (default: 50G)

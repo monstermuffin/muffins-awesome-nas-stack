@@ -9,7 +9,7 @@ ExecStart=/usr/bin/mergerfs \
   -f \
   -o cache.files=partial \
   -o dropcacheonclose=true \
-  -o category.create=epmfs \
+  -o category.create={{ pool_policy }} \
   -o allow_other \
   -o minfreespace={{ configure_mergerfs_minfreespace }} \
   -o fsname=mergerfs_btrfs \
