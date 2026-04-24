@@ -31,16 +31,15 @@ default_apps:
   - htop
   - iftop
   - iotop
-  - mlocate
   - ncdu
   - net-tools
   - nfs-common
   - nfs-kernel-server
   - parted
+  - plocate
   - python3-pip
   - rsync
   - samba
-  - software-properties-common
   - tmux
   - tree
   - vim
