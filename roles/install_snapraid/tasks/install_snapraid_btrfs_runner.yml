@@ -1,0 +1,14 @@
+---
+
+- name: Add snapraid-btrfs-runner directory to git safe directories # noqa command-instead-of-module
+  ansible.builtin.command:
+    cmd: git config --global --add safe.directory "{{ dir_snapraid_btfs_runner }}"
+  failed_when: false
+  changed_when: false
+
+- name: Clone snapraid-btrfs-runner repository # noqa latest
+  ansible.builtin.git:
+    repo: "{{ snapraid_btrfs_runner_repo }}"
+    dest: "{{ dir_snapraid_btfs_runner }}"
+    update: true
+    force: true
