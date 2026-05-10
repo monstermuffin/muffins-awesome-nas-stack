@@ -4,6 +4,20 @@
     repo: https://github.com/automorphism88/snapraid-btrfs.git
     dest: /tmp/snapraid-btrfs
     update: true
+    force: true
+  register: snapraid_btrfs_git
+  changed_when: snapraid_btrfs_git.before != snapraid_btrfs_git.after
+
+# TODO: Remove this once the following PR is merged https://github.com/automorphism88/snapraid-btrfs/pull/34
+- name: Patch snapraid-btrfs
+  ansible.builtin.lineinfile:
+    path: /tmp/snapraid-btrfs/snapraid-btrfs
+    regexp: >-
+      ^(\s{8})sed -e '/\^SUBVOLUME /!d' -e 's/\^SUBVOLUME\[ ]\*\| //'\)\"$
+    line: >-
+      \1sed -e '/^SUBVOLUME /!d' -e 's/^SUBVOLUME[ ]*[|│] //')"
+    backrefs: true
+  changed_when: false
 
 - name: Copy snapraid-btrfs script to /usr/local/bin
   ansible.builtin.copy:
@@ -11,18 +25,3 @@
     dest: /usr/local/bin/snapraid-btrfs
     mode: "0755"
     remote_src: true
-
-- name: Ensure snapraid-btrfs is executable
-  ansible.builtin.file:
-    path: /usr/local/bin/snapraid-btrfs
-    mode: "0755"
-
-# TODO: Remove this once the following PR is merged https://github.com/automorphism88/snapraid-btrfs/pull/34
-- name: Patch snapraid-btrfs
-  ansible.builtin.lineinfile:
-    path: /usr/local/bin/snapraid-btrfs
-    regexp: >-
-      ^(\s{8})sed -e '/\^SUBVOLUME /!d' -e 's/\^SUBVOLUME\[ ]\*\| //'\)\"$
-    line: >-
-      \1sed -e '/^SUBVOLUME /!d' -e 's/^SUBVOLUME[ ]*[|│] //')"
-    backrefs: true
