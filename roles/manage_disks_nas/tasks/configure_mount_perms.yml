@@ -8,8 +8,16 @@
     mode: "770"
   loop:
     - "{{ data_mount_path }}"
-    - "{{ cache_mount_path }}"
     - "{{ parity_mount_path }}"
+
+- name: Set permissions on cache mount root directory
+  ansible.builtin.file:
+    path: "{{ cache_mount_path }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ media_group }}"
+    mode: "770"
+  when: cache_disks_only | length > 0
 
 - name: Discover .snapshots directories
   ansible.builtin.stat:
