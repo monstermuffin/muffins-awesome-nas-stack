@@ -18,6 +18,7 @@
 - name: Apt maintenance
   ansible.builtin.include_tasks:
     file: apt_maintain.yml
+  when: manage_linux_apt_maintenance
 
 - name: Install packages
   ansible.builtin.include_tasks:
