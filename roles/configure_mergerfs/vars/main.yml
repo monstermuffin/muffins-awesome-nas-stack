@@ -1,3 +1,4 @@
 ---
 configure_mergerfs_minfreespace: 100G
 configure_mergerfs_cache_minfreespace: 50G
+pool_policy: epmfs
