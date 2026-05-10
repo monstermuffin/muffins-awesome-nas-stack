@@ -1,21 +1,21 @@
 ---
 
 - name: Find latest release of hd-idle
-  community.general.github_release:
-    user: adelolmo
-    repo: hd-idle
-    action: latest_release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/adelolmo/hd-idle/releases/latest
+    return_content: true
   register: hdidle_latest_release
   delegate_to: localhost
   run_once: true
   become: false
+  check_mode: false
   when:
     - hdidle_version == 'latest'
     - configure_hdidle
 
 - name: Set hdidle latest version
   ansible.builtin.set_fact:
-    hdidle_version: "{{ hdidle_latest_release.tag if hdidle_version == 'latest' else hdidle_version }}"
+    hdidle_version: "{{ hdidle_latest_release.json.tag_name if hdidle_version == 'latest' else hdidle_version }}"
   when: configure_hdidle
 
 - name: Gather package facts
@@ -31,7 +31,7 @@
   when: >-
     configure_hdidle and (
     'hd-idle' not in ansible_facts.packages
-    or ansible_facts.packages['hd-idle'][0]['version'] != hdidle_version
+    or ansible_facts.packages['hd-idle'][0]['version'] != hdidle_version | replace('v', '')
     )
 
 - name: Configure hd-idle to start
