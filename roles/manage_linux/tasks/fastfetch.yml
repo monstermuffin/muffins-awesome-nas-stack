@@ -1,19 +1,19 @@
 ---
 
 - name: Find latest release of fastfetch
-  community.general.github_release:
-    user: fastfetch-cli
-    repo: fastfetch
-    action: latest_release
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest
+    return_content: true
   register: fastfetch_latest_release
   delegate_to: localhost
   run_once: true
   become: false
+  check_mode: false
   when: fastfetch_version == 'latest'
 
 - name: Set fastfetch latest version
   ansible.builtin.set_fact:
-    fastfetch_version: "{{ fastfetch_latest_release.tag if fastfetch_version == 'latest' else fastfetch_version }}"
+    fastfetch_version: "{{ fastfetch_latest_release.json.tag_name if fastfetch_version == 'latest' else fastfetch_version }}"
 
 - name: Check fastfetch install state/version
   ansible.builtin.command: fastfetch --version
