@@ -38,6 +38,11 @@ exclude /tmp/
 exclude /lost+found/
 exclude *.!sync
 exclude /.snapshots/
+{% if snapraid_excludes | default([]) | length > 0 -%}
+{% for e in snapraid_excludes %}
+exclude {{ e }}
+{% endfor %}
+{% endif %}
 
 # Automatically save the state when syncing after the specified amount of GB processed
 autosave 500

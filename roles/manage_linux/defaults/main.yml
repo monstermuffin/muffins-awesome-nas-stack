@@ -1,6 +1,7 @@
 ---
 timezone: ''
 users: []
+manage_linux_apt_maintenance: true
 
 fastfetch_version: latest
 # wy tf am I supporting risc? lmao

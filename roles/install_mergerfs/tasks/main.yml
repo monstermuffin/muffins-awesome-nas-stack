@@ -7,7 +7,7 @@
   ansible.builtin.command: mergerfs --version
   register: installed_mergerfs_version
   changed_when: false
-  ignore_errors: true
+  failed_when: false
   check_mode: false
 
 - name: Set update_needed to true if mergerfs is not installed

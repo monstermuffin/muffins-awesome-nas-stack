@@ -9,6 +9,7 @@ fastfetch_motd: true
 configure_scrutiny: true # https://github.com/AnalogJ/scrutiny
 configure_hdidle: false  # No longer recommended - See README https://github.com/adelolmo/hd-idle
 skip_os_check: false
+# manage_linux_apt_maintenance: true # Set to false to skip APT upgrade and maintenance entirely. (default: true)
 
 wipe_and_setup: true # Set this to true to enable wiping of disks. If any disks need to be wiped you will be prompted again.
 
@@ -25,6 +26,12 @@ configure_snapraid_snapraid_deletethreshold: 150
 split_parity_files: 3 # Number of files per parity disk, do not change if unsure.
 split_parity_migrate: true # See README/v0.92 changelog
 
+snapraid_excludes: [] # List of additional paths to exclude from SnapRAID snapshots
+# Example:
+# snapraid_excludes:
+#   - /path/to/exclude1
+#   - /path/to/exclude2
+
 # sshkeys
 ssh_key_option: none # Options: github, url, file, none
 github_username: <YOUR_GITHUB_USERNAME>
@@ -39,6 +46,10 @@ media_group: media # Group for share perms.
 docker_users:
   - "{{ user }}"
 
+# user_groups: # Optional - Define groups independently of users, use this to set specific GIDs
+#   - name: media
+#     gid: 1234
+
 users:
   - name: "{{ user }}"
     groups:
@@ -49,6 +60,15 @@ users:
       - media
     create_home: false
     shell: /sbin/nologin
+  # The example below demonstrates all available options for users:
+  # - name: some_user    # Required
+  #   groups:            # Required
+  #     - media
+  #     - docker
+  #   append: true       # Optional - Set to false to not append groups and only use the specified groups
+  #   create_home: false # Optional - Defaults to false
+  #   shell: /bin/bash   # Optional - Defaults to system default shell if not specified
+  #   uid: 1001          # Optional - Specify if you want to set a specific UID for the user
 
 # samba config
 samba_users:
@@ -101,6 +121,7 @@ cache_mount_path: /mnt/cache-disks
 cache_pool: /mnt/cache-pool # Only used with 2+ cache disks
 
 cache_pool_policy: epmfs # The policy for the cache pool. Leave if using 2+ cache disks and unsure.
+pool_policy: epmfs # The default MergerFS create policy for the main pool. (default: epmfs)
 
 # MergerFS minfreespace settings
 # configure_mergerfs_cache_minfreespace: 50G # Minimum free space for cache disks (default: 50G)
