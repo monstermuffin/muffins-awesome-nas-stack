@@ -36,7 +36,7 @@
 
 - name: Configure btrfs-progs for building # noqa command-instead-of-shell
   ansible.builtin.shell:
-    cmd: ./configure --disable-documentation
+    cmd: ./configure --disable-documentation --disable-python
     chdir: /tmp/btrfs-progs
 
 - name: Compile btrfs-progs # noqa command-instead-of-shell
