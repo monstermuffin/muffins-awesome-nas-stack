@@ -21,6 +21,7 @@
 - name: Create users
   ansible.builtin.user:
     name: "{{ item.name }}"
+    group: "{{ item.group | default(omit) }}" 
     groups: "{{ item.groups }}"
     append: "{{ item.append | default(true) }}"
     create_home: "{{ item.create_home | default(false) }}"
