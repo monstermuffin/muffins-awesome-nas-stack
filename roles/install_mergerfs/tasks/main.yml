@@ -37,7 +37,7 @@
 
 - name: Debug installed_mergerfs_version_number
   ansible.builtin.debug:
-    var: installed_mergerfs_version_number
+    msg: "Installed mergerfs version: {{ installed_mergerfs_version_number | default('not installed') }}"
 
 - name: Debug mergerfs_latest_version
   ansible.builtin.debug:

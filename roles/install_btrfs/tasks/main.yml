@@ -38,7 +38,7 @@
 
 - name: Debug installed_version_number
   ansible.builtin.debug:
-    var: installed_version_number
+    msg: "Installed btrfs-progs version: {{ installed_version_number | default('not installed') }}"
 
 - name: Debug btrfs_latest_version
   ansible.builtin.debug:

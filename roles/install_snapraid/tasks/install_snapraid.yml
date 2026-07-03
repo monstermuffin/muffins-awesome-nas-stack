@@ -38,7 +38,7 @@
 
 - name: Debug installed_snapraid_version_number
   ansible.builtin.debug:
-    var: installed_snapraid_version_number
+    msg: "Installed snapraid version: {{ installed_snapraid_version_number | default('not installed') }}"
 
 - name: Debug snapraid_latest_version
   ansible.builtin.debug:

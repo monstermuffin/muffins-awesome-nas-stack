@@ -10,7 +10,7 @@
 ```
 
 ## Intro
-An Ansible role for setting up a Debian based NAS using mergerfs, SnapRaid & snapraid-btrfs, utilising caching with automatic cache 'moving' to a backing pool.
+An Ansible role for setting up a Debian 12/13 based NAS using mergerfs, SnapRaid & snapraid-btrfs, utilising caching with automatic cache 'moving' to a backing pool.
 ___
 
 ## Tasks
@@ -57,7 +57,7 @@ I would ***highly recommend*** you read, at least, those two blog posts so you a
 
 ## Prerequisites
 
-* You must be using Debian. You can a check in the vars that stops you from using anything else but I will not support any fixes that are required to make this work on another distro.
+* You must be using Debian (12 Bookworm or 13 Trixie). There is a check in the vars that stops you from using anything else but I will not support any fixes that are required to make this work on another distro.
 * Understand how Snapraid works and its drawbacks.
 * Understand what this role does and how it configures all the bits of software it uses.
 * A device (ideally running MacOS/Linux) with Ansible.

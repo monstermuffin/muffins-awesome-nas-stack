@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 "{{ cache_mover_dir }}/cache-mover.py"
+ExecStart={{ cache_mover_dir }}/venv/bin/python3 "{{ cache_mover_dir }}/cache-mover.py"
 WorkingDirectory={{ cache_mover_dir }}
 
 [Install]
