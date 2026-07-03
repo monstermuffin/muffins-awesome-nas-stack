@@ -16,3 +16,4 @@ test_vars.yml
 *.md
 !README.md
 *.backup
+manstest01_vars.yml
