@@ -1,0 +1,3 @@
+---
+install_mergerfs_tools: true
+mergerfs_tools_clone_dir: /tmp/mergerfs-tools
