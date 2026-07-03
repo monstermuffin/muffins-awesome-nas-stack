@@ -46,7 +46,9 @@ media_group: media # Group for share perms.
 docker_users:
   - "{{ user }}"
 
-# user_groups: # Optional - Define groups independently of users, use this to set specific GIDs
+# Optional - Define groups independently of users
+# Use this to create groups without attaching to users or to set specific GIDs
+# user_groups:
 #   - name: media
 #     gid: 1234
 
@@ -62,7 +64,8 @@ users:
     shell: /sbin/nologin
   # The example below demonstrates all available options for users:
   # - name: some_user    # Required
-  #   groups:            # Required
+  #   group: some_user   # Optional - Primary group for the user. If not specified, it will default to the same name as the user (as shown).
+  #   groups:            # Required - Can be an empty list if no additional groups are needed.
   #     - media
   #     - docker
   #   append: true       # Optional - Set to false to not append groups and only use the specified groups
