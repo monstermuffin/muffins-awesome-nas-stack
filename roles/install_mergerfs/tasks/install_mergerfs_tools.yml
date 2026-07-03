@@ -1,0 +1,25 @@
+---
+- name: Ensure git is installed
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: Clone mergerfs-tools # noqa latest[git]
+  ansible.builtin.git:
+    repo: https://github.com/trapexit/mergerfs-tools.git
+    dest: "{{ mergerfs_tools_clone_dir }}"
+  notify: Cleanup mergerfs-tools clone
+
+- name: Discover mergerfs-tools files
+  ansible.builtin.find:
+    paths: "{{ mergerfs_tools_clone_dir }}/src"
+    file_type: file
+  register: mergerfs_tools_files
+
+- name: Install mergerfs-tools
+  ansible.builtin.command:
+    cmd: "install -v -m 0755 -o root -g root -D -C {{ item }} /usr/local/bin"
+    chdir: "{{ mergerfs_tools_clone_dir }}/src"
+  loop: "{{ mergerfs_tools_files.files | map(attribute='path') | map('basename') }}"
+  register: mergerfs_tools_install
+  changed_when: mergerfs_tools_install.stdout != ""

@@ -60,3 +60,8 @@
           https://github.com/trapexit/mergerfs/releases/download/{{
             mergerfs_latest_version + '/' + mergerfs_pkg_prefix + mergerfs_latest_version + mergerfs_pkg_suffix }}
         state: present
+
+- name: Include mergerfs-tools install
+  ansible.builtin.include_tasks:
+    file: install_mergerfs_tools.yml
+  when: install_mergerfs_tools | default(true) | bool

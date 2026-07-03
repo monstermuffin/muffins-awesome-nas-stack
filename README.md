@@ -32,6 +32,7 @@ This role will do the following:
 * Install rclone (stefangweichinger.ansible_rclone) (optional)
 * Install Docker (geerlingguy.docker) (optional)
 * Install mergerfs
+  * Install [mergerfs-tools](https://github.com/trapexit/mergerfs-tools) (optional, enabled by default)
 * Install SnapRaid
 * Install btrfs
 * Wipe and setup disks
@@ -117,6 +118,8 @@ ___
 `install_rclone: true` — Installs rclone.
 
 `install_docker: true` — Installs and configures docker. Setting this or `configure_scrutiny` to true will run docker.
+
+`install_mergerfs_tools: true` — Installs [mergerfs-tools](https://github.com/trapexit/mergerfs-tools), optional utilities for managing data in a mergerfs pool.
 
 `configure_scrutiny: true` — Installs and configures [Scrutiny](https://github.com/Starosdev/scrutiny) in Docker for your disks.
 > [!NOTE]
