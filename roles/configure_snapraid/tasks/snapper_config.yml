@@ -1,18 +1,34 @@
 ---
 - name: Snapper configuration
   block:
-    - name: Ensure the base config is named 'default'
+    - name: Create temporary file for snapper default config
+      ansible.builtin.tempfile:
+        state: file
+        suffix: ".snapper_default_config"
+      register: snapper_default_config_file
+      changed_when: false
+
+    - name: Copy default snapper config to temporary file
       ansible.builtin.copy:
         src: /usr/share/snapper/config-templates/default
-        dest: /etc/snapper/configs/default
+        dest: "{{ snapper_default_config_file.path }}"
         mode: "0644"
         remote_src: true
+      changed_when: false
 
     - name: Ensure 'TIMELINE_CREATE="no"' in the 'default' Snapper configuration
       ansible.builtin.lineinfile:
-        path: /etc/snapper/configs/default
+        path: "{{ snapper_default_config_file.path }}"
         regexp: ^TIMELINE_CREATE=
         line: TIMELINE_CREATE="no"
+      changed_when: false
+
+    - name: Ensure the base config is named 'default' and has timeline disabled
+      ansible.builtin.copy:
+        src: "{{ snapper_default_config_file.path }}"
+        dest: /etc/snapper/configs/default
+        mode: "0644"
+        remote_src: true
 
     - name: Verify existing snapper configs
       ansible.builtin.command:
