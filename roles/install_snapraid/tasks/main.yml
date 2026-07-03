@@ -7,7 +7,7 @@
   ansible.builtin.command: snapraid --version
   register: installed_snapraid_version
   changed_when: false
-  ignore_errors: true
+  failed_when: false
   check_mode: false
 
 - name: Set update_needed to true if snapraid is not installed
@@ -37,7 +37,7 @@
 
 - name: Debug installed_snapraid_version_number
   ansible.builtin.debug:
-    var: installed_snapraid_version_number
+    msg: "Installed snapraid version: {{ installed_snapraid_version_number | default('not installed') }}"
 
 - name: Debug snapraid_latest_version
   ansible.builtin.debug:
