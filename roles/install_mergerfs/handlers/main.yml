@@ -1,5 +1,0 @@
----
-- name: Cleanup mergerfs-tools clone
-  ansible.builtin.file:
-    path: "{{ mergerfs_tools_clone_dir }}"
-    state: absent
