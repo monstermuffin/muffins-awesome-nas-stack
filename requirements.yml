@@ -13,4 +13,4 @@ collections:
   - name: community.docker
     version: 5.2.1
   - name: vladgh.samba
-    version: 3.5.6
+    version: 3.5.7
