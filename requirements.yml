@@ -3,7 +3,7 @@ roles:
   - name: stefangweichinger.ansible_rclone
     version: 0.2.6
   - name: geerlingguy.docker
-    version: 8.0.0
+    version: 8.0.1
 
 collections:
   - name: ansible.posix
